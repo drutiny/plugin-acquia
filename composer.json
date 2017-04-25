@@ -28,7 +28,7 @@
     "autoload": {
         "psr-4": {
             "Drutiny\\Acquia\\": "src/",
-            "DrutinyTests\\Acquia": "tests/src/"
+            "DrutinyTests\\Acquia\\": "tests/src/"
         }
     }
 }
