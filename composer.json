@@ -30,5 +30,5 @@
             "Drutiny\\Acquia\\": "src/",
             "DrutinyTests\\Acquia": "tests/src/"
         }
-    },
+    }
 }
