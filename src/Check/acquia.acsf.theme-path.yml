@@ -9,6 +9,6 @@ remediation: |
 success: "No default theme paths found."
 failure: |
   Default theme path issue{{plural}} {{prefix}} found
-    {{#each issues}}
-      - {{this}}
-    {{/each}}
+    {{# issues}}
+      - {{ . }}
+    {{/issues}}
