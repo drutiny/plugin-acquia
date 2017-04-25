@@ -1,0 +1,34 @@
+{
+  "repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/fiasco/drutiny"
+     }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "drutiny/drutiny": "2.x-dev"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "name": "drutiny/acquia",
+  "type": "library",
+  "description": "Acquia support for the Drutiny audit checker",
+  "keywords": ["drupal", "audit", "drush", "ssh", "report"],
+  "license": "GPL-2.0",
+  "authors": [
+      {"name": "Sean Hamlin", "email": "iwiifm@gmail.com"},
+      {"name": "Josh Waihi", "email": "joshwaihi@gmail.com"}
+  ],
+    "support": {
+        "issues": "https://github.com/fiasco/drutiny-acquia/issues",
+        "source": "https://github.com/fiasco/drutiny-acquia"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drutiny\\Acquia\\": "src/",
+            "DrutinyTests\\Acquia": "tests/src/"
+        }
+    },
+}

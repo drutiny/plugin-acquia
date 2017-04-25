@@ -1,0 +1,14 @@
+title: "ACSF default theme path"
+class: \Drutiny\Acquia\Check\AcsfDefaultThemePath
+description: |
+  Ensure there are no hard coded references to the default theme path in the
+  deployed theme as this can and will cause a lot of HTTP 404s.
+remediation: |
+  Use a preprocess hook, and inject the path to the asset, using a function such
+  as `drupal_get_path()`.
+success: "No default theme paths found."
+failure: |
+  Default theme path issue{{plural}} {{prefix}} found
+    {{#each issues}}
+      - {{this}}
+    {{/each}}
