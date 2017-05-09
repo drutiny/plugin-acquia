@@ -8,7 +8,7 @@
   "minimum-stability": "dev",
   "require": {
     "drutiny/drutiny": "2.x-dev",
-    "guzzlehttp/guzzle": "^6.0"
+    "acquia/acquia-sdk-php-cloud-api": "*"
   },
   "config": {
     "bin-dir": "bin"

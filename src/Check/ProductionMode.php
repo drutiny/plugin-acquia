@@ -16,7 +16,12 @@ class ProductionMode extends Check {
    * @inheritdoc
    */
   public function check(Sandbox $sandbox) {
-    
+    $opts = $sandbox->drush()->getOptions();
+    $path = '/sites/' . $opts['ac-realm'] . ':' . $ops['ac-site'] . '.json';
+
+    $response = $this->cloudApiRequest('GET', $path);
+
+    print_r(json_decode($response->getBody()));
 
 
     return FALSE;

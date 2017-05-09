@@ -33,10 +33,6 @@ trait HasCloudApiAccess {
     $this->apiCredentials = json_decode($output);
     return TRUE;
   }
-
-  protected function cloudApiRequest() {
-    return $this->apiCredentials;
-  }
 }
 
  ?>
