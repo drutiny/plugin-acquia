@@ -2,29 +2,22 @@
 
 namespace Drutiny\Acquia\Check;
 
-use Drutiny\Check\Check;
-use Drutiny\AuditResponse\AuditResponse;
 use Drutiny\Sandbox\Sandbox;
 
 /**
  * ACSF default theme path.
  */
-class ProductionMode extends Check {
-  use ValidationTrait\HasCloudApiAccess;
+class ProductionMode extends CloudApiAwareCheck {
 
   /**
    * @inheritdoc
    */
   public function check(Sandbox $sandbox) {
     $opts = $sandbox->drush()->getOptions();
-    $path = '/sites/' . $opts['ac-realm'] . ':' . $ops['ac-site'] . '.json';
+    $sitename = $opts['ac-realm'] . ':' . $opts['ac-site'];
+    $site = $this->getCloudApiClient()->site($sitename);
 
-    $response = $this->cloudApiRequest('GET', $path);
-
-    print_r(json_decode($response->getBody()));
-
-
-    return FALSE;
+    return $site->productionMode();
   }
 
 }
