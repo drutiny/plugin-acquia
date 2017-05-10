@@ -1,0 +1,11 @@
+title: "Acquia SPI"
+class: \Drutiny\Check\Drupal\ModuleEnabled
+description: |
+  Ensure the Acquia SPI module is enabled.
+remediation: |
+  Install and enable the Acquia SPI module into your codebase.
+success: "Acquia SPI module is enabled."
+failure: Acquia SPI module is not enabled.
+parameters:
+  module:
+    default: acquia_spi
