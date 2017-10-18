@@ -1,5 +1,6 @@
 title: "Acquia SPI"
-class: \Drutiny\Check\Drupal\ModuleEnabled
+class: \Drutiny\Audit\Drupal\ModuleEnabled
+name: Acquia:SPIEnabled
 description: |
   Ensure the Acquia SPI module is enabled.
 remediation: |

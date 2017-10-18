@@ -1,8 +1,8 @@
 <?php
 
-namespace Drutiny\Acquia\Check;
+namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Check\Check;
+use Drutiny\Audit;
 use Acquia\Cloud\Api\CloudApiClient;
 use Drutiny\Sandbox\Sandbox;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -10,7 +10,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 /**
  * ACSF default theme path.
  */
-abstract class CloudApiAwareCheck extends Check {
+abstract class CloudApiAwareCheck extends Audit {
   static protected $credentials;
 
   /**

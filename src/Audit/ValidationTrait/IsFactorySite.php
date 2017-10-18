@@ -1,6 +1,6 @@
 <?php
 
-namespace Drutiny\Acquia\Check\ValidationTrait;
+namespace Drutiny\Acquia\Audit\ValidationTrait;
 use Drutiny\Sandbox\Sandbox;
 
 trait IsFactorySite {

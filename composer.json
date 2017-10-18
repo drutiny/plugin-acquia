@@ -23,8 +23,8 @@
       {"name": "Josh Waihi", "email": "joshwaihi@gmail.com"}
   ],
     "support": {
-        "issues": "https://github.com/fiasco/drutiny-acquia/issues",
-        "source": "https://github.com/fiasco/drutiny-acquia"
+        "issues": "https://github.com/drutiny/drutiny-acquia/issues",
+        "source": "https://github.com/drutiny/drutiny-acquia"
     },
     "autoload": {
         "psr-4": {

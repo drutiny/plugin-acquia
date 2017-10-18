@@ -1,21 +1,21 @@
 <?php
 
-namespace Drutiny\Acquia\Check;
+namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Check\Check;
+use Drutiny\Audit;
 use Drutiny\AuditResponse\AuditResponse;
 use Drutiny\Sandbox\Sandbox;
 
 /**
  * ACSF default theme path.
  */
-class AcsfDefaultThemePath extends Check {
+class AcsfDefaultThemePath extends Audit {
   use ValidationTrait\IsFactorySite;
 
   /**
    * @inheritdoc
    */
-  public function check(Sandbox $sandbox) {
+  public function audit(Sandbox $sandbox) {
     $stat = $sandbox->drush(['format' => 'json'])->status();
 
     $root = $stat['root'];

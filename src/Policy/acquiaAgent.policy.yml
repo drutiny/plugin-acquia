@@ -1,5 +1,6 @@
 title: "Acquia Agent"
-class: \Drutiny\Check\Drupal\ModuleEnabled
+class: \Drutiny\Audit\Drupal\ModuleEnabled
+name: Acquia:AgentEnabled
 description: |
   Ensure the Acquia Agent module is enabled.
 remediation: |
