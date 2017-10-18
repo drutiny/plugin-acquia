@@ -1,5 +1,6 @@
 title: "Acquia Production Mode"
-class: \Drutiny\Acquia\Check\ProductionMode
+class: \Drutiny\Acquia\Audit\ProductionMode
+name: Acquia:ProductionMode
 description: |
   Ensure Acquia production environment has Production Mode enabled.
 remediation: |

@@ -1,5 +1,6 @@
 title: "Acquia Cloud Site Factory Pingdom"
-class: \Drutiny\Check\Drupal\ModuleEnabled
+class: \Drutiny\Audit\Drupal\ModuleEnabled
+name: Acquia:SiteFactory:Pingdom
 description: |
   Ensure the Acquia Cloud Site Factory Pingdom module is enabled.
 remediation: |

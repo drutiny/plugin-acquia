@@ -1,5 +1,6 @@
 title: "Acquia Cloud Site Factory Theme"
-class: \Drutiny\Check\Drupal\ModuleEnabled
+class: \Drutiny\Audit\Drupal\ModuleEnabled
+name: Acquia:SiteFactory:ThemeEnabled
 description: |
   Ensure the Acquia Cloud Site Factory Theme module is enabled.
 remediation: |

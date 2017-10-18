@@ -1,5 +1,6 @@
 title: "ACSF default theme path"
-class: \Drutiny\Acquia\Check\AcsfDefaultThemePath
+class: \Drutiny\Acquia\Audit\AcsfDefaultThemePath
+name: Acquia:SiteFactoryDefaultThemePath
 description: |
   Ensure there are no hard coded references to the default theme path in the
   deployed theme as this can and will cause a lot of HTTP 404s.
