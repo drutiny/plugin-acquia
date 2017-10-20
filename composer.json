@@ -32,5 +32,6 @@
             "Drutiny\\Acquia\\": "src/",
             "DrutinyTests\\Acquia\\": "tests/src/"
         }
-    }
+    },
+    "bin": ["bin/drutiny-acq"]
 }
