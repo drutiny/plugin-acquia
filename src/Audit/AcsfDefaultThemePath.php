@@ -26,7 +26,7 @@ class AcsfDefaultThemePath extends Audit {
     $command = "grep -nrI --exclude=*.txt --exclude=*.md $look_out_for $root/$site/themes/site/ || exit 0;";
 
     $output = $sandbox->exec($command);
-    $lines = explode(PHP_EOL, $output);
+    $lines = array_filter(explode(PHP_EOL, $output));
 
     $sandbox->setParameter('issues', $lines);
     $sandbox->setParameter('plural', count($lines) > 1 ? 's' : '');
