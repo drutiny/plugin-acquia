@@ -31,7 +31,7 @@ composer require --dev drutiny/acquia:dev-master
 Acquia checks are prefixed with `acquia`
 
 ```bash
-./vendor/bin/drutiny check:list | grep acquia
+./vendor/bin/drutiny policy:list | grep Acquia
 ```
 
 ## Note
