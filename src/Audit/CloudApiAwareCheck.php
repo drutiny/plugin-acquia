@@ -11,12 +11,11 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
  * ACSF default theme path.
  */
 abstract class CloudApiAwareCheck extends Audit {
-  static protected $credentials;
 
   /**
-   * Find Cloud API credentials to query cloud API with.
+   * Validate target is against the Acquia Cloud.
    */
-  protected function requireHasCloudApiAccess(Sandbox $sandbox)
+  protected function requireAcquiaCloudAlias(Sandbox $sandbox)
   {
     $options = $sandbox->drush()->getOptions();
     $keys = ['ac-site', 'ac-env', 'ac-realm'];
@@ -26,12 +25,18 @@ abstract class CloudApiAwareCheck extends Audit {
         return FALSE;
       }
     }
+  }
 
-    // Performance optimisation to only find the credentials once.
-    if ($this->hasCloudApiCredentials()) {
-      return TRUE;
-    }
+  /**
+   * Find Cloud API credentials to query cloud API with.
+   */
+  protected function requireHasCloudApiCredentials(Sandbox $sandbox)
+  {
+    return file_exists(getenv('HOME') . '/.acquia/cloudapi.conf');
+  }
 
+  protected function getApiClient(Sandbox $sandbox)
+  {
     try {
       // File might not exist which will throw an error.
       $output = $sandbox->exec('cat ~/.acquia/cloudapi.conf');
@@ -39,33 +44,15 @@ abstract class CloudApiAwareCheck extends Audit {
     catch (ProcessFailedException $e) {
       // Check again locally, if this fails then we cannot run this check.
       $output = $sandbox->localExec('cat ~/.acquia/cloudapi.conf');
-
     }
     $creds = json_decode($output, TRUE);
 
-    $this->setCloudApiCredentials($creds['email'], $creds['key']);
-    return TRUE;
-  }
+    $client = new \GuzzleHttp\Client([
+      'base_uri' => 'https://cloudapi.acquia.com/v1/',
+      'auth' => [$creds['email'], $creds['key']],
+    ]);
 
-  protected function setCloudApiCredentials($email, $apiToken)
-  {
-    self::$credentials = [
-      'email' => $email,
-      'key' => $apiToken,
-    ];
-  }
-
-  protected function hasCloudApiCredentials() {
-    return !empty(self::$credentials);
-  }
-
-  protected function getCloudApiClient()
-  {
-    $cloudapi = CloudApiClient::factory(array(
-        'username' => self::$credentials['email'],  // Email address used to log into the Acquia Network
-        'password' => self::$credentials['key'],  // Acquia Network password
-    ));
-    return $cloudapi;
+    return $client;
   }
 
 }

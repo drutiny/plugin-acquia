@@ -1,14 +1,7 @@
 {
-  "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/fiasco/drutiny"
-     }
-  ],
   "minimum-stability": "dev",
   "require": {
     "drutiny/drutiny": "2.x-dev",
-    "acquia/acquia-sdk-php-cloud-api": "*",
 		"guzzlehttp/guzzle": "~6.0"
   },
   "config": {

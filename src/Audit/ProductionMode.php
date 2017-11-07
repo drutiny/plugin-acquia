@@ -15,9 +15,12 @@ class ProductionMode extends CloudApiAwareCheck {
   public function audit(Sandbox $sandbox) {
     $opts = $sandbox->drush()->getOptions();
     $sitename = $opts['ac-realm'] . ':' . $opts['ac-site'];
-    $site = $this->getCloudApiClient()->site($sitename);
 
-    return $site->productionMode();
+    $res = $this->getApiClient($sandbox)->request('GET', 'sites/' . $sitename . '.json');
+
+    $site = json_decode($res->getBody(), TRUE);
+    $enabled = (bool) $site['production_mode'];
+    return $enabled;
   }
 
 }
