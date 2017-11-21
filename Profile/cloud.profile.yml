@@ -1,0 +1,4 @@
+title: 'Acquia Cloud'
+policies:
+    'Acquia:Connected': {  }
+    'Acquia:ProductionMode': {  }

@@ -1,0 +1,14 @@
+title: "Acquia Cloud Edge Purging Enabled"
+class: \Drutiny\Audit\Drupal\ModuleEnabled
+name: Acquia:CloudEdgePurging
+description: |
+  Acquia Cloud Edge provides a geolocalised page cache to improve geographical
+remediation: |
+  Install and enable the Cloudflare and Cloudflare Purger module into your codebase
+success: Acquia Cloud Edge purging is enabled
+failure: Acquia Cloud Edge purging is not enabled
+depends:
+  - Acquia:PurgeEnabled
+parameters:
+  module:
+    default: cloudflarepurger
