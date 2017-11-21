@@ -40,6 +40,9 @@ abstract class CloudApiAwareCheck extends Audit {
     try {
       // File might not exist which will throw an error.
       $output = $sandbox->exec('cat ~/.acquia/cloudapi.conf');
+      if (empty($output)) {
+        $output = $sandbox->localExec('cat ~/.acquia/cloudapi.conf');
+      }
     }
     catch (ProcessFailedException $e) {
       // Check again locally, if this fails then we cannot run this check.
