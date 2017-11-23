@@ -32,10 +32,24 @@ abstract class CloudApiAwareCheck extends Audit {
    */
   protected function requireHasCloudApiCredentials(Sandbox $sandbox)
   {
-    return file_exists(getenv('HOME') . '/.acquia/cloudapi.conf');
+    $has_aht = class_exists('\Drutiny\Acquia\CS\Target\Aht') && ($sandbox->getTarget() instanceof \Drutiny\Acquia\CS\Target\Aht);
+    return $has_aht || file_exists(getenv('HOME') . '/.acquia/cloudapi.conf');
   }
 
-  protected function getApiClient(Sandbox $sandbox)
+  protected function api(Sandbox $sandbox, $path)
+  {
+    $has_aht = class_exists('\Drutiny\Acquia\CS\Target\Aht') && ($sandbox->getTarget() instanceof \Drutiny\Acquia\CS\Target\Aht);
+    if (!$has_aht) {
+      $res = $this->getApiClient($sandbox)->request('GET', $path);
+      $json = $res->getBody();
+    }
+    else {
+      $json = $sandbox->aht('@sitegroup.env cloudapi --format=json ' . $path);
+    }
+    return json_decode($json, TRUE);
+  }
+
+  private function getApiClient(Sandbox $sandbox)
   {
     try {
       // File might not exist which will throw an error.

@@ -9,3 +9,5 @@ success: Production mode is enabled.
 failure: |
   Produciton mode is not yet enabled, this means it is possible to overwrite
   the production database using the Acquia Cloud workflow UI.
+warning: |
+  This environment audited is not the production environment.

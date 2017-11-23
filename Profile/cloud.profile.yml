@@ -2,3 +2,10 @@ title: 'Acquia Cloud'
 policies:
     'Acquia:Connected': {  }
     'Acquia:ProductionMode': {  }
+    'HTTP:Cache-Control': {  }
+    'HTTP:HSTS': {  }
+    'HTTP:X-Content-Type-Options': {  }
+    'HTTP:X-Frame-Options': {  }
+    'HTTP:X-XSS-Protection': {  }
+    'HTTP:Content-Security-Policy': {  }
+    'Drupal-8:ErrorLevel': {  }

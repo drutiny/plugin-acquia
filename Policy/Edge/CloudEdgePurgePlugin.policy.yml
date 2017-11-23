@@ -1,0 +1,15 @@
+title: "Acquia Cloud Edge Purge Plugin Exists"
+class: \Drutiny\Plugin\Drupal8\Audit\PurgePluginExists
+name: Acquia:CloudEdgePurgePlugin
+description: |
+  Acquia Cloud Edge can support cache purging by adding
+remediation: |
+  Install and enable the Cloudflare and Cloudflare Purger module into your codebase
+success: Acquia Cloud Edge purging is enabled
+failure: Acquia Cloud Edge purging is not enabled
+depends:
+  - Drupal-8:PurgeEnabled
+  - Acquia:CloudEdgePurging
+parameters:
+  plugin:
+    default: cloudflare
