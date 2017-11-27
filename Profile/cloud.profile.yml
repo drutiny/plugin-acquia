@@ -9,3 +9,5 @@ policies:
     'HTTP:X-XSS-Protection': {  }
     'HTTP:Content-Security-Policy': {  }
     'Drupal-8:ErrorLevel': {  }
+    'Drupal-8:PurgeEnabled': {  }
+    'Acquia:PurgePlugin': {  }
