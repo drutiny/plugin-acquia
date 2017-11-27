@@ -37,6 +37,12 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
         'p',
         InputOption::VALUE_NONE,
         'Allow audit primary sites in site collections'
+      )
+      ->addOption(
+        'domain-filter',
+        NULL,
+        InputOption::VALUE_OPTIONAL,
+        'A regex to filter domains by. E.g. www\..+\.com.'
       );
   }
 
@@ -63,11 +69,26 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
       });
     }
 
-    $uri = array_map(function ($site) {
-      return $site['domain'];
-    }, $sites);
+    $domains = [];
 
-    $input->setOption('uri', $uri);
+    foreach ($sites as $site) {
+      $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
+      $response = $client->request('GET', 'domains/' . $nid);
+      $json = $response->getBody();
+      $info = json_decode($json, TRUE);
+      foreach ($info['domains']['custom_domains'] as $domain) {
+        $domains[] = $domain;
+      }
+    }
+
+    if ($filter = $input->getOption('domain-filter')) {
+      $domains = array_filter($domains, function ($site) use ($filter) {
+        $regex = "/$filter/";
+        return preg_match($regex, $site);
+      });
+    }
+
+    $input->setOption('uri', $domains);
 
     parent::execute($input, $output);
   }
