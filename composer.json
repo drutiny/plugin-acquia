@@ -4,7 +4,8 @@
     "drutiny/drutiny": "2.x-dev",
     "guzzlehttp/guzzle": "~6.0",
     "drutiny/plugin-drupal-8": "2.x-dev",
-    "drutiny/plugin-drupal-7": "2.x-dev"
+    "drutiny/plugin-drupal-7": "2.x-dev",
+    "drutiny/http": "2.x-dev"
   },
   "config": {
     "bin-dir": "bin"
