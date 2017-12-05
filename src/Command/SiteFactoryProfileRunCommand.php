@@ -71,21 +71,27 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
 
     $domains = [];
 
-    foreach ($sites as $site) {
-      $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
-      $response = $client->request('GET', 'domains/' . $nid);
-      $json = $response->getBody();
-      $info = json_decode($json, TRUE);
-      foreach ($info['domains']['custom_domains'] as $domain) {
-        $domains[] = $domain;
-      }
-    }
-
     if ($filter = $input->getOption('domain-filter')) {
+      foreach ($sites as $site) {
+        $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
+        $response = $client->request('GET', 'domains/' . $nid);
+        $json = $response->getBody();
+        $info = json_decode($json, TRUE);
+        foreach ($info['domains']['custom_domains'] as $domain) {
+          $domains[] = $domain;
+        }
+      }
+
+
       $domains = array_filter($domains, function ($site) use ($filter) {
         $regex = "/$filter/";
         return preg_match($regex, $site);
       });
+    }
+    else {
+      $domains = array_map(function ($site) {
+        return $site['domain'];
+      }, $sites);
     }
 
     $input->setOption('uri', $domains);
