@@ -3,12 +3,19 @@
 namespace Drutiny\Acquia\Command;
 
 use Drutiny\Command\ProfileRunCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SiteFactoryProfileRunCommand extends ProfileRunCommand {
+
+  /**
+   * The maximum number of sites returned in a single API command to Site
+   * Factory.
+   *
+   * @see https://www.[YOURACSF].acsitefactory.com/api/v1#List-sites
+   */
+  const SITE_FACTORY_SITES_API_LIMIT = 100;
 
   protected function configure() {
     parent::configure();
@@ -57,12 +64,27 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
     ]);
 
     $response = $client->request('GET', 'sites', ['query' => [
-      'limit' => 1000,
+      'limit' => self::SITE_FACTORY_SITES_API_LIMIT,
+      'page' => 1,
     ]]);
-    $json = $response->getBody();
-    $sites = json_decode($json, TRUE);
-    $sites = $sites['sites'];
+    $json = json_decode($response->getBody(), TRUE);
+    $count = $json['count'];
+    $sites = $json['sites'];
 
+    // Work out if we need pagination.
+    if ($count > self::SITE_FACTORY_SITES_API_LIMIT) {
+      for ($i = 2 ; $i <= ceil($count / self::SITE_FACTORY_SITES_API_LIMIT) ; $i++) {
+        $response = $client->request('GET', 'sites', ['query' => [
+          'limit' => self::SITE_FACTORY_SITES_API_LIMIT,
+          'page' => $i,
+        ]]);
+        $json = json_decode($response->getBody(), TRUE);
+        $sites = array_merge($sites, $json['sites']);
+      }
+    }
+
+    // Optionally filter the list down to primary only sites. Primary sites are
+    // sites in a site collection that are being hit by the general public.
     if ($input->getOption('primary-only')) {
       $sites = array_filter($sites, function ($site) {
         return $site['is_primary'];
@@ -70,7 +92,6 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
     }
 
     $domains = [];
-
     if ($filter = $input->getOption('domain-filter')) {
       foreach ($sites as $site) {
         $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
@@ -81,7 +102,6 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
           $domains[] = $domain;
         }
       }
-
 
       $domains = array_filter($domains, function ($site) use ($filter) {
         $regex = "/$filter/";
@@ -100,7 +120,3 @@ class SiteFactoryProfileRunCommand extends ProfileRunCommand {
   }
 
 }
-
-
-
- ?>
