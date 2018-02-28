@@ -1,7 +1,6 @@
 title: 'Drupal 8 on Acquia Cloud with Edge'
 policies:
-    'Acquia:CloudEdgePurgePlugin': {  }
-    'Acquia:PurgePlugin': {  }
-    'Acquia:CloudEdgeCaching': {  }
+    'Acquia:CloudEdgeNoPurge':
+    'Acquia:PurgePlugin':
 include:
   - cloud
