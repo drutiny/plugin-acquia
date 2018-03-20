@@ -4,9 +4,15 @@ namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Plugin\Drupal7\Audit\ModuleDisabled;
+use Drutiny\Annotation\Param;
 
 /**
- *
+ * @Param(
+ *  name = "module",
+ *  description = "The module to check is enabled.",
+ *  type = "string",
+ *  default = "search_api_db",
+ * )
  */
 class SearchDB extends ModuleDisabled {
 
