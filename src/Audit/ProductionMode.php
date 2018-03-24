@@ -6,7 +6,7 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit;
 
 /**
- * ACSF default theme path.
+ * Check to ensure Production Mode is enabled on Acquia Cloud.
  */
 class ProductionMode extends CloudApiAwareCheck {
 

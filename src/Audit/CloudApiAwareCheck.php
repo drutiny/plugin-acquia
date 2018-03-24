@@ -8,7 +8,7 @@ use Drutiny\Sandbox\Sandbox;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 /**
- * ACSF default theme path.
+ * An abstract audit aware of the Acquia Cloud API v1.
  */
 abstract class CloudApiAwareCheck extends Audit {
 

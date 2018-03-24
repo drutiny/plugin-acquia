@@ -1,0 +1,17 @@
+language: php
+sudo: required
+dist: trusty
+php:
+- '5.6'
+- '7.0'
+- '7.1'
+before_script:
+- sudo rm -f /etc/localtime
+- sudo ln -s /usr/share/zoneinfo/UTC /etc/localtime
+install:
+- travis_retry composer install --no-interaction
+- composer info -i
+script:
+- export PATH="$PATH:$PWD/vendor/bin"
+- drutiny policy:list
+- if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then ./vendor/drutiny/drutiny/bin/validate_policy_changes.sh $TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_BRANCH; fi

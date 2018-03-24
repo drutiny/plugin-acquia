@@ -8,7 +8,7 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\RemediableInterface;
 
 /**
- * ACSF default theme path.
+ * Ensure the ACSF deploy workspace is clear. This can bloat ephemeral storage.
  */
 class AcsfDeployWorkspaceCleaned extends Audit implements RemediableInterface {
   use ValidationTrait\IsFactorySite;

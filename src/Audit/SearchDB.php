@@ -5,20 +5,29 @@ namespace Drutiny\Acquia\Audit;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Plugin\Drupal7\Audit\ModuleDisabled;
 use Drutiny\Annotation\Param;
+use Drutiny\Annotation\Token;
 
 /**
+ * Ensure there is no use of search indexes in the database.
  * @Param(
  *  name = "module",
  *  description = "The module to check is enabled.",
  *  type = "string",
  *  default = "search_api_db",
  * )
+ * @Token(
+ *  name = "indexes",
+ *  type = "array",
+ *  description = "An array of index names found in the database. Only available on failure."
+ * )
+ * @Token(
+ *  name = "items",
+ *  type = "integer",
+ *  description = "The number of indexed items in the database. Only available on failure."
+ * )
  */
 class SearchDB extends ModuleDisabled {
 
-  /**
-   *
-   */
   public function audit(Sandbox $sandbox) {
 
     $sandbox->setParameter('module', 'search_api_db');
