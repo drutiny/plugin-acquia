@@ -1,6 +1,6 @@
 title: "Acquia Cloud Site Factory Duplication"
 class: \Drutiny\Audit\Drupal\ModuleEnabled
-name: Acquia:SiteFactoryDuplication
+name: Acquia:SiteFactory:Duplication
 description: |
   Ensure the Acquia Cloud Site Factory Duplication module is enabled.
 remediation: |

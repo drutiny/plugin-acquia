@@ -1,6 +1,6 @@
 title: Drupal Theme Security
 class: Drutiny\Audit\Filesystem\CodeScan
-name: Acquia:SiteFactoryDefaultThemePath
+name: Acquia:SiteFactory:DefaultThemePath
 tags:
   - Best Practice
   - Security
