@@ -1,7 +1,7 @@
 {
   "minimum-stability": "dev",
   "require": {
-    "drutiny/drutiny": "2.1.*@dev",
+    "drutiny/drutiny": "^2.1.4 || 2.1.x-dev",
     "guzzlehttp/guzzle": "~6.0",
     "drutiny/plugin-drupal-8": "2.x-dev",
     "drutiny/plugin-drupal-7": "2.x-dev",
