@@ -7,9 +7,6 @@
     "drutiny/plugin-drupal-7": "2.x-dev",
     "drutiny/http": "2.x-dev"
   },
-  "config": {
-    "bin-dir": "bin"
-  },
   "name": "drutiny/acquia",
   "type": "library",
   "description": "Acquia support for the Drutiny audit checker",
@@ -28,6 +25,5 @@
             "Drutiny\\Acquia\\": "src/",
             "DrutinyTests\\Acquia\\": "tests/src/"
         }
-    },
-    "bin": ["bin/drutiny-acq"]
+    }
 }
