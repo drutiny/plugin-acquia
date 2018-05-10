@@ -5,7 +5,8 @@
     "guzzlehttp/guzzle": "~6.0",
     "drutiny/plugin-drupal-8": "2.x-dev",
     "drutiny/plugin-drupal-7": "2.x-dev",
-    "drutiny/http": "2.x-dev"
+    "drutiny/http": "2.x-dev",
+    "acquia/http-hmac-php": "^4.0"
   },
   "name": "drutiny/acquia",
   "type": "library",

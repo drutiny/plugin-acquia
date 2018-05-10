@@ -28,11 +28,20 @@ composer require --dev drutiny/acquia:dev-master
 ```
 
 ## Usage
-Acquia checks are prefixed with `acquia`
+Acquia policies are prefixed with `acquia`
 
 ```bash
 ./vendor/bin/drutiny policy:list | grep Acquia
 ```
+
+Use `profile:run` loading in domains from Acquia Cloud API:
+
+```
+./vendor/bin/drutiny profile:run --domain-source=ac cloud @site.env
+```
+
+See `drutiny help profile:run` for more options to load and filter domains from
+Acquia Cloud and Acquia Cloud Site Factory. 
 
 ## Note
 This library relies on Acquia's PHP SDK to talk to Acquia Cloud API. This SDK
