@@ -10,12 +10,15 @@ use Drutiny\Sandbox\Sandbox;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 /**
  * An abstract audit aware of the Acquia Cloud API v1.
  */
 class CloudApiV2 {
+
+  static $client;
 
   public static function get($path)
   {
@@ -26,6 +29,9 @@ class CloudApiV2 {
 
   protected static function getApiClient()
   {
+    if (isset(self::$client)) {
+      return self::$client;
+    }
     $creds = Manager::load('acquia_api_v2');
 
     $key = new Key($creds['key_id'], $creds['secret']);
@@ -34,13 +40,14 @@ class CloudApiV2 {
 
     $stack = HandlerStack::create();
     $stack->push($middleware);
+    $stack->push(new CacheMiddleware(), 'cache');
 
-    $client = new Client([
+    self::$client = new Client([
         'handler' => $stack,
         'base_uri' => 'https://cloud.acquia.com/api/',
     ]);
 
-    return $client;
+    return self::$client;
   }
 
 }

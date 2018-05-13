@@ -1,6 +1,8 @@
 DomainList:
   ac: Drutiny\Acquia\AcquiaCloudDomainList
   acsf: Drutiny\Acquia\AcquiaSiteFactoryDomainList
+Target:
+  Drutiny\Acquia\AcquiaTarget
 CredentialSchema:
   acquia_api_v1:
     email:
