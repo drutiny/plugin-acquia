@@ -9,7 +9,7 @@ remediation: |
 success: |
   Custom domains are registered
   {{#domains}}
-  - [{{name}}](https://{{name}}/)
+  - [{{.}}](https://{{.}}/)
   {{/domains}}
 failure: |
   No custom domains were found registered to this environment.
