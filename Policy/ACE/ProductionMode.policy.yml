@@ -1,5 +1,5 @@
 title: "Acquia Production Mode"
-class: \Drutiny\Acquia\Audit\ProductionMode
+class: \Drutiny\Acquia\Audit\EnvironmentAnalysis
 name: Acquia:ProductionMode
 description: |
   Ensure Acquia production environment has Production Mode enabled.
@@ -11,3 +11,8 @@ failure: |
   the production database using the Acquia Cloud workflow UI.
 warning: |
   This environment audited is not the production environment.
+parameters:
+  expression:
+    default: environment["flags"]["production_mode"] === true
+  not_applicable:
+    default: environment["flags"]["production"] === false
