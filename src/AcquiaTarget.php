@@ -59,8 +59,14 @@ class AcquiaTarget extends DrushTarget {
    * Overrides DrushTrait::runCommand().
    */
   public function runCommand($method, $args, $pipe = '') {
-    $ssh = 'ssh ' . $this->environment['ssh_url'];
-    return parent::runCommand($method, $args, empty($pipe) ? $ssh : $ssh . ' ' . $pipe);
+    $command = strtr('@pipe drush @alias @options @method @args', [
+      '@method' => $method,
+      '@args' => implode(' ', $args),
+      '@options' => implode(' ', $this->drushOptions),
+      '@alias' => $this->alias,
+      '@pipe' => $pipe,
+    ]);
+    return $this->exec($command);
   }
 }
 
