@@ -36,7 +36,7 @@ class CloudApiDrushAdaptor {
         return $app;
       }
     }
-    throw new \Exception("Cannot find Acquia application matching target criteria: {$options['ac-realm']}:{$options['ac-site']}.");
+    throw new \Exception("Cannot find Acquia application matching target criteria: $realm:$site.");
   }
 
   public static function findEnvironment($uuid, $env)
