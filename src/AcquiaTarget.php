@@ -43,8 +43,10 @@ class AcquiaTarget extends DrushTarget {
       throw new \Exception("Unknown target data: $target_data.");
     }
 
-    $this->options['uri'] = end($this->environment['domains']);
-    $this->setGlobalDefaultOption('uri', end($this->environment['domains']));
+    if (!isset($this->uri)) {
+      $this->options['uri'] = end($this->environment['domains']);
+      $this->setGlobalDefaultOption('uri', end($this->environment['domains']));
+    }
 
     return $this;
   }
