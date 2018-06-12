@@ -12,6 +12,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Drutiny\Target\InvalidTargetException;
 
 /**
  * An abstract audit aware of the Acquia Cloud API v1.
@@ -22,7 +23,18 @@ class CloudApiV2 {
 
   public static function get($path)
   {
-    $response = self::getApiClient()->request('GET', $path);
+    try {
+      $response = self::getApiClient()->request('GET', $path);
+    }
+    catch (ClientException $e) {
+      $response = $e->getResponse();
+      if ($response->getStatusCode() == 403) {
+        $error = json_decode($response->getBody(), TRUE);
+        throw new InvalidTargetException('[Acquia Cloud API v2] ' . $error['error'] . ': ' . $error['message']);
+      }
+      throw new InvalidTargetException('[Acquia Cloud API v2] ' . $e->getMessage());
+    }
+
     $json = $response->getBody();
     return json_decode($json, TRUE);
   }
