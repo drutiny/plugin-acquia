@@ -26,7 +26,7 @@ class CustomDomains extends Audit {
 
     $domains = array_filter($environment['domains'], function ($domain) {
       // Do not include ELB domains or Acquia default domains.
-      return !(strpos($domain, 'acquia-sites.com') || strpos($domain, 'elb.amazonaws.com'));
+      return !(strpos($domain, 'acquia-sites.com') || strpos($domain, 'elb.amazonaws.com') || strpos($domain, 'acsitefactory.com'));
     });
 
     if (empty($domains)) {
