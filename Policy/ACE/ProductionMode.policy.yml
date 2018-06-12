@@ -15,4 +15,4 @@ parameters:
   expression:
     default: environment["flags"]["production_mode"] === true
   not_applicable:
-    default: environment["flags"]["production"] === false
+    default: environment["flags"]["production"] === false | app["hosting"]["type"] == "acsf"
