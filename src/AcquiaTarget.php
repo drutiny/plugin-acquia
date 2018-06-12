@@ -2,16 +2,33 @@
 
 namespace Drutiny\Acquia;
 
+use Drutiny\Container;
 use Drutiny\Target\DrushTarget;
+use Drutiny\Target\InvalidTargetException;
+use Drutiny\Driver\DrushRouter;
 
 /**
  * @Drutiny\Annotation\Target(
  *  name = "acquia"
  * )
  */
-class AcquiaTarget extends DrushTarget {
+class AcquiaTarget extends DrushTarget implements AcquiaTargetInterface {
 
   protected $environment;
+
+  public function validate()
+  {
+    $drush = DrushRouter::createFromTarget($this);
+    $drush->setOptions([
+      'format' => 'json',
+    ]);
+    $status = $drush->status();
+
+    if (!isset($status['files'])) {
+      throw new InvalidTargetException("Drush status indicates target is not valid: " . $this->uri());
+    }
+    return parent::validate();
+  }
 
   /**
    * Parse target data.
@@ -23,12 +40,12 @@ class AcquiaTarget extends DrushTarget {
       $this->environment = CloudApiDrushAdaptor::getEnvironment($this);
 
       $env_id = $this->environment['id'];
-      $this->sandbox()->logger()->info("Environment id is $env_id. Recommend refering to target as acquia:$env_id to optmise target load time.");
+      Container::getLogger()->info("Environment id is $env_id. Recommend refering to target as acquia:$env_id to optmise target load time.");
     }
     // Look for Acquia Cloud API v2 UUID.
     elseif (preg_match('/^(([a-z0-9]+)-){5}([a-z0-9]+)$/', $target_data)) {
       $env_id = $target_data;
-      $this->sandbox()->logger()->info("Loading environment from API...");
+      Container::getLogger()->info("Loading environment from API...");
       $this->environment = CloudApiV2::get('environments/' . $env_id);
 
       if (!isset($this->options['ac-site'])) {
@@ -40,12 +57,11 @@ class AcquiaTarget extends DrushTarget {
       }
     }
     else {
-      throw new \Exception("Unknown target data: $target_data.");
+      throw new InvalidTargetException("Unknown target data: $target_data.");
     }
 
-    if (!isset($this->uri)) {
-      $this->options['uri'] = end($this->environment['domains']);
-      $this->setGlobalDefaultOption('uri', end($this->environment['domains']));
+    if (!$this->uri()) {
+      $this->setUri(end($this->environment['domains']));
     }
 
     return $this;
