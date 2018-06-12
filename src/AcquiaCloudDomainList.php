@@ -12,6 +12,10 @@ use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiV2;
 
 /**
+ * @Param(
+ *   name = "custom-only",
+ *   description = "Boolean indicator to use only custom domains.",
+ * )
  */
 class AcquiaCloudDomainList implements DomainListInterface {
 
@@ -21,6 +25,8 @@ class AcquiaCloudDomainList implements DomainListInterface {
     if (!$has_creds) {
       throw new \Exception("Cloud API Credentials not found. Please pass them into the argument.");
     }
+
+    $this->custom_only = !empty($metadata['custom-only']);
   }
 
   /**
@@ -28,12 +34,20 @@ class AcquiaCloudDomainList implements DomainListInterface {
    */
   public function getDomains(Target $target)
   {
+    $domains = $this->loadDomains($target);
+    $custom_only = $this->custom_only;
+    return array_filter($domains, function ($domain) use ($custom_only) {
+      return !$custom_only || !(strpos($domain, 'acquia-sites.com') || strpos($domain, 'elb.amazonaws.com') || strpos($domain, 'acsitefactory.com'));
+    });
+  }
+
+  protected function loadDomains(Target $target)
+  {
     // Setup the target. Creating a sandbox allows the target access to drush.
     new Sandbox($target, Policy::load('Test:Pass'));
 
     try {
-      $creds = Manager::load('acquia_api_v2');
-      return $this->loadDomainsFromApiV2($creds, $target);
+      return $this->loadDomainsFromApiV2($target);
     }
     catch (CredentialsUnavailableException $e) {}
 
@@ -82,8 +96,12 @@ class AcquiaCloudDomainList implements DomainListInterface {
     return $domains;
   }
 
-  protected function loadDomainsFromApiV2($creds, Target $target)
+  protected function loadDomainsFromApiV2(Target $target)
   {
+
+    if ($target instanceof AcquiaTargetInterface) {
+      return $target->getEnvironment()['domains'];
+    }
     $apps = CloudApiV2::get('applications');
     $options = $target->getOptions();
 
