@@ -88,14 +88,13 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
 
     $domains = array_map(function ($site) use ($client, $target) {
       $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
-      // if ($nid == 4616) {
-      //   var_dump($site);
-      // }
       try {
         $response = $client->request('GET', 'domains/' . $nid);
         $info = json_decode($response->getBody(), TRUE);
-
-        return $info['domains']['custom_domains'];
+        if (!empty($info['domains']['custom_domains'])) {
+          return $info['domains']['custom_domains'];
+        }
+        return $info['domains']['protected_domains'];
       }
       catch (\Exception $e) {}
     }, $sites);
