@@ -32,7 +32,7 @@ class AcquiaCloudDomainList implements DomainListInterface {
   /**
    * @return array list of domains.
    */
-  public function getDomains(Target $target)
+  public function getDomains(Target $target, callable $filter)
   {
     $domains = $this->loadDomains($target);
     $custom_only = $this->custom_only;

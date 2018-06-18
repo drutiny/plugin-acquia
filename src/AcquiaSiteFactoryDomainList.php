@@ -61,7 +61,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
   /**
    * @return array list of domains.
    */
-  public function getDomains(Target $target)
+  public function getDomains(Target $target, callable $filter)
   {
     $client = new \GuzzleHttp\Client([
       'base_uri' => $this->factory . '/api/v1/',
@@ -89,25 +89,44 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
       }
     }
 
+    // If provided, filter the sites down by primary sites only.
     $primary_only = $this->primary_only;
     $sites = array_filter($sites, function ($site) use ($primary_only) {
       return !$primary_only || ($primary_only && $site['is_primary']);
     });
 
-    $domains = array_map(function ($site) use ($client, $target) {
+    // Build an array of domains to represent each site. Sites with invalid
+    // domains will contain a FALSE value to be filtered out later.
+    $domains = array_map(function ($site) use ($client, $target, $filter) {
       $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
       try {
         $response = $client->request('GET', 'domains/' . $nid);
         $info = json_decode($response->getBody(), TRUE);
+
+        // Custom domains take precedence over defaul "protected" domains.
         if (!empty($info['domains']['custom_domains'])) {
-          return $info['domains']['custom_domains'];
+          $domains = $info['domains']['custom_domains'];
         }
-        return $info['domains']['protected_domains'];
+        else {
+          $domains = $info['domains']['protected_domains'];
+        }
+
+        // We only want to return a single domain for a site.
+        // So if the filters are available we want to apply them here to
+        // before we choose which domain in an array to return.
+        $domains = array_filter($domains, $filter);
+
+        // If there are domains that passed the filter,
+        // use the first domain as the valid domain to use.
+        if (count($domains)) {
+          return reset($domains);
+        }
+        return FALSE;
       }
       catch (\Exception $e) {}
     }, $sites);
 
-    return call_user_func_array('array_merge', array_filter($domains));
+    return array_filter($domains);
   }
 }
 
