@@ -33,16 +33,24 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
   protected $domain_filter;
   protected $primary_only;
 
+  /**
+   * The maximum number of sites returned in a single API command to Site
+   * Factory.
+   *
+   * @see https://www.[YOURACSF].acsitefactory.com/api/v1#List-sites
+   */
+  const SITE_FACTORY_SITES_API_LIMIT = 100;
+
   public function __construct(array $metadata)
   {
     if (!isset($metadata['username'])) {
-      throw new \Exception("Site Factory API Credentials are required");
+      throw new \Exception("Site Factory credentials 'username' parameter is required.");
     }
     if (!isset($metadata['key'])) {
-      throw new \Exception("Site Factory API Credentials are required");
+      throw new \Exception("Site Factory credentials 'key' parameter is required.");
     }
     if (!isset($metadata['factory'])) {
-      throw new \Exception("Site Factory API Credentials are required");
+      throw new \Exception("Site Factory credentials 'factory' parameter is required.");
     }
     $this->key = $metadata['key'];
     $this->username = $metadata['username'];
@@ -61,7 +69,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
     ]);
 
     $response = $client->request('GET', 'sites', ['query' => [
-      'limit' => 100,
+      'limit' => self::SITE_FACTORY_SITES_API_LIMIT,
       'page' => 1,
     ]]);
 
@@ -71,9 +79,9 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
 
     // Work out if we need pagination.
     if ($count > 100) {
-      for ($i = 2 ; $i <= ceil($count / 100) ; $i++) {
+      for ($i = 2 ; $i <= ceil($count / self::SITE_FACTORY_SITES_API_LIMIT) ; $i++) {
         $response = $client->request('GET', 'sites', ['query' => [
-          'limit' => 100,
+          'limit' => self::SITE_FACTORY_SITES_API_LIMIT,
           'page' => $i,
         ]]);
         $json = json_decode($response->getBody(), TRUE);
