@@ -1,7 +1,7 @@
 {
   "name": "drutiny/acquia",
   "type": "library",
-  "description": "Acquia support for the Drutiny audit checker",
+  "description": "Acquia specific policies and audits for Drutiny.",
   "keywords": ["drupal", "audit", "drush", "ssh", "report"],
   "license": "GPL-2.0",
   "authors": [
