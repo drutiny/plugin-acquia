@@ -97,24 +97,29 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
 
     // Build an array of domains to represent each site. Sites with invalid
     // domains will contain a FALSE value to be filtered out later.
-    $domains = array_map(function ($site) use ($client, $target, $filter) {
-      $nid = $site['site_collection'] ? $site['site_collection'] : $site['id'];
+    $domains = array_map(function ($site) use ($client, $target, $primary_only, $filter) {
+      if ($primary_only) {
+        $nid = $site['site_collection'] ?: $site['id'];
+      }
+      else {
+        // If its in a site collection and primary: use site_collection as nid.
+        // If its in a site colelction and not primary: use id as nid.
+        // If its not in a site collection: use id as nid.
+        $nid = ($site['is_primary'] && $site['site_collection']) ? $site['site_collection'] : $site['id'];
+      }
       try {
         $response = $client->request('GET', 'domains/' . $nid);
         $info = json_decode($response->getBody(), TRUE);
 
         // Custom domains take precedence over defaul "protected" domains.
-        if (!empty($info['domains']['custom_domains'])) {
-          $domains = $info['domains']['custom_domains'];
-        }
-        else {
-          $domains = $info['domains']['protected_domains'];
-        }
+        $domains = array_merge($info['domains']['custom_domains'], $info['domains']['protected_domains'], [$site['domain']]);
 
         // We only want to return a single domain for a site.
         // So if the filters are available we want to apply them here to
         // before we choose which domain in an array to return.
         $domains = array_filter($domains, $filter);
+
+        $domains = $this::prioritySort($domains);
 
         // If there are domains that passed the filter,
         // use the first domain as the valid domain to use.
@@ -128,6 +133,34 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
 
     return array_filter($domains);
   }
-}
 
- ?>
+  /**
+   * Priority ordering of domains. Ideally the domains that are most likely to
+   * be the public website are listed at the top, and the domains that are most
+   * likely to be internal only at the bottom.
+   *
+   * @param array $domains
+   * @return array
+   */
+  private static function prioritySort(array $domains) {
+    usort($domains, function ($a, $b) {
+      if (strpos($a, 'www.') !== FALSE) {
+        return -1;
+      }
+      if (strpos($b, 'www.') !== FALSE) {
+        return 1;
+      }
+      if (strpos($a, '.acsitefactory.com') !== FALSE) {
+        return 1;
+      }
+      if (strpos($b, '.acsitefactory.com') !== FALSE) {
+        return -1;
+      }
+      // Else prefer generally shorter domains over longer one.
+      return strlen($a) - strlen($b);
+    });
+
+    return $domains;
+  }
+
+}
