@@ -142,7 +142,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
    * @param array $domains
    * @return array
    */
-  private static function prioritySort(array $domains) {
+  public static function prioritySort(array $domains) {
     usort($domains, function ($a, $b) {
       if (strpos($a, 'www.') !== FALSE) {
         return -1;
