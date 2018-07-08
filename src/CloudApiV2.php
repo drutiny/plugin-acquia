@@ -7,7 +7,7 @@ use Acquia\Hmac\Key;
 use Drutiny\Audit;
 use Drutiny\Credential\Manager;
 use Drutiny\Sandbox\Sandbox;
-use GuzzleHttp\Client;
+use Drutiny\Http\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
