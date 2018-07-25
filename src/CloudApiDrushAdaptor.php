@@ -8,7 +8,7 @@ class CloudApiDrushAdaptor {
 
   public static function getEnvironment(DrushTarget $target)
   {
-    if (($target instanceof AcquiaTarget) && $target->getEnvironment()) {
+    if (($target instanceof AcquiaTargetInterface) && $target->getEnvironment()) {
       return $target->getEnvironment();
     }
     $options = $target->getOptions();
