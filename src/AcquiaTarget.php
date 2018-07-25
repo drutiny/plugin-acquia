@@ -71,6 +71,21 @@ class AcquiaTarget extends DrushTarget implements AcquiaTargetInterface {
   {
     return $this->environment;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function runDrushCommand($method, array $args, array $options, $pipe = '')
+  {
+    return $this->exec('@pipe @bin @alias @options @method @args', [
+      '@method' => $method,
+      '@alias' => $this->getAlias(),
+      '@bin' => 'drush-launcher',
+      '@args' => implode(' ', $args),
+      '@options' => implode(' ', $options),
+      '@pipe' => $pipe
+    ]);
+  }
 }
 
 
