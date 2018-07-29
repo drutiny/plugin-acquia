@@ -13,6 +13,4 @@ install:
 - composer info -i
 script:
 - export PATH="$PATH:$PWD/vendor/bin"
-- "./vendor/bin/phpunit"
 - drutiny policy:list
-- if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then ./vendor/drutiny/drutiny/bin/validate_policy_changes.sh $TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_BRANCH; fi

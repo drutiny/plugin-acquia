@@ -11,7 +11,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "drutiny/drutiny": "2.2.*@dev",
+    "drutiny/drutiny": "2.3.*@dev",
     "guzzlehttp/guzzle": "~6.0",
     "kevinrob/guzzle-cache-middleware": "^3.2.1",
     "drutiny/plugin-drupal-8": "2.x-dev",
@@ -19,6 +19,7 @@
     "drutiny/http": "2.x-dev",
     "acquia/http-hmac-php": "^4.0"
   },
+  "minimum-stability": "dev",
   "support": {
     "issues": "https://github.com/drutiny/drutiny-acquia/issues",
     "source": "https://github.com/drutiny/drutiny-acquia"
