@@ -21,10 +21,12 @@ class CloudApiV2 {
 
   static $client;
 
-  public static function get($path)
+  public static function get($path, array $params = [])
   {
+    $options = [];
+    $options['query'] = $params;
     try {
-      $response = self::getApiClient()->request('GET', $path);
+      $response = self::getApiClient()->request('GET', $path, $options);
     }
     catch (ClientException $e) {
       $response = $e->getResponse();
