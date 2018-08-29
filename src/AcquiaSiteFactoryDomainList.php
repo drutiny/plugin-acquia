@@ -2,11 +2,12 @@
 
 namespace Drutiny\Acquia;
 
+use Drutiny\Annotation\Param;
 use Drutiny\DomainList\DomainListInterface;
+use Drutiny\Http\Client;
 use Drutiny\Policy;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Target\Target;
-use Drutiny\Annotation\Param;
 
 /**
  * @Param(
@@ -63,7 +64,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
    */
   public function getDomains(Target $target, callable $filter)
   {
-    $client = new \GuzzleHttp\Client([
+    $client = new Client([
       'base_uri' => $this->factory . '/api/v1/',
       'auth' => [$this->username, $this->key],
     ]);

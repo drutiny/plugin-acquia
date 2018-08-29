@@ -2,14 +2,15 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\DomainList\DomainListInterface;
+use Drutiny\Acquia\CloudApiV2;
+use Drutiny\Annotation\Param;
 use Drutiny\Credential\CredentialsUnavailableException;
+use Drutiny\Credential\Manager;
+use Drutiny\DomainList\DomainListInterface;
+use Drutiny\Http\Client;
 use Drutiny\Policy;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Target\Target;
-use Drutiny\Annotation\Param;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiV2;
 
 /**
  * @Param(
@@ -67,7 +68,7 @@ class AcquiaCloudDomainList implements DomainListInterface {
 
   protected function loadDomainsFromApiV1($creds, Target $target)
   {
-    $client = new \GuzzleHttp\Client([
+    $client = new Client([
       'base_uri' => 'https://cloudapi.acquia.com/v1/',
       'auth' => [$creds['email'], $creds['key']],
     ]);
