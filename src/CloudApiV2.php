@@ -10,7 +10,6 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Http\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
-use Kevinrob\GuzzleCache\CacheMiddleware;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Drutiny\Target\InvalidTargetException;
 
@@ -54,7 +53,6 @@ class CloudApiV2 {
 
     $stack = HandlerStack::create();
     $stack->push($middleware);
-    $stack->push(new CacheMiddleware(), 'cache');
 
     self::$client = new Client([
         'handler' => $stack,
