@@ -9,6 +9,7 @@ use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\AcquiaTargetInterface;
 use Drutiny\Acquia\CloudApiV2;
+use Drutiny\AuditValidationException;
 
 /**
  * Ensure an environment has custom domains set.
@@ -36,6 +37,10 @@ class StackMetrics extends AbstractAnalysis {
 
     $metrics = $sandbox->getParameter('metrics');
 
+    if (!is_array($metrics)) {
+      throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
+    }
+
     $response = CloudApiV2::get('environments/' . $env['id'] . '/metrics/stackmetrics/data', [
       'filter' => implode(',', array_map(function ($metric) {
         return 'metric:' . $metric;
@@ -44,29 +49,33 @@ class StackMetrics extends AbstractAnalysis {
       'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ISO8601),
     ]);
 
-    $table_headers = [];
+    $table_headers = ['Date'];
     $table_rows = [];
 
-
     foreach ($response['_embedded']['items'] as $item) {
-      $name = empty($item['host']) ? $item['metric'] : sprintf('%s:%s', $item['host'], $item['metric']);
-      $table_headers[] = $name;
-    }
-    sort($table_headers);
+      if (!empty($item['host'])) {
+        list($item['name'],) = explode('.', $item['host'], 2);
+      }
+      if (!isset($item['name'])) {
+        $item['name'] = $item['metric'];
+      }
+      elseif (count($metrics) > 1) {
+        $item['name'] .= ':' . $item['metric'];
+      }
+      $table_headers[] = $item['name'];
 
-    array_unshift($table_headers, 'Date');
+      $idx = array_search($item['name'], $table_headers);
+      foreach ($item['datapoints'] as $plot) {
+        // $y == value
+        // $x == epoch
+        list($y, $x) = $plot;
 
-    foreach ($response['_embedded']['items'] as &$item) {
-      $name = empty($item['host']) ? $item['metric'] : sprintf('%s:%s', $item['host'], $item['metric']);
-
-      $idx = array_search($name, $table_headers);
-      foreach ($item['datapoints'] as &$plot) {
         // Convert unix timestamp plot point to readable datetime.
-        if (!isset($table_rows[$plot[1]])) {
-          $table_rows[$plot[1]] = [date('Y-m-d H:i:s', $plot[1])];
+        if (!isset($table_rows[$x])) {
+          $table_rows[$x] = [ date('Y-m-d H:i:s', $x) ];
         }
 
-        $table_rows[$plot[1]][$idx] = $plot[0];
+        $table_rows[$x][$idx] = $y;
       }
     }
 
@@ -77,6 +86,39 @@ class StackMetrics extends AbstractAnalysis {
     $sandbox->setParameter('env', $env);
     $sandbox->setParameter('table_headers', $table_headers);
     $sandbox->setParameter('table_rows', array_values($table_rows));
+
+    // graph
+
+    $graph = [
+      'type' => 'line',
+      'labels' => 'tr td:first-child',
+      'hide-table' => TRUE,
+      'height' => 250,
+      'width' => 400,
+      'stacked' => FALSE,
+      'title' => $sandbox->getPolicy()->get('title'),
+      'y-axis' => 'Percentage',
+      'series' => [],
+      'series-labels' => [],
+    ];
+
+    foreach ($table_headers as $idx => $name) {
+      if ($name == 'Date') {
+        continue;
+      }
+      $nth = $idx + 1;
+      $graph['series'][] = 'tr td:nth-child(' . $nth . ')';
+      $graph['series-labels'][] = 'tr th:nth-child(' . $nth . ')';
+    }
+    $graph['series'] = implode(',', $graph['series']);
+    $graph['series-labels'] = implode(',', $graph['series-labels']);
+
+    $element = [];
+    foreach ($graph as $key => $value) {
+      $element[] = $key . '="' . $value . '"';
+    }
+    $element = '[[[' . implode(' ', $element) . ']]]';
+    $sandbox->setParameter('graph', $element);
   }
 
 }
