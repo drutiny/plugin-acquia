@@ -100,6 +100,7 @@ class StackMetrics extends AbstractAnalysis {
       'y-axis' => 'Percentage',
       'series' => [],
       'series-labels' => [],
+      'legend' => 'bottom',
     ];
 
     foreach ($table_headers as $idx => $name) {
