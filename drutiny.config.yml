@@ -22,3 +22,5 @@ CredentialSchema:
       type: string
       hidden: true
       description: Your API secret to connect to the Acquia Cloud API v2 with:
+ExpressionFunction:
+  - Drutiny\Acquia\AcquiaEnvExpressionFunction
