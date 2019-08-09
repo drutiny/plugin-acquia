@@ -28,6 +28,52 @@ class EnvironmentAnalysis extends AbstractAnalysis {
 
     $sandbox->setParameter('environment', $environment);
     $sandbox->setParameter('app', $app);
+
+    $client = CloudApiV2::getApiClient();
+
+    $sandbox->setParameter('runtimes', $client->getAvailableRuntimes([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('cron', $client->getCronJobsByEnvironmentId([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('databases', $client->getEnvironmentsDatabases([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('dns', $client->getEnvironmentsDns([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('logs', $client->getEnvironmentsLogs([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('servers', $client->getEnvironmentsServers([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('apm_settings', $client->getEnvironmentsApmSetting([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('ssl_settings', $client->getSsl([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('certificates', $client->getCertificates([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('csrs', $client->getCertificateSigningRequests([
+      'environmentId' => $environment['id']
+    ]));
+
+    $sandbox->setParameter('variables', $client->getEnvironmentsVariables([
+      'environmentId' => $environment['id']
+    ]));
   }
 
 }

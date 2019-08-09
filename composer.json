@@ -8,14 +8,10 @@
     {"name": "Sean Hamlin", "email": "iwiifm@gmail.com"},
     {"name": "Josh Waihi", "email": "joshwaihi@gmail.com"}
   ],
-  "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "drutiny/drutiny": "2.3.*@dev",
-    "guzzlehttp/guzzle": "~6.0",
-    "drutiny/plugin-drupal-8": "^2.1",
-    "drutiny/plugin-drupal-7": "^2.1",
-    "acquia/http-hmac-php": "^4.0"
+    "drutiny/drutiny": "2.4.*@dev",
+    "fiasco/cloud-api-sdk-php": "^0.1"
   },
   "minimum-stability": "dev",
   "support": {

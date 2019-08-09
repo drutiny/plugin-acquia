@@ -33,8 +33,43 @@ class AppInfo extends Audit {
       $options = $target->getOptions();
       $app = CloudApiDrushAdaptor::findApplication($options['ac-realm'], $options['ac-site']);
     }
-
     $sandbox->setParameter('app', $app);
+
+    $client = CloudApiV2::getApiClient();
+
+    $sandbox->setParameter('databases', $client->getApplicationDatabases([
+      'applicationUuid' => $app['uuid'],
+    ]));
+
+    $sandbox->setParameter('hosting_settings', $client->getApplicationHostingSettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('search_settings', $client->getApplicationSearchSettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('security_settings', $client->getApplicationSecuritySettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('teams', $client->getApplicationTeams([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('features', $client->getApplicationFeatures([
+      'applicationUuid' => $app['uuid']
+    ]));
+
+    $sandbox->setParameter('identity_providers', $client->getIdentityProviders());
 
     return Audit::NOTICE;
   }
