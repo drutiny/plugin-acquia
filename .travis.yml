@@ -2,9 +2,8 @@ language: php
 sudo: required
 dist: trusty
 php:
-- '5.6'
-- '7.0'
-- '7.1'
+- '7.2'
+- '7.3'
 before_script:
 - sudo rm -f /etc/localtime
 - sudo ln -s /usr/share/zoneinfo/UTC /etc/localtime
