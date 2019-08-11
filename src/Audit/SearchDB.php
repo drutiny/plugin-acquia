@@ -3,18 +3,11 @@
 namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Plugin\Drupal7\Audit\ModuleDisabled;
-use Drutiny\Annotation\Param;
+use Drutiny\Audit;
 use Drutiny\Annotation\Token;
 
 /**
  * Ensure there is no use of search indexes in the database.
- * @Param(
- *  name = "module",
- *  description = "The module to check is enabled.",
- *  type = "string",
- *  default = "search_api_db",
- * )
  * @Token(
  *  name = "indexes",
  *  type = "array",
@@ -26,14 +19,9 @@ use Drutiny\Annotation\Token;
  *  description = "The number of indexed items in the database. Only available on failure."
  * )
  */
-class SearchDB extends ModuleDisabled {
+class SearchDB extends Audit {
 
   public function audit(Sandbox $sandbox) {
-
-    $sandbox->setParameter('module', 'search_api_db');
-    if (parent::audit($sandbox)) {
-      return TRUE;
-    }
 
     // Find out if there are active indexes using the db service class.
     $output = $sandbox->drush()->sqlq("SELECT COUNT(i.machine_name) as count FROM {search_api_index} i LEFT JOIN {search_api_server} s ON i.server = s.machine_name WHERE i.status > 0 AND s.class = 'search_api_db_service';");
