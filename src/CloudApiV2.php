@@ -10,6 +10,11 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Target\InvalidTargetException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Strategy\GreedyCacheStrategy;
+use Kevinrob\GuzzleCache\Storage\VolatileRuntimeStorage;
+
+// PrivateCacheStrategy
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 /**
@@ -48,6 +53,8 @@ class CloudApiV2 {
 
     $handler = HandlerStack::create();
     Client::processHandler($handler);
+    $handler->remove('cache');
+    $handler->unshift(new CacheMiddleware(new GreedyCacheStrategy(new VolatileRuntimeStorage(), 3600)), 'cache');
     self::$client = new AcquiaCloudApi($creds['key_id'], $creds['secret'], $handler);
 
     return self::$client;

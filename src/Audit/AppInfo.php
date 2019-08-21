@@ -37,33 +37,53 @@ class AppInfo extends Audit {
 
     $client = CloudApiV2::getApiClient();
 
-    $sandbox->setParameter('databases', $client->getApplicationDatabases([
-      'applicationUuid' => $app['uuid'],
-    ]));
+    // $sandbox->setParameter('databases', $client->getApplicationDatabases([
+    //   'applicationUuid' => $app['uuid'],
+    // ]));
+    //
+    // $sandbox->setParameter('hosting_settings', $client->getApplicationHostingSettings([
+    //   'applicationUuid' => $app['uuid']
+    // ]));
+    //
+    // $sandbox->setParameter('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
+    //   'applicationUuid' => $app['uuid']
+    // ]));
+    //
+    // $sandbox->setParameter('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
+    //   'applicationUuid' => $app['uuid']
+    // ]));
+    //
+    // $sandbox->setParameter('search_settings', $client->getApplicationSearchSettings([
+    //   'applicationUuid' => $app['uuid']
+    // ]));
+    //
+    // $sandbox->setParameter('security_settings', $client->getApplicationSecuritySettings([
+    //   'applicationUuid' => $app['uuid']
+    // ]));
 
-    $sandbox->setParameter('hosting_settings', $client->getApplicationHostingSettings([
+    $sandbox->setParameter('teams', $teams = $client->getApplicationTeams([
       'applicationUuid' => $app['uuid']
     ]));
 
-    $sandbox->setParameter('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
-      'applicationUuid' => $app['uuid']
-    ]));
+    $members = [];
+    foreach ($teams['_embedded']['items'] as $team) {
+      $team_members = $client->getTeamMembers([
+        'teamUuid' => $team['uuid'],
+        'limit' => 100
+      ]);
 
-    $sandbox->setParameter('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
-      'applicationUuid' => $app['uuid']
-    ]));
+      foreach ($team_members['_embedded']['items'] as $team_member) {
+        $is_new = !isset($members[$team_member['uuid']]);
+        $member = $members[$team_member['uuid']] ?? $team_member;
 
-    $sandbox->setParameter('search_settings', $client->getApplicationSearchSettings([
-      'applicationUuid' => $app['uuid']
-    ]));
+        foreach ($team_member['roles'] as $role) {
+          $member['team_roles'][] = sprintf('%s (%s)', $role['name'], $team['name']);
+        }
+        $members[$member['uuid']] = $member;
+      }
+    }
 
-    $sandbox->setParameter('security_settings', $client->getApplicationSecuritySettings([
-      'applicationUuid' => $app['uuid']
-    ]));
-
-    $sandbox->setParameter('teams', $client->getApplicationTeams([
-      'applicationUuid' => $app['uuid']
-    ]));
+    $sandbox->setParameter('members', array_values($members));
 
     $sandbox->setParameter('features', $client->getApplicationFeatures([
       'applicationUuid' => $app['uuid']
