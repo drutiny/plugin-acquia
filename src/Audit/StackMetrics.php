@@ -53,8 +53,8 @@ class StackMetrics extends AbstractAnalysis {
     $table_rows = [];
 
     foreach ($response['_embedded']['items'] as $item) {
-      if (!empty($item['host'])) {
-        list($item['name'],) = explode('.', $item['host'], 2);
+      if (!empty($item['metadata']['host'])) {
+        list($item['name'],) = explode('.', $item['metadata']['host'], 2);
       }
       if (!isset($item['name'])) {
         $item['name'] = $item['metric'];
