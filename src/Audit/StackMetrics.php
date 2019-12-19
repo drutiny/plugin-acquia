@@ -12,12 +12,18 @@ use Drutiny\Acquia\CloudApiV2;
 use Drutiny\AuditValidationException;
 
 /**
- * Ensure an environment has custom domains set.
+ *
  * @Param(
  *  name = "metrics",
  *  description = "one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory ",
  *  type = "array",
  *  default = {"web-cpu", "web-memory"}
+ * )
+ * @Param(
+ *  name = "y-axis-label",
+ *  description = "Custom label for the y-axis.",
+ *  type = "string",
+ *  default = {"Percentage"}
  * )
  */
 class StackMetrics extends AbstractAnalysis {
@@ -97,7 +103,7 @@ class StackMetrics extends AbstractAnalysis {
       'width' => 400,
       'stacked' => FALSE,
       'title' => $sandbox->getPolicy()->get('title'),
-      'y-axis' => 'Percentage',
+      'y-axis' => $sandbox->getParameter('y-axis-label','Percentage'),
       'series' => [],
       'series-labels' => [],
       'legend' => 'bottom',
