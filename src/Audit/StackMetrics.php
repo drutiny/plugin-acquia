@@ -20,10 +20,40 @@ use Drutiny\AuditValidationException;
  *  default = {"web-cpu", "web-memory"}
  * )
  * @Param(
+ *  name = "chart-type",
+ *  description = "The type of graph, either bar or line.",
+ *  type = "string",
+ *  default = "bar"
+ * )
+ * @Param(
+ *  name = "chart-height",
+ *  description = "The height of the graph in pixels.",
+ *  type = "integer",
+ *  default = "250"
+ * )
+ * @Param(
+ *  name = "chart-width",
+ *  description = "The width of the graph in pixels.",
+ *  type = "integer",
+ *  default = "400"
+ * )
+ * @Param(
  *  name = "y-axis-label",
  *  description = "Custom label for the y-axis.",
  *  type = "string",
- *  default = {"Percentage"}
+ *  default = "Percentage"
+ * )
+ * @Param(
+ *  name = "stacked",
+ *  description = "Determines whether or not the graph data should be stacked.",
+ *  type = "boolean",
+ *  default = "FALSE"
+ * )
+ * @Param(
+ *  name = "maintain-aspect-ratio",
+ *  description = "Maintain the original canvas aspect ratio (width / height) when resizing.",
+ *  type = "boolean",
+ *  default = "TRUE"
  * )
  */
 class StackMetrics extends AbstractAnalysis {
@@ -99,11 +129,12 @@ class StackMetrics extends AbstractAnalysis {
       'type' => 'line',
       'labels' => 'tr td:first-child',
       'hide-table' => TRUE,
-      'height' => 250,
-      'width' => 400,
-      'stacked' => FALSE,
-      'title' => $sandbox->getPolicy()->get('title'),
+      'height' => $sandbox->getParameter('chart-height', 250),
+      'width' => $sandbox->getParameter('chart-width', 400),
+      'stacked' => $sandbox->getParameter('stacked',FALSE),
       'y-axis' => $sandbox->getParameter('y-axis-label','Percentage'),
+      'maintain-aspect-ratio' => $sandbox->getParameter('maintain-aspect-ratio',TRUE),
+      'title' => $sandbox->getPolicy()->get('title'),
       'series' => [],
       'series-labels' => [],
       'legend' => 'bottom',
