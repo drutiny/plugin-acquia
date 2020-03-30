@@ -11,5 +11,21 @@ install:
 - travis_retry composer install --no-interaction
 - composer info -i
 script:
-- export PATH="$PATH:$PWD/vendor/bin"
+- export PATH="$PATH:$PWD/vendor/bin:$HOME/.config/composer/vendor/bin"
 - drutiny policy:list
+- drutiny profile:run test @none
+- drutiny profile:run test @none --uri=site1.test --uri=site2.test -f html -o multisite.test
+- drutiny policy:audit Test:Pass @none
+- drutiny audit:run "Drutiny\Audit\AlwaysPass" @none
+- travis_retry composer install --no-interaction --no-dev
+- "./bin/build_phar acquia-$TRAVIS_BRANCH"
+deploy:
+  provider: releases
+  api_key:
+    secure: tmZDtPAje97ryads9+18QHCCiyTU+zCw0c6LbuXBcGYkNkS2XA91OGPFaGtnSa7MLqXc0bSyhgwG+pSF/eZajBZbXAeOp1OavuOqIdZRJR3HwPkIgWq/skTe+j0PQLhWJZ4ZoifbDYG/cb6B+5oD7jbWQkQgyCIp0pjMUmZz6EJE4KAaNtp7lnrSkkVOH+Cai0HeAj5S/PS8UmNRUsDzcdSzcpJrmKn7N/WId9aY4SZEfBD+5FTV9nBL4+tm8Wh3VBuP11ZSHueNu2AU3clKjlHtCg7NV79IObrSZiedN+QxGgInoxL1IXbINJhm0WcpV6JERlqrtnjnh8iDokMDI77W4jKiJKPALi6NhjTmaDPSTalNl65zVRvJHY5eOAi6FceS6xrcoIOLl9FLCdzT51crCE32VPqKdQJofy87p8yk+3aPqE3AiD2FHoNNHiBOR81hDx8NHptoZ98za3w8It3BeHFWwOtKbJYRilwby0boIIGDK+7K8UJ+CEbUtFoxPYP3cAzDO/gLWHa2q/npERQUljrfvp5FHDEdexQUgyYUQtPEHp/zvkFfq9XfPzUm3cu1oxZT16p1oWkL1EvyENh2UoRujHsE9ebmkKOp8H2W69kL8o13uHPHBW+WrPMQkr38ZTdfaeVfiTpbpjR/yKGCC2UF8vzATybgsVbBHWg=
+  file_glob: true
+  skip_cleanup: true
+  file: "*.phar"
+  on:
+    repo: drutiny/plugin-acquia
+    tags: true

@@ -10,7 +10,10 @@
   ],
   "prefer-stable": true,
   "require": {
-    "drutiny/drutiny": "2.4.*@dev",
+    "drutiny/drutiny": "^2.4.2",
+    "drutiny/plugin-drupal-7": "^2.1",
+    "drutiny/plugin-drupal-8": "^2.1",
+    "drutiny/cloudflare": "^2.4",
     "fiasco/cloud-api-sdk-php": "^0.2"
   },
   "minimum-stability": "dev",
