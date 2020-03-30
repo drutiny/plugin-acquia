@@ -20,7 +20,7 @@ script:
 - drutiny policy:audit Test:Pass @none
 - drutiny audit:run "Drutiny\Audit\AlwaysPass" @none
 - travis_retry composer install --no-interaction --no-dev
-- "./bin/build_phar acquia-$TRAVIS_BRANCH"
+- "./vendor/bin/build_phar acquia-$TRAVIS_BRANCH"
 deploy:
   provider: releases
   api_key:
