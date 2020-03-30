@@ -8,7 +8,9 @@ before_script:
 - sudo rm -f /etc/localtime
 - sudo ln -s /usr/share/zoneinfo/UTC /etc/localtime
 install:
+- composer config version `echo $TRAVIS_BRANCH | sed -e's/x/x-dev/g'`
 - travis_retry composer install --no-interaction
+- composer global require drush/drush:^8.1.0
 - composer info -i
 script:
 - export PATH="$PATH:$PWD/vendor/bin:$HOME/.config/composer/vendor/bin"
