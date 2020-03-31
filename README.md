@@ -62,7 +62,7 @@ for each service.
 ### Hello World
 
 Run the following command to checkout if Drutiny is working
-correctly. Navigate the installation directory of a drupal site so
+correctly. Navigate to the installation directory of a drupal site so
 Drutiny can access drush.
 
 ```
