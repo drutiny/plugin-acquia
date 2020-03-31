@@ -62,7 +62,8 @@ for each service.
 ### Hello World
 
 Run the following command to checkout if Drutiny is working
-correctly.
+correctly. Navigate the installation directory of a drupal site so
+Drutiny can access drush.
 
 ```
 drutiny profile:run test @none
@@ -71,7 +72,7 @@ drutiny profile:run test @none
 ## Usage
 
 Drutiny is a Symfony Console application and as such as a number
-of commands available. Simply type run `drutiny` to
+of commands available. Simply run `drutiny` to
 see a list of commands and use the `help` command to see more options
 available for a specific command.
 
