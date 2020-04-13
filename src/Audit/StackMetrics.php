@@ -47,13 +47,13 @@ use Drutiny\AuditValidationException;
  *  name = "stacked",
  *  description = "Determines whether or not the graph data should be stacked.",
  *  type = "boolean",
- *  default = "FALSE"
+ *  default = FALSE
  * )
  * @Param(
  *  name = "maintain-aspect-ratio",
  *  description = "Maintain the original canvas aspect ratio (width / height) when resizing.",
  *  type = "boolean",
- *  default = "TRUE"
+ *  default = TRUE
  * )
  */
 class StackMetrics extends AbstractAnalysis {
