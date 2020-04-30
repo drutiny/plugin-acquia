@@ -6,9 +6,18 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\CloudApiV2;
+use Drutiny\Annotation\Token;
+use Drutiny\Annotation\Param;
 
 /**
  * Retrieve all custom environment variables for a particular Acquia Cloud environment.
+ *
+ * @Param(
+ *  name = "expression",
+ *  type = "string",
+ *  default = "true",
+ *  description = "The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html"
+ * )
  * @Token(
  *  name = "env",
  *  type = "string",
