@@ -2,27 +2,39 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Annotation\ExpressionSyntax;
-use Drutiny\Sandbox\Sandbox;
-use Drutiny\ExpressionFunction\ExpressionFunctionInterface;
+use Drutiny\ExpressionLanguage\Func\FunctionInterface;
+use Drutiny\ExpressionLanguage\Func\ExpressionFunction;
+use Drutiny\Target\TargetInterface;
 
 /**
- * @ExpressionSyntax(
- * name = "AcquiaEnv",
- * usage = "AcquiaEnv()",
- * description = "Returns the environment object from Acquia Cloud API v2."
- * )
+ * Returns the environment object from Acquia Cloud API v2.
  */
-class AcquiaEnvExpressionFunction implements ExpressionFunctionInterface {
-  static public function compile(Sandbox $sandbox)
+class AcquiaEnvExpressionFunction extends ExpressionFunction implements FunctionInterface {
+
+  private $target;
+
+  public function __construct(TargetInterface $target)
   {
-    return 'AcquiaEnv()';
+    $this->target = $target;
   }
 
-  static public function evaluate(Sandbox $sandbox)
+  public function getName()
   {
-    $env = CloudApiDrushAdaptor::getEnvironment($sandbox->getTarget());
-    return $env;
+      return 'AcquiaEnv';
+  }
+
+  public function getCompiler()
+  {
+      return function () {
+        return 'AcquiaEnv()';
+      };
+  }
+
+  public function getEvaluator()
+  {
+      return function ($args) {
+          return CloudApiDrushAdaptor::getEnvironment($this->target);
+      };
   }
 }
 

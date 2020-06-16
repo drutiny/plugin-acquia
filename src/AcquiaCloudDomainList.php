@@ -3,14 +3,14 @@
 namespace Drutiny\Acquia;
 
 use Drutiny\Acquia\CloudApiV2;
-use Drutiny\Annotation\Param;
 use Drutiny\Credential\CredentialsUnavailableException;
 use Drutiny\Credential\Manager;
 use Drutiny\DomainList\DomainListInterface;
 use Drutiny\Http\Client;
 use Drutiny\Policy;
-use Drutiny\Sandbox\Sandbox;
-use Drutiny\Target\Target;
+use Drutiny\Target\TargetInterface;
+use Drutiny\DomainList\AbstractDomainList;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @Param(
@@ -18,37 +18,31 @@ use Drutiny\Target\Target;
  *   description = "Boolean indicator to use only custom domains.",
  * )
  */
-class AcquiaCloudDomainList implements DomainListInterface {
+class AcquiaCloudDomainList extends AbstractDomainList implements DomainListInterface {
 
-  public function __construct(array $metadata)
+  public function __construct(ContainerInterface $container, TargetInterface $target)
   {
-    $has_creds = file_exists(getenv('HOME') . '/.acquia/cloudapi.conf') || Manager::load('acquia_api_v2') || Manager::load('acquia_api_v1');
-    if (!$has_creds) {
-      throw new \Exception("Cloud API Credentials not found. Please pass them into the argument.");
-    }
-
-    $this->custom_only = !empty($metadata['custom-only']);
+    $this->target = $target;
+    $this->credentials = $container->get('credentials')->getConfig('acquia.api.v2');
   }
+
+
 
   /**
    * @return array list of domains.
    */
-  public function getDomains(Target $target, callable $filter)
+  public function getDomains(array $options = [])
   {
-    $domains = $this->loadDomains($target);
-    $custom_only = $this->custom_only;
-    return array_filter($domains, function ($domain) use ($custom_only) {
-      return !$custom_only || !(strpos($domain, 'acquia-sites.com') || strpos($domain, 'elb.amazonaws.com') || strpos($domain, 'acsitefactory.com'));
+    $domains = $this->loadDomains();
+    return array_filter($domains, function ($domain) use ($options) {
+      return !$options['custom-only'] || !(strpos($domain, 'acquia-sites.com') || strpos($domain, 'elb.amazonaws.com') || strpos($domain, 'acsitefactory.com'));
     });
   }
 
-  protected function loadDomains(Target $target)
+  protected function loadDomains()
   {
-    // Setup the target. Creating a sandbox allows the target access to drush.
-    new Sandbox($target, Policy::load('Test:Pass'));
-
     try {
-      return $this->loadDomainsFromApiV2($target);
+      return $this->loadDomainsFromApiV2();
     }
     catch (CredentialsUnavailableException $e) {}
 
@@ -97,14 +91,14 @@ class AcquiaCloudDomainList implements DomainListInterface {
     return $domains;
   }
 
-  protected function loadDomainsFromApiV2(Target $target)
+  protected function loadDomainsFromApiV2()
   {
 
-    if ($target instanceof AcquiaTargetInterface) {
-      return $target->getEnvironment()['domains'];
+    if ($this->target instanceof AcquiaTargetInterface) {
+      return $this->target->getEnvironment()['domains'];
     }
     $apps = CloudApiV2::get('applications');
-    $options = $target->getOptions();
+    $options = $this->target->getOptions();
 
     foreach ($apps['_embedded']['items'] as $app) {
       if (empty($app['hosting'])) {

@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Profile\ProfileSourceInterface;
+use Drutiny\ProfileSource\ProfileSourceInterface;
 use Drutiny\Profile\PolicyDefinition;
 use Drutiny\Profile;
 use Drutiny\Profile\ProfileSource as DrutinyProfileSource;

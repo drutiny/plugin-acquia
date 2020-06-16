@@ -33,35 +33,35 @@ class AppInfo extends Audit {
       $options = $target->getOptions();
       $app = CloudApiDrushAdaptor::findApplication($options['ac-realm'], $options['ac-site']);
     }
-    $sandbox->setParameter('app', $app);
+    $this->set('app', $app);
 
     $client = CloudApiV2::getApiClient();
 
-    // $sandbox->setParameter('databases', $client->getApplicationDatabases([
+    // $this->set('databases', $client->getApplicationDatabases([
     //   'applicationUuid' => $app['uuid'],
     // ]));
     //
-    // $sandbox->setParameter('hosting_settings', $client->getApplicationHostingSettings([
+    // $this->set('hosting_settings', $client->getApplicationHostingSettings([
     //   'applicationUuid' => $app['uuid']
     // ]));
     //
-    // $sandbox->setParameter('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
+    // $this->set('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
     //   'applicationUuid' => $app['uuid']
     // ]));
     //
-    // $sandbox->setParameter('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
+    // $this->set('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
     //   'applicationUuid' => $app['uuid']
     // ]));
     //
-    // $sandbox->setParameter('search_settings', $client->getApplicationSearchSettings([
+    // $this->set('search_settings', $client->getApplicationSearchSettings([
     //   'applicationUuid' => $app['uuid']
     // ]));
     //
-    // $sandbox->setParameter('security_settings', $client->getApplicationSecuritySettings([
+    // $this->set('security_settings', $client->getApplicationSecuritySettings([
     //   'applicationUuid' => $app['uuid']
     // ]));
 
-    $sandbox->setParameter('teams', $teams = $client->getApplicationTeams([
+    $this->set('teams', $teams = $client->getApplicationTeams([
       'applicationUuid' => $app['uuid']
     ]));
 
@@ -83,13 +83,13 @@ class AppInfo extends Audit {
       }
     }
 
-    $sandbox->setParameter('members', array_values($members));
+    $this->set('members', array_values($members));
 
-    $sandbox->setParameter('features', $client->getApplicationFeatures([
+    $this->set('features', $client->getApplicationFeatures([
       'applicationUuid' => $app['uuid']
     ]));
 
-    $sandbox->setParameter('identity_providers', $client->getIdentityProviders());
+    $this->set('identity_providers', $client->getIdentityProviders());
 
     return Audit::NOTICE;
   }

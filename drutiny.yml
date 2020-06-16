@@ -1,0 +1,40 @@
+parameters:
+    acquia.api.base_uri: https://dev.cskb.acquia.com/
+
+services:
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: true
+
+    target.acquia:
+      class: Drutiny\Acquia\AcquiaTarget
+
+    Drutiny\Acquia\RestApi:
+    Drutiny\Acquia\CloudApi:
+
+    Drutiny\Acquia\PolicySource:
+      tags: [policy.source]
+
+    Drutiny\Acquia\PropertyBridge\CloudBridge:
+      tags: [drutiny.event_subscriber]
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    Drutiny\Acquia\Audit\:
+        resource: 'src/Audit/*'
+
+    Drutiny\Acquia\Plugin\:
+        resource: 'src/Plugin/*'
+        tags: [plugin]
+    # Drutiny\Acquia\:
+    #     resource: 'src/*'
+        # exclude:
+        #   - 'src/{ExpressionFunction,DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+        #   - src/Console/Application.php
+        #   - src/Event/*
+        #   - src/Upgrade/*
+        #   - src/*/*Exception.php
+        #   - src/Sandbox/Sandbox.php
+        #   - src/ExpressionLanguage.php
+        #   - src/Report/Format/Menu/*
+        #   - src/functions.php

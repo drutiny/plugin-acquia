@@ -25,51 +25,51 @@ class EnvironmentAnalysis extends AbstractAnalysis {
     $environment = CloudApiDrushAdaptor::getEnvironment($sandbox->getTarget());
     $app = CloudApiV2::get('applications/' . $environment['application']['uuid']);
 
-    $sandbox->setParameter('environment', $environment);
-    $sandbox->setParameter('app', $app);
+    $this->set('environment', $environment);
+    $this->set('app', $app);
     $client = CloudApiV2::getApiClient();
 
-    // $sandbox->setParameter('runtimes', $client->getAvailableRuntimes([
+    // $this->set('runtimes', $client->getAvailableRuntimes([
     //   'environmentId' => $environment['id']
     // ]));
 
-    $sandbox->setParameter('cron', $client->getCronJobsByEnvironmentId([
+    $this->set('cron', $client->getCronJobsByEnvironmentId([
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('databases', $client->getEnvironmentsDatabases([
+    $this->set('databases', $client->getEnvironmentsDatabases([
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('dns', $client->getEnvironmentsDns([
+    $this->set('dns', $client->getEnvironmentsDns([
       'environmentId' => $environment['id']
     ]));
 
-    // $sandbox->setParameter('logs', $client->getEnvironmentsLogs([
+    // $this->set('logs', $client->getEnvironmentsLogs([
     //   'environmentId' => $environment['id']
     // ]));
 
-    $sandbox->setParameter('servers', $client->getEnvironmentsServers([
+    $this->set('servers', $client->getEnvironmentsServers([
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('apm_settings', $client->getEnvironmentsApmSetting([
+    $this->set('apm_settings', $client->getEnvironmentsApmSetting([
       'environmentId' => $environment['id']
     ]));
 
-    // $sandbox->setParameter('ssl_settings', $client->getSsl([
+    // $this->set('ssl_settings', $client->getSsl([
     //   'environmentId' => $environment['id']
     // ]));
 
-    $sandbox->setParameter('certificates', $client->getCertificates([
+    $this->set('certificates', $client->getCertificates([
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('csrs', $client->getCertificateSigningRequests([
+    $this->set('csrs', $client->getCertificateSigningRequests([
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('variables', $client->getEnvironmentsVariables([
+    $this->set('variables', $client->getEnvironmentsVariables([
       'environmentId' => $environment['id']
     ]));
   }

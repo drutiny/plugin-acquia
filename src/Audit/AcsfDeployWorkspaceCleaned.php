@@ -5,7 +5,7 @@ namespace Drutiny\Acquia\Audit;
 use Drutiny\Audit;
 use Drutiny\AuditResponse\AuditResponse;
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\RemediableInterface;
+use Drutiny\Audit\RemediableInterface;
 
 /**
  * Ensure the ACSF deploy workspace is clear. This can bloat ephemeral storage.

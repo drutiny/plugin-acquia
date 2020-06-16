@@ -5,16 +5,8 @@ namespace Drutiny\Acquia\Audit;
 use Drutiny\Audit;
 use Drutiny\AuditResponse\AuditResponse;
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Annotation\Param;
-use Drutiny\Annotation\Token;
 
 /**
- * @Param(
- *  name = "limit",
- *  description = "The limit of files per directory.",
- *  default = 2500,
- *  type = "integer"
- * )
  * @Token(
  *  name = "directories",
  *  description = "A multidimensional array containing directory data breaching the limit.",
@@ -24,6 +16,18 @@ use Drutiny\Annotation\Token;
  */
 class FilesPerDirectory extends Audit {
 
+
+    public function configure()
+    {
+           $this->addParameter(
+        'limit',
+        static::PARAMETER_OPTIONAL,
+        'The limit of files per directory.',
+        
+        );
+
+    }
+
   /**
    * @inheritdoc
    */
@@ -31,7 +35,7 @@ class FilesPerDirectory extends Audit {
     // Build a count of files in every directory in the public filesystem.
     $stat = $sandbox->drush(['format' => 'json'])->status();
     $files = implode('/', [$stat['root'], $stat['files']]);
-    $limit = $sandbox->getParameter('limit');
+    $limit = $this->getParameter('limit');
 
     // Note the trailing slash at the end of $files to ensure find works over
     // symlinks.
@@ -54,7 +58,7 @@ class FilesPerDirectory extends Audit {
       return TRUE;
     }
 
-    $sandbox->setParameter('directories', $directories);
+    $this->set('directories', $directories);
 
     return FALSE;
   }

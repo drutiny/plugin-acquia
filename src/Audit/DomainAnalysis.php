@@ -18,8 +18,8 @@ class DomainAnalysis extends EnvironmentAnalysis {
   public function gather(Sandbox $sandbox) {
     parent::gather($sandbox);
 
-    $env = $sandbox->getParameter('environment');
-    $sandbox->setParameter('domains', array_map(function ($domain) {
+    $env = $this->getParameter('environment');
+    $this->set('domains', array_map(function ($domain) {
       $record = exec(sprintf('dig +noall +answer %s | head -1', $domain));
       $record = preg_split("/\t|\s/", $record);
       $record = array_filter(array_map('trim', $record));

@@ -2,7 +2,6 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Annotation\Param;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\Credential\Manager;
@@ -14,42 +13,6 @@ use Drutiny\AuditValidationException;
 /**
  *
  * @Param(
- *  name = "metrics",
- *  description = "one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory ",
- *  type = "array",
- *  default = {"web-cpu", "web-memory"}
- * )
- * @Param(
- *  name = "chart-type",
- *  description = "The type of graph, either bar or line.",
- *  type = "string",
- *  default = "bar"
- * )
- * @Param(
- *  name = "chart-height",
- *  description = "The height of the graph in pixels.",
- *  type = "integer",
- *  default = "250"
- * )
- * @Param(
- *  name = "chart-width",
- *  description = "The width of the graph in pixels.",
- *  type = "integer",
- *  default = "400"
- * )
- * @Param(
- *  name = "y-axis-label",
- *  description = "Custom label for the y-axis.",
- *  type = "string",
- *  default = "Percentage"
- * )
- * @Param(
- *  name = "stacked",
- *  description = "Determines whether or not the graph data should be stacked.",
- *  type = "boolean",
- *  default = FALSE
- * )
- * @Param(
  *  name = "maintain-aspect-ratio",
  *  description = "Maintain the original canvas aspect ratio (width / height) when resizing.",
  *  type = "boolean",
@@ -57,6 +20,53 @@ use Drutiny\AuditValidationException;
  * )
  */
 class StackMetrics extends AbstractAnalysis {
+
+
+    public function configure()
+    {
+        $this->addParameter(
+          'metrics',
+          static::PARAMETER_OPTIONAL,
+          'one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory ',
+        );
+        $this->addParameter(
+          'chart-type',
+          static::PARAMETER_OPTIONAL,
+          'The type of graph, either bar or line.',
+          'bar'
+        );
+        $this->addParameter(
+          'chart-height',
+          static::PARAMETER_OPTIONAL,
+          'The height of the graph in pixels.',
+          250
+        );
+        $this->addParameter(
+          'chart-width',
+          static::PARAMETER_OPTIONAL,
+          'The width of the graph in pixels.',
+          400
+        );
+        $this->addParameter(
+          'y-axis-label',
+          static::PARAMETER_OPTIONAL,
+          'Custom label for the y-axis.',
+          'Percentage'
+        );
+        $this->addParameter(
+          'stacked',
+          static::PARAMETER_OPTIONAL,
+          'Determines whether or not the graph data should be stacked.',
+
+        );
+
+        $this->addParameter(
+          'maintain-aspect-ratio',
+          static::PARAMETER_OPTIONAL,
+          '',
+
+        );
+    }
 
   protected function requireCloudApiV2(Sandbox $sandbox)
   {
@@ -71,7 +81,7 @@ class StackMetrics extends AbstractAnalysis {
     $target = $sandbox->getTarget();
     $env = ($target instanceof AcquiaTargetInterface) ? $target->getEnvironment() : CloudApiDrushAdaptor::getEnvironment($target);
 
-    $metrics = $sandbox->getParameter('metrics');
+    $metrics = $this->getParameter('metrics');
 
     if (!is_array($metrics)) {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
@@ -118,10 +128,10 @@ class StackMetrics extends AbstractAnalysis {
     // Sort the table columns by index.
     array_walk($table_rows, 'ksort');
 
-    $sandbox->setParameter('result', $response);
-    $sandbox->setParameter('env', $env);
-    $sandbox->setParameter('table_headers', $table_headers);
-    $sandbox->setParameter('table_rows', array_values($table_rows));
+    $this->set('result', $response);
+    $this->set('env', $env);
+    $this->set('table_headers', $table_headers);
+    $this->set('table_rows', array_values($table_rows));
 
     // graph
 
@@ -129,11 +139,11 @@ class StackMetrics extends AbstractAnalysis {
       'type' => 'line',
       'labels' => 'tr td:first-child',
       'hide-table' => TRUE,
-      'height' => $sandbox->getParameter('chart-height', 250),
-      'width' => $sandbox->getParameter('chart-width', 400),
-      'stacked' => $sandbox->getParameter('stacked',FALSE),
-      'y-axis' => $sandbox->getParameter('y-axis-label','Percentage'),
-      'maintain-aspect-ratio' => $sandbox->getParameter('maintain-aspect-ratio',TRUE),
+      'height' => $this->getParameter('chart-height', 250),
+      'width' => $this->getParameter('chart-width', 400),
+      'stacked' => $this->getParameter('stacked',FALSE),
+      'y-axis' => $this->getParameter('y-axis-label','Percentage'),
+      'maintain-aspect-ratio' => $this->getParameter('maintain-aspect-ratio',TRUE),
       'title' => $sandbox->getPolicy()->get('title'),
       'series' => [],
       'series-labels' => [],
@@ -156,7 +166,7 @@ class StackMetrics extends AbstractAnalysis {
       $element[] = $key . '="' . $value . '"';
     }
     $element = '[[[' . implode(' ', $element) . ']]]';
-    $sandbox->setParameter('graph', $element);
+    $this->set('graph', $element);
   }
 
 }

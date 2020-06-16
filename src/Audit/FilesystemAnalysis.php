@@ -20,7 +20,7 @@ class FilesystemAnalysis extends EnvironmentAnalysis {
 
     $output = $sandbox->exec('df -h | grep gfs');
     list($volume, $capacity, $used, $free, $usage, $mountpoint) = array_values(array_filter(preg_split("/\t|\s/", $output)));
-    $sandbox->setParameter('filesystem', [
+    $this->set('filesystem', [
       'volume' => $volume,
       'capacity' => $capacity,
       'used' => $used,

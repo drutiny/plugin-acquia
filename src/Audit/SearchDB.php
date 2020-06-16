@@ -4,7 +4,6 @@ namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit;
-use Drutiny\Annotation\Token;
 
 /**
  * Ensure there is no use of search indexes in the database.
@@ -35,11 +34,11 @@ class SearchDB extends Audit {
       $number_of_db_indexes = (int) $output[1];
     }
 
-    $sandbox->setParameter('indexes', $number_of_db_indexes);
+    $this->set('indexes', $number_of_db_indexes);
 
     $output = $sandbox->drush()->sqlq('SELECT COUNT(item_id) FROM {search_api_db_default_node_index};');
 
-    $sandbox->setParameter('items', $output);
+    $this->set('items', $output);
 
     return FALSE;
   }

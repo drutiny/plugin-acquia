@@ -33,7 +33,7 @@ class CustomDomains extends Audit {
       return FALSE;
     }
 
-    $sandbox->setParameter('domains', array_values($domains));
+    $this->set('domains', array_values($domains));
 
     return TRUE;
   }

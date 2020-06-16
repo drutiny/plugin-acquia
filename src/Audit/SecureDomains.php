@@ -94,7 +94,7 @@ class SecureDomains extends Audit {
       return !$domain['secure'];
     });
 
-    $sandbox->setParameter('domains', array_values($domain_details));
+    $this->set('domains', array_values($domain_details));
 
     if (count($insecured) == count($domain_details)) {
       return FALSE;

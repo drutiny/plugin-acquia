@@ -6,18 +6,10 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\CloudApiV2;
-use Drutiny\Annotation\Token;
-use Drutiny\Annotation\Param;
 
 /**
  * Retrieve all custom environment variables for a particular Acquia Cloud environment.
  *
- * @Param(
- *  name = "expression",
- *  type = "string",
- *  default = "true",
- *  description = "The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html"
- * )
  * @Token(
  *  name = "env",
  *  type = "string",
@@ -36,6 +28,18 @@ use Drutiny\Annotation\Param;
  */
 class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
 
+
+    public function configure()
+    {
+           $this->addParameter(
+        'expression',
+        static::PARAMETER_OPTIONAL,
+        'The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
+        true
+        );
+
+    }
+
   /**
    * @inheritdoc
    */
@@ -43,20 +47,20 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     parent::gather($sandbox);
     
     // Grab the environment and sitegroup name
-    $app = $sandbox->getParameter('app');
+    $app = $this->getParameter('app');
     $hosting_id = explode(':', $app['hosting']['id']);
     list($env, $sitegroup) = $hosting_id;
 
     // Replace the %sitegroup and %env placeholders if they were used in the expression.
-    $expression = $sandbox->getParameter('expression');
+    $expression = $this->getParameter('expression');
     $expression = strtr($expression, ['%sitegroup' => $sitegroup, '%env' => $env]);
-    $sandbox->setParameter('expression', $expression);
+    $this->set('expression', $expression);
 
     // Create environment and sitegroup tokens
-    $sandbox->setParameter('env', $env);
-    $sandbox->setParameter('sitegroup', $sitegroup);
+    $this->set('env', $env);
+    $this->set('sitegroup', $sitegroup);
 
-    $data = $sandbox->getParameter('variables');
+    $data = $this->getParameter('variables');
     $variables=[];
 
     foreach ($data['_embedded']['items'] as $item) {
@@ -64,7 +68,7 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     }
 
     // Create the variables token
-    $sandbox->setParameter('variables', $variables);
+    $this->set('variables', $variables);
   }
 
 }

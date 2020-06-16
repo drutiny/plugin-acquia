@@ -2,12 +2,11 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Annotation\Param;
 use Drutiny\DomainList\DomainListInterface;
 use Drutiny\Http\Client;
-use Drutiny\Policy;
-use Drutiny\Sandbox\Sandbox;
-use Drutiny\Target\Target;
+use Drutiny\Target\TargetInterface;
+use Drutiny\DomainList\AbstractDomainList;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @Param(
@@ -27,7 +26,7 @@ use Drutiny\Target\Target;
  *   description = "Boolean indicator to include primary sites only.",
  * )
  */
-class AcquiaSiteFactoryDomainList implements DomainListInterface {
+class AcquiaSiteFactoryDomainList extends AbstractDomainList implements DomainListInterface {
   protected $username;
   protected $key;
   protected $factory;
@@ -42,7 +41,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
    */
   const SITE_FACTORY_SITES_API_LIMIT = 100;
 
-  public function __construct(array $metadata)
+  public function __construct(ContainerInterface $container, TargetInterface $target)
   {
     if (!isset($metadata['username'])) {
       throw new \Exception("Site Factory credentials 'username' parameter is required.");
@@ -62,7 +61,7 @@ class AcquiaSiteFactoryDomainList implements DomainListInterface {
   /**
    * @return array list of domains.
    */
-  public function getDomains(Target $target, callable $filter)
+  public function getDomains(array $options = [])
   {
     $client = new Client([
       'base_uri' => $this->factory . '/api/v1/',
