@@ -26,7 +26,7 @@ class LiftAPIAnalysis extends AbstractAnalysis {
         'api',
         static::PARAMETER_OPTIONAL,
         'The name of the account API endpoint: http://docs.lift.acquia.com/profilemanager/#',
-        customer_sites
+        'customer_sites'
         );
         $this->addParameter(
         'not_applicable',

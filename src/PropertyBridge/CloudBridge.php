@@ -2,17 +2,17 @@
 
 namespace Drutiny\Acquia\PropertyBridge;
 
+use Drutiny\Acquia\CloudApi;
+use Drutiny\Entity\Exception\DataNotFoundException;
 use Drutiny\Event\DataBagEvent;
 use Drutiny\Target\Service\RemoteService;
-use Drutiny\Target\Service\DrushService;
-use Drutiny\Entity\Exception\DataNotFoundException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Drutiny\Acquia\CloudApi;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Psr\Log\LoggerInterface;
 
-class CloudBridge implements EventSubscriberInterface {
+class CloudBridge implements EventSubscriberInterface
+{
     protected $api;
 
     public function __construct(CloudApi $api, CacheInterface $cache, LoggerInterface $logger)
@@ -24,37 +24,48 @@ class CloudBridge implements EventSubscriberInterface {
 
     public static function getSubscribedEvents()
     {
-      return [
-        'target.property.bridge.drush' => 'loadCloudBridge',
-        'set:acquia.cloud.environment.ssh_url' => 'loadRemoteBridge'
-      ];
+        return [
+          'set:acquia.cloud.environment.ssh_url' => 'loadRemoteBridge',
+          'set:drush.ac-realm' => 'loadCloudBridge',
+        ];
     }
 
     /**
-     * Search drush config for remote ssh config.
+     * Attempt to load Acquia Cloud environment from Drush Alias.
      */
-    public static function loadCloudBridge(DataBagEvent $event)
+    public function loadCloudBridge(DataBagEvent $event)
     {
-      $bridge = $event->getValue();
-      $target = $event->getTarget();
+        $target = $event->getDataBag()->getObject();
 
-      try {
-        $app = $this->findApplication(
-          $target->getProperty('drush.ac-realm'),
-          $target->getProperty('drush.ac-site')
-        );
-        $target->setProperty('acquia.cloud.application', $app);
+        try {
+            $app = $this->findApplication(
+                $event->getValue(),
+                $target->getProperty('drush.ac-site')
+            );
 
-        $env = $this->findEnvironment(
-          $app['uuid'],
-          $target->getProperty('drush.ac-env'),
-        );
-        $target->setProperty('acquia.cloud.environment', $env);
-      }
-      // If the config doesn't exist then do nothing.
-      catch (DataNotFoundException $e) {
-          $this->logger->error($e->getMessage());
-      }
+            foreach ($app as $key => $value) {
+                if ('_' == substr($key, 0, 1)) {
+                    continue;
+                }
+                $target['acquia.cloud.application.'.$key] = $value;
+            }
+
+            $env = $this->findEnvironment(
+                $app['uuid'],
+                $target->getProperty('drush.ac-env'),
+            );
+
+            foreach ($env as $key => $value) {
+                if ('_' == substr($key, 0, 1)) {
+                    continue;
+                }
+                $target['acquia.cloud.environment.'.$key] = $value;
+            }
+        }
+        // If the config doesn't exist then do nothing.
+        catch (DataNotFoundException $e) {
+            $this->logger->error($e->getMessage());
+        }
     }
 
     public static function loadRemoteBridge(DataBagEvent $event)
@@ -64,21 +75,21 @@ class CloudBridge implements EventSubscriberInterface {
         list($user, $host) = explode('@', $ssh_url, 2);
 
         try {
-          $service = new RemoteService($target['service.local']);
-          $service->setConfig('User', $user);
-          $service->setConfig('Host', $host);
+            $service = new RemoteService($target['service.local']);
+            $service->setConfig('User', $user);
+            $service->setConfig('Host', $host);
 
-          $target['service.exec'] = $service;
-
+            $target['service.exec'] = $service;
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {
-          $this->logger->error($e->getMessage());
-          return;
+            $this->logger->error($e->getMessage());
+
+            return;
         }
 
         $data = $service->run("drush site:alias @$user --format=json", function ($output) {
-            return json_decode($output, TRUE);
+            return json_decode($output, true);
         });
 
         $target['drush.alias'] = "@$user";
@@ -87,34 +98,36 @@ class CloudBridge implements EventSubscriberInterface {
 
     protected function findApplication($realm, $site)
     {
-      $apps = $this->cache->get('acquia.cloud.applications', function (ItemInterface $item) {
-        return $this->api->get('applications');
-      });
+        $apps = $this->cache->get('acquia.cloud.applications', function (ItemInterface $item) {
+            return $this->api->getApplications();
+        });
 
-      foreach ($apps['_embedded']['items'] as $app) {
-        if (empty($app['hosting'])) {
-          continue;
-        }
-        list($stage, $sitegroup) = explode(':', $app['hosting']['id'], 2);
+        foreach ($apps['_embedded']['items'] as $app) {
+            if (empty($app['hosting'])) {
+                continue;
+            }
+            list($stage, $sitegroup) = explode(':', $app['hosting']['id'], 2);
 
-        if ($realm == $stage && $site == $sitegroup) {
-          return $app;
+            if ($realm == $stage && $site == $sitegroup) {
+                return $app;
+            }
         }
-      }
-      throw new \Exception("Cannot find Acquia application matching target criteria: $realm:$site.");
+        throw new \Exception("Cannot find Acquia application matching target criteria: $realm:$site.");
     }
 
-    protected static function findEnvironment($uuid, $env)
+    protected function findEnvironment($uuid, $env)
     {
-      $environments = $this->cache->get('acquia.cloud.'.$uuid.'.environments', function (ItemInterface $item) {
-        return $this->api->get("applications/$uuid/environments");
-      });
+        $environments = $this->cache->get('acquia.cloud.'.$uuid.'.environments', function (ItemInterface $item) use ($uuid) {
+            return $this->api->getApplicationEnvironments([
+                'applicationUuid' => $uuid,
+            ]);
+        });
 
-      foreach ($environments['_embedded']['items'] as $environment) {
-        if ($environment['name'] == $env) {
-          return $environment;
+        foreach ($environments['_embedded']['items'] as $environment) {
+            if ($environment['name'] == $env) {
+                return $environment;
+            }
         }
-      }
-      throw new \Exception("Cannot find Acquia application environment: $env.");
+        throw new \Exception("Cannot find Acquia application environment: $env.");
     }
 }
