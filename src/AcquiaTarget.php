@@ -7,6 +7,7 @@ use Drutiny\Target\DrushTarget;
 use Drutiny\Target\InvalidTargetException;
 use Drutiny\Target\Service\LocalService;
 use Drutiny\Target\TargetInterface;
+use Drutiny\Acquia\Api\CloudApi;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;

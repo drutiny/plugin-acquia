@@ -1,38 +1,36 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\Source;
 
 use Drutiny\ProfileSource\ProfileSourceInterface;
 use Drutiny\Profile\PolicyDefinition;
 use Drutiny\Profile;
 use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
 use Drutiny\Report\Format;
+use Drutiny\Acquia\Api\SourceApi;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Load profiles from CSKB.
  */
 class ProfileSource implements ProfileSourceInterface {
 
-  /**
-   * Base URL of the API endpoint.
-   *
-   * @var string
-   */
-  protected $baseUrl;
+  protected $client;
+  protected $cache;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getName() {
-    return parse_url($this->getBaseUrl(), PHP_URL_HOST);
+  public function __construct(SourceApi $client, CacheInterface $cache)
+  {
+    $this->client = $client;
+    $this->cache = $cache;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBaseUrl() {
-    return 'https://cskb.acquia.com/o/drutiny-api/';
+  public function getName() {
+    return '<notice>ACQUIA</notice>';
   }
 
   /**

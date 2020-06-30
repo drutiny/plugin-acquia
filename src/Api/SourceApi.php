@@ -1,6 +1,6 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\Api;
 
 use Drutiny\Http\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * API client for CSKB.
  */
-class RestApi {
+class SourceApi {
   const CLIENT_ID = 'db65ca21-43cb-4840-9418-d8153e43d61d';
   const CLIENT_SECRET = 'letmein';
 

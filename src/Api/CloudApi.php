@@ -1,6 +1,6 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\Api;
 
 use AcquiaCloudApi\AcquiaCloudApi;
 use Drutiny\Acquia\Plugin\AcquiaCloudPlugin;

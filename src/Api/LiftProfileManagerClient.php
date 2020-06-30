@@ -1,9 +1,8 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\Api;
 
 use Drutiny\Http\Client;
-# use GuzzleHttp\Client;
 use Drutiny\Container;
 use Acquia\Hmac\Guzzle\HmacAuthMiddleware;
 use Acquia\Hmac\Key;

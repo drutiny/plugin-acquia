@@ -10,11 +10,23 @@ services:
     target.acquia:
       class: Drutiny\Acquia\AcquiaTarget
 
-    Drutiny\Acquia\RestApi:
-    Drutiny\Acquia\CloudApi:
+    Drutiny\Acquia\Command\AcsfSetupCommand:
+      tags: [command]
+    Drutiny\Acquia\Command\AcsfListCommand:
+      tags: [command]
 
-    Drutiny\Acquia\PolicySource:
+    Drutiny\Acquia\Api\SourceApi:
+    Drutiny\Acquia\Api\CloudApi:
+
+    Drutiny\Acquia\Source\PolicySource:
       tags: [policy.source]
+
+    domain_list.acsf:
+      class: Drutiny\Acquia\DomainList\AcquiaSiteFactoryDomainList
+      tags: [domain_list]
+
+    # Drutiny\Acquia\Source\ProfileSource:
+    #   tags: [profile.source]
 
     Drutiny\Acquia\PropertyBridge\CloudBridge:
       tags: [drutiny.event_subscriber]

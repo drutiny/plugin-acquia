@@ -1,9 +1,10 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\Source;
 
 use Drutiny\Policy;
 use Drutiny\PolicySource\PolicySourceInterface;
+use Drutiny\Acquia\Api\SourceApi;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -16,7 +17,7 @@ class PolicySource implements PolicySourceInterface {
   protected $client;
   protected $cache;
 
-  public function __construct(RestApi $client, CacheInterface $cache)
+  public function __construct(SourceApi $client, CacheInterface $cache)
   {
     $this->client = $client;
     $this->cache = $cache;

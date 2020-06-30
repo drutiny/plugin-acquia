@@ -1,6 +1,6 @@
 <?php
 
-namespace Drutiny\Acquia;
+namespace Drutiny\Acquia\DomainList;
 
 use Drutiny\Acquia\CloudApiV2;
 use Drutiny\Credential\CredentialsUnavailableException;

@@ -5,7 +5,7 @@ namespace Drutiny\Acquia\Audit;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\Credential\Manager;
-use Drutiny\Acquia\LiftProfileManagerClient;
+use Drutiny\Acquia\Api\LiftProfileManagerClient;
 
 /**
  * Audit gathered data.

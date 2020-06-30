@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia\PropertyBridge;
 
-use Drutiny\Acquia\CloudApi;
+use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Entity\Exception\DataNotFoundException;
 use Drutiny\Event\DataBagEvent;
 use Drutiny\Target\Service\RemoteService;
