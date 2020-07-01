@@ -58,7 +58,6 @@ class SourceApi {
   public function getPolicyList() {
       return $this->cache->get('acquia.api.policy_list', function (ItemInterface $item) {
           $token = $this->getToken();
-          $limit = 100;
           $offset = 0;
           $result = [];
 
@@ -70,7 +69,6 @@ class SourceApi {
                   'fields[node--policy]' => 'field_name,field_class,title',
                   'fields[taxonomy_term--drutiny_audit_classes]' => 'name',
                   'include' => 'field_class',
-                  'page[limit]' => $limit,
                   'page[offset]' => $offset
                 ],
                 'headers' => [
@@ -84,10 +82,10 @@ class SourceApi {
                   $row['attributes']['class'] = $term['attributes']['name'];
                   $row['attributes']['uuid'] = $row['id'];
                   $result[] = $row['attributes'];
+                  $offset++;
               }
-              $offset += $limit;
           }
-          while (count($response['data']) >= $limit);
+          while (isset($response['links']['next']) && count($response['data']));
 
           return $result;
       });
@@ -127,7 +125,53 @@ class SourceApi {
    * Retrieve a list of profiles.
    */
   public function getProfileList() {
-      return json_decode($this->client->get('profile/list')->getBody(), TRUE);
+    return $this->cache->get('acquia.api.profile_list', function (ItemInterface $item) {
+        $token = $this->getToken();
+        $limit = 100;
+        $offset = 0;
+        $result = [];
+
+        do {
+            $response = json_decode($this->client->get('jsonapi/node/profile', [
+              'query' => [
+                'filter[status][value]' => 1,
+                'filter[field_scope_visibility][value]' => 'external',
+                'fields[node--profile]' => 'title,field_name',
+                'page[limit]' => $limit,
+                'page[offset]' => $offset
+              ],
+              'headers' => [
+                'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
+              ]
+              ])->getBody(), true);
+
+            foreach ($response['data'] as $row) {
+                $row['attributes']['uuid'] = $row['id'];
+                $result[] = $row['attributes'];
+            }
+            $offset += $limit;
+        }
+        while (count($response['data']) >= $limit);
+
+        return $result;
+    });
+  }
+
+  public function getProfile($uuid)
+  {
+    return $this->cache->get('acquia.api.profile.'.$uuid, function (ItemInterface $item) use ($uuid) {
+        $token = $this->getToken();
+        $response = json_decode($this->client->get('jsonapi/node/profile/'.$uuid, [
+          'query' => [
+            'filter[status][value]' => 1,
+            'filter[field_scope_visibility][value]' => 'external',
+          ],
+          'headers' => [
+            'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
+          ]
+          ])->getBody(), true);
+        return $response['data'];
+        });
   }
 
 }

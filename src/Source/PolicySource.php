@@ -12,23 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * Load policies from CSKB.
  */
-class PolicySource implements PolicySourceInterface {
-
-  protected $client;
-  protected $cache;
-
-  public function __construct(SourceApi $client, CacheInterface $cache)
-  {
-    $this->client = $client;
-    $this->cache = $cache;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getName() {
-    return '<notice>ACQUIA</notice>';
-  }
+class PolicySource extends SourceBase implements PolicySourceInterface {
 
   /**
    * {@inheritdoc}
@@ -51,12 +35,16 @@ class PolicySource implements PolicySourceInterface {
    */
   public function load(array $definition) {
     $response = $this->client->getPolicy($definition['signature']);
+    $fields = $response['data']['attributes'];
+    $definition['chart'] = !empty($fields['field_chart']) ? Yaml::parse($fields['field_chart']) : [];
+    $definition['depends'] = !empty($fields['field_depends']) ? Yaml::parse($fields['field_depends']) : [];
+    $definition['parameters'] = !empty($fields['field_parameters']) ? Yaml::parse($fields['field_parameters']) : [];
 
-    $definition['chart'] = (array) Yaml::parse($response['data']['attributes']['field_chart']);
-    $definition['depends'] = Yaml::parse($response['data']['attributes']['field_depends']);
-    $definition['parameters'] = (array) Yaml::parse($response['data']['attributes']['field_parameters']);
+    if (isset($definition['parameters']['_chart']) && empty($definition['parameters']['_chart'])) {
+      unset($definition['parameters']['_chart']);
+    }
 
-    foreach ($response['included'] as $include) {
+    foreach ($response['included'] ?? [] as $include) {
         if ($include['id'] == $response['data']['relationships']['field_class']['data']['id']) {
             $definition['class'] = $include['attributes']['name'];
             break;
@@ -87,13 +75,6 @@ class PolicySource implements PolicySourceInterface {
 
     $policy = new Policy();
     return $policy->setProperties($definition);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getWeight() {
-    return -80;
   }
 
 }
