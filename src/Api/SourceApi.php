@@ -3,25 +3,22 @@
 namespace Drutiny\Acquia\Api;
 
 use Drutiny\Http\Client;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drutiny\LanguageManager;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * API client for CSKB.
  */
 class SourceApi {
-  const CLIENT_ID = 'db65ca21-43cb-4840-9418-d8153e43d61d';
-  const CLIENT_SECRET = 'letmein';
 
   protected $client;
   protected $cache;
-  protected $credentials;
 
-  public function __construct(Client $client, ContainerInterface $container, CacheInterface $cache)
+  public function __construct(Client $client, CacheInterface $cache, ContainerInterface $container)
   {
       $this->cache = $cache;
-      $this->credentials = $container->get('credentials')->setNamespace('acquia:drutiny_api');
       $this->client = $client->create([
         'base_uri' => $container->getParameter('acquia.api.base_uri'),
         'headers' => [
@@ -37,44 +34,33 @@ class SourceApi {
       ]);
   }
 
-  protected function getToken(array $token = null):array
-  {
-    // When no refresh_token exists, a new token must be generated.
-    return $this->cache->get('acquia.api.token', function (ItemInterface $item) {
-        $response = $this->client->post('oauth/token', ['form_params' => [
-          'grant_type' => 'client_credentials',
-          'client_id' => static::CLIENT_ID,
-          'client_secret' => static::CLIENT_SECRET
-          ]]);
-        $token = json_decode($response->getBody(), true);
-        $token['timestamp'] = time();
-        $item->expiresAfter($token['expires_in']);
-        return $token;
-    });
-  }
-
   /**
    * Retrieve a list of policies.
    */
-  public function getPolicyList() {
-      return $this->cache->get('acquia.api.policy_list', function (ItemInterface $item) {
-          $token = $this->getToken();
+  public function getPolicyList(LanguageManager $languageManager) {
+      $lang_code = $languageManager->getCurrentLanguage();
+
+      return $this->cache->get('acquia.api.policy_list.'.$lang_code, function (ItemInterface $item) use ($lang_code) {
           $offset = 0;
           $result = [];
 
+          // To retrive content in the specified language we must seek the API
+          // within the respective language.
+          $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
+
           do {
-              $response = json_decode($this->client->get('jsonapi/node/policy', [
+              $response = json_decode($this->client->get($prefix.'jsonapi/node/policy', [
                 'query' => [
                   'filter[status][value]' => 1,
                   'filter[field_scope_visibility][value]' => 'external',
+                  // Only include content that contains a translations for the
+                  // specified language.
+                  'filter[langcode]' => $lang_code,
                   'fields[node--policy]' => 'field_name,field_class,title',
                   'fields[taxonomy_term--drutiny_audit_classes]' => 'name',
                   'include' => 'field_class',
                   'page[offset]' => $offset
                 ],
-                'headers' => [
-                  'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
-                ]
                 ])->getBody(), true);
 
               foreach ($response['data'] as $row) {
@@ -92,25 +78,29 @@ class SourceApi {
       });
   }
 
-  public function getPolicy($uuid)
+  /**
+   * Retrieve full data on a single policy.
+   */
+  public function getPolicy($uuid, $lang_code = 'en'):array
   {
-    return $this->cache->get('acquia.api.policy.'.$uuid, function (ItemInterface $item) use ($uuid) {
-        $token = $this->getToken();
-        $response = json_decode($this->client->get('jsonapi/node/policy/'.$uuid, [
+    return $this->cache->get('acquia.api.policy.'.$uuid.'.'.$lang_code, function (ItemInterface $item) use ($uuid, $lang_code) {
+        $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
+        $response = json_decode($this->client->get($prefix.'jsonapi/node/policy/'.$uuid, [
           'query' => [
             'filter[status][value]' => 1,
             'filter[field_scope_visibility][value]' => 'external',
+            'filter[langcode]' => $lang_code,
             'include' => 'field_tags',
           ],
-          'headers' => [
-            'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
-          ]
           ])->getBody(), true);
         return $response;
         });
   }
 
-  protected function findEntity($response, $uuid)
+  /**
+   * Pull an entity from the included key in JSON:API response.
+   */
+  protected function findEntity(array $response, $uuid):array
   {
       foreach ($response['included'] as $include) {
           if ($include['id'] == $uuid) {
@@ -122,25 +112,31 @@ class SourceApi {
   /**
    * Retrieve a list of profiles.
    */
-  public function getProfileList() {
-    return $this->cache->get('acquia.api.profile_list', function (ItemInterface $item) {
-        $token = $this->getToken();
+  public function getProfileList(LanguageManager $languageManager):array
+  {
+    $lang_code = $languageManager->getCurrentLanguage();
+    return $this->cache->get('acquia.api.profile_list.'.$lang_code, function (ItemInterface $item) use ($lang_code) {
         $limit = 100;
         $offset = 0;
         $result = [];
 
+        // To retrive content in the specified language we must seek the API
+        // within the respective language.
+        $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
+
         do {
-            $response = json_decode($this->client->get('jsonapi/node/profile', [
+
+            $response = json_decode($this->client->get($prefix.'jsonapi/node/profile', [
               'query' => [
                 'filter[status][value]' => 1,
                 'filter[field_scope_visibility][value]' => 'external',
+                // Only include content that contains a translations for the
+                // specified language.
+                'filter[langcode]' => $lang_code,
                 'fields[node--profile]' => 'title,field_name',
                 'page[limit]' => $limit,
                 'page[offset]' => $offset
               ],
-              'headers' => [
-                'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
-              ]
               ])->getBody(), true);
 
             foreach ($response['data'] as $row) {
@@ -155,21 +151,19 @@ class SourceApi {
     });
   }
 
+  /**
+   * Pull the full data object of a profile.
+   */
   public function getProfile($uuid)
   {
     return $this->cache->get('acquia.api.profile.'.$uuid, function (ItemInterface $item) use ($uuid) {
-        $token = $this->getToken();
         $response = json_decode($this->client->get('jsonapi/node/profile/'.$uuid, [
           'query' => [
             'filter[status][value]' => 1,
             'filter[field_scope_visibility][value]' => 'external',
           ],
-          'headers' => [
-            'Authorization' => $token['token_type'] . ' ' . $token['access_token'],
-          ]
           ])->getBody(), true);
         return $response['data'];
         });
   }
-
 }

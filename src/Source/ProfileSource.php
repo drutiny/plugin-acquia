@@ -6,6 +6,7 @@ use Drutiny\ProfileSource\ProfileSourceInterface;
 use Drutiny\Profile\PolicyDefinition;
 use Drutiny\Profile;
 use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
+use Drutiny\LanguageManager;
 use Drutiny\Report\Format;
 use Drutiny\Acquia\Api\SourceApi;
 use Symfony\Component\Yaml\Yaml;
@@ -21,9 +22,9 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getList() {
+  public function getList(LanguageManager $languageManager) {
     $list = [];
-    foreach ($this->client->getProfileList() as $profile) {
+    foreach ($this->client->getProfileList($languageManager) as $profile) {
       $list[$profile['field_name']] = [
         'name' => $profile['field_name'],
         'title' => $profile['title'],

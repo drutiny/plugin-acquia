@@ -1,5 +1,5 @@
 parameters:
-    acquia.api.base_uri: https://dev.cskb.acquia.com/
+    acquia.api.base_uri: https://cskb.acquia.com/
 
 services:
     _defaults:

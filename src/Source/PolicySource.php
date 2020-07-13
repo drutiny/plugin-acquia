@@ -5,6 +5,7 @@ namespace Drutiny\Acquia\Source;
 use Drutiny\Policy;
 use Drutiny\PolicySource\PolicySourceInterface;
 use Drutiny\Acquia\Api\SourceApi;
+use Drutiny\LanguageManager;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -17,14 +18,15 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getList() {
+  public function getList(LanguageManager $languageManager) {
     $list = [];
-    foreach ($this->client->getPolicyList() as $policy) {
+    foreach ($this->client->getPolicyList($languageManager) as $policy) {
       $list[$policy['field_name']] = [
         'signature' => $policy['uuid'],
         'name' => $policy['field_name'],
         'class' => $policy['class'],
         'title' => $policy['title'],
+        'language' => $languageManager->getCurrentLanguage(),
       ];
     }
     return $list;
@@ -34,7 +36,7 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
    * {@inheritdoc}
    */
   public function load(array $definition) {
-    $response = $this->client->getPolicy($definition['signature']);
+    $response = $this->client->getPolicy($definition['signature'], $definition['language']);
     $fields = $response['data']['attributes'];
     $definition['chart'] = !empty($fields['field_chart']) ? Yaml::parse($fields['field_chart']) : [];
     $definition['depends'] = !empty($fields['field_depends']) ? Yaml::parse($fields['field_depends']) : [];
