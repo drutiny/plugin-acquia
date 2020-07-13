@@ -48,6 +48,7 @@ class SourceApi {
           ]]);
         $token = json_decode($response->getBody(), true);
         $token['timestamp'] = time();
+        $item->expiresAfter($token['expires_in']);
         return $token;
     });
   }
@@ -99,9 +100,6 @@ class SourceApi {
           'query' => [
             'filter[status][value]' => 1,
             'filter[field_scope_visibility][value]' => 'external',
-            // 'fields[node--policy]' => 'field_name,field_class,title',
-            //'fields[taxonomy_term--drutiny_audit_classes]' => 'name',
-            //'fields[taxonomy_term--]'
             'include' => 'field_tags',
           ],
           'headers' => [
