@@ -34,67 +34,45 @@ class SourceApi {
       ]);
   }
 
-  /**
-   * Retrieve a list of policies.
-   */
-  public function getPolicyList(LanguageManager $languageManager) {
-      $lang_code = $languageManager->getCurrentLanguage();
-
-      return $this->cache->get('acquia.api.policy_list.'.$lang_code, function (ItemInterface $item) use ($lang_code) {
-          $offset = 0;
-          $result = [];
-
-          // To retrive content in the specified language we must seek the API
-          // within the respective language.
-          $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
-
-          do {
-              $response = json_decode($this->client->get($prefix.'jsonapi/node/policy', [
-                'query' => [
-                  'filter[status][value]' => 1,
-                  'filter[field_scope_visibility][value]' => 'external',
-                  // Only include content that contains a translations for the
-                  // specified language.
-                  'filter[langcode]' => $lang_code,
-                  'fields[node--policy]' => 'field_name,field_class,title',
-                  'fields[taxonomy_term--drutiny_audit_classes]' => 'name',
-                  'include' => 'field_class',
-                  'page[offset]' => $offset
-                ],
-                ])->getBody(), true);
-
-              foreach ($response['data'] as $row) {
-                  $uuid = $row['relationships']['field_class']['data']['id'];
-                  $term = $this->findEntity($response, $uuid);
-                  $row['attributes']['class'] = $term['attributes']['name'];
-                  $row['attributes']['uuid'] = $row['id'];
-                  $result[] = $row['attributes'];
-                  $offset++;
-              }
-          }
-          while (isset($response['links']['next']) && count($response['data']));
-
-          return $result;
+  public function get(string $endpoint, array $params = [])
+  {
+      $cid = 'acquia.api.'.hash('md5', $endpoint.http_build_query($params));
+      return $this->cache->get($cid, function (ItemInterface $item) use ($endpoint, $params) {
+        return json_decode($this->client->get($endpoint, $params)->getBody(), true);
       });
   }
 
-  /**
-   * Retrieve full data on a single policy.
-   */
-  public function getPolicy($uuid, $lang_code = 'en'):array
+  public function getList(string $endpoint, array $params = [])
   {
-    return $this->cache->get('acquia.api.policy.'.$uuid.'.'.$lang_code, function (ItemInterface $item) use ($uuid, $lang_code) {
-        $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
-        $response = json_decode($this->client->get($prefix.'jsonapi/node/policy/'.$uuid, [
-          'query' => [
-            'filter[status][value]' => 1,
-            'filter[field_scope_visibility][value]' => 'external',
-            'filter[langcode]' => $lang_code,
-            'include' => 'field_tags',
-          ],
-          ])->getBody(), true);
-        return $response;
-        });
+    $offset = 0;
+    $result = [];
+    do {
+      $params['query']['page[offset]'] = $offset;
+      $response = $this->get($endpoint, $params);
+
+      foreach ($response['data'] as $row) {
+          foreach ($row['relationships'] ?? [] as $field_name => $field) {
+            if (empty($field['data'])) {
+              continue;
+            }
+            $relations = isset($field['data'][0]) ? $field['data'] : [$field['data']];
+
+            foreach ($relations as $link) {
+              if ($entity = $this->findEntity($response, $link['id'])) {
+                $row['attributes'][$field_name][] = $entity;
+              }
+            }
+          }
+          // $uuid = $row['relationships']['field_class']['data']['id'];
+          // $term = $this->findEntity($response, $uuid);
+          // $row['attributes']['class'] = $term['attributes']['name'];
+          $row['attributes']['uuid'] = $row['id'];
+          $result[] = $row['attributes'];
+          $offset++;
+      }
+    }
+    while (isset($response['links']['next']) && count($response['data']));
+    return $result;
   }
 
   /**
@@ -102,68 +80,11 @@ class SourceApi {
    */
   protected function findEntity(array $response, $uuid):array
   {
-      foreach ($response['included'] as $include) {
+      foreach ($response['included'] ?? [] as $include) {
           if ($include['id'] == $uuid) {
               return $include;
           }
       }
-  }
-
-  /**
-   * Retrieve a list of profiles.
-   */
-  public function getProfileList(LanguageManager $languageManager):array
-  {
-    $lang_code = $languageManager->getCurrentLanguage();
-    return $this->cache->get('acquia.api.profile_list.'.$lang_code, function (ItemInterface $item) use ($lang_code) {
-        $limit = 100;
-        $offset = 0;
-        $result = [];
-
-        // To retrive content in the specified language we must seek the API
-        // within the respective language.
-        $prefix = $lang_code == 'en' ? '/' : $lang_code.'/';
-
-        do {
-
-            $response = json_decode($this->client->get($prefix.'jsonapi/node/profile', [
-              'query' => [
-                'filter[status][value]' => 1,
-                'filter[field_scope_visibility][value]' => 'external',
-                // Only include content that contains a translations for the
-                // specified language.
-                'filter[langcode]' => $lang_code,
-                'fields[node--profile]' => 'title,field_name',
-                'page[limit]' => $limit,
-                'page[offset]' => $offset
-              ],
-              ])->getBody(), true);
-
-            foreach ($response['data'] as $row) {
-                $row['attributes']['uuid'] = $row['id'];
-                $result[] = $row['attributes'];
-            }
-            $offset += $limit;
-        }
-        while (count($response['data']) >= $limit);
-
-        return $result;
-    });
-  }
-
-  /**
-   * Pull the full data object of a profile.
-   */
-  public function getProfile($uuid)
-  {
-    return $this->cache->get('acquia.api.profile.'.$uuid, function (ItemInterface $item) use ($uuid) {
-        $response = json_decode($this->client->get('jsonapi/node/profile/'.$uuid, [
-          'query' => [
-            'filter[status][value]' => 1,
-            'filter[field_scope_visibility][value]' => 'external',
-          ],
-          ])->getBody(), true);
-        return $response['data'];
-        });
+      return [];
   }
 }

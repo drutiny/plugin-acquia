@@ -38,15 +38,6 @@ services:
     Drutiny\Acquia\Plugin\:
         resource: 'src/Plugin/*'
         tags: [plugin]
-    # Drutiny\Acquia\:
-    #     resource: 'src/*'
-        # exclude:
-        #   - 'src/{ExpressionFunction,DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
-        #   - src/Console/Application.php
-        #   - src/Event/*
-        #   - src/Upgrade/*
-        #   - src/*/*Exception.php
-        #   - src/Sandbox/Sandbox.php
-        #   - src/ExpressionLanguage.php
-        #   - src/Report/Format/Menu/*
-        #   - src/functions.php
+
+    Drutiny\Acquia\AcquiaEnvExpressionFunction:
+        tags: [drutiny.expression_language.function]

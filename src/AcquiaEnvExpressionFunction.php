@@ -26,14 +26,14 @@ class AcquiaEnvExpressionFunction extends ExpressionFunction implements Function
   public function getCompiler()
   {
       return function () {
-        return 'AcquiaEnv()';
+        return 'target("acquia.cloud.environment")';
       };
   }
 
   public function getEvaluator()
   {
       return function ($args) {
-          return CloudApiDrushAdaptor::getEnvironment($this->target);
+          return $this->target['acquia.cloud.environment']->export();
       };
   }
 }

@@ -64,7 +64,7 @@ class CloudBridge implements EventSubscriberInterface
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {
-            $this->logger->error($e->getMessage());
+            $this->logger->warning($e->getMessage());
         }
     }
 
@@ -75,20 +75,17 @@ class CloudBridge implements EventSubscriberInterface
         list($user, $host) = explode('@', $ssh_url, 2);
 
         try {
-            $service = new RemoteService($target['service.local']);
-            $service->setConfig('User', $user);
-            $service->setConfig('Host', $host);
-
-            $target['service.exec'] = $service;
+            $target['service.exec'] = new RemoteService($target['service.local']);
+            $target['service.exec']->setConfig('User', $user);
+            $target['service.exec']->setConfig('Host', $host);
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {
             $this->logger->error($e->getMessage());
-
             return;
         }
 
-        $data = $service->run("drush site:alias @$user --format=json", function ($output) {
+        $data = $target['service.exec']->run("drush site:alias @$user --format=json", function ($output) {
             return json_decode($output, true);
         });
 
@@ -112,7 +109,7 @@ class CloudBridge implements EventSubscriberInterface
                 return $app;
             }
         }
-        throw new \Exception("Cannot find Acquia application matching target criteria: $realm:$site.");
+        throw new DataNotFoundException("Cannot find Acquia application matching target criteria: $realm:$site.");
     }
 
     protected function findEnvironment($uuid, $env)

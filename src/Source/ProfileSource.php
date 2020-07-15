@@ -3,11 +3,9 @@
 namespace Drutiny\Acquia\Source;
 
 use Drutiny\ProfileSource\ProfileSourceInterface;
-use Drutiny\Profile\PolicyDefinition;
 use Drutiny\Profile;
 use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
 use Drutiny\LanguageManager;
-use Drutiny\Report\Format;
 use Drutiny\Acquia\Api\SourceApi;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -19,16 +17,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ProfileSource extends SourceBase implements ProfileSourceInterface {
 
+  const API_ENDPOINT = 'jsonapi/node/profile';
+
   /**
    * {@inheritdoc}
    */
   public function getList(LanguageManager $languageManager) {
     $list = [];
-    foreach ($this->client->getProfileList($languageManager) as $profile) {
-      $list[$profile['field_name']] = [
-        'name' => $profile['field_name'],
-        'title' => $profile['title'],
-        'uuid' => $profile['uuid'],
+    $query = $this->getRequestParams();
+    $query['query']['fields[node--profile]'] = 'title,field_name';
+
+    foreach ($this->client->getList($this->getApiPrefix().self::API_ENDPOINT, $query) as $item) {
+      $list[$item['field_name']] = [
+        'name' => $item['field_name'],
+        'title' => $item['title'],
+        'uuid' => $item['uuid'],
+        'language' => $languageManager->getCurrentLanguage(),
       ];
     }
     return $list;
@@ -38,10 +42,11 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
    * {@inheritdoc}
    */
   public function load(array $definition) {
+    $query = $this->getRequestParams();
+    $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['uuid'];
+    $response = $this->client->get($endpoint, $query);
 
-    $response = $this->client->getProfile($definition['uuid']);
-
-    $fields = $response['attributes'];
+    $fields = $response['data']['attributes'];
 
     $profile = $this->container->get('profile');
     $profile->setProperties([

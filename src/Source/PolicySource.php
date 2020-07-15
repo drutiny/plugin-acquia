@@ -15,17 +15,24 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class PolicySource extends SourceBase implements PolicySourceInterface {
 
+  const API_ENDPOINT = 'jsonapi/node/policy';
+
   /**
    * {@inheritdoc}
    */
   public function getList(LanguageManager $languageManager) {
     $list = [];
-    foreach ($this->client->getPolicyList($languageManager) as $policy) {
-      $list[$policy['field_name']] = [
-        'signature' => $policy['uuid'],
-        'name' => $policy['field_name'],
-        'class' => $policy['class'],
-        'title' => $policy['title'],
+    $params = $this->getRequestParams();
+    $params['query']['fields[node--policy]'] = 'field_name,field_class,title';
+    $params['query']['fields[taxonomy_term--drutiny_audit_classes]'] = 'name';
+    $params['query']['include'] = 'field_class';
+
+    foreach ($this->client->getList($this->getApiPrefix().self::API_ENDPOINT, $params) as $item) {
+      $list[$item['field_name']] = [
+        'signature' => $item['uuid'],
+        'name' => $item['field_name'],
+        'class' => $item['field_class'][0]['attributes']['name'],
+        'title' => $item['title'],
         'language' => $languageManager->getCurrentLanguage(),
       ];
     }
@@ -36,7 +43,11 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
    * {@inheritdoc}
    */
   public function load(array $definition) {
-    $response = $this->client->getPolicy($definition['signature'], $definition['language']);
+    $query = $this->getRequestParams();
+    $query['query']['include'] = 'field_tags';
+    $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['signature'];
+    $response = $this->client->get($endpoint, $query);
+
     $fields = $response['data']['attributes'];
     $definition['chart'] = !empty($fields['field_chart']) ? Yaml::parse($fields['field_chart']) : [];
     $definition['depends'] = !empty($fields['field_depends']) ? Yaml::parse($fields['field_depends']) : [];
