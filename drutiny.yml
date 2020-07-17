@@ -18,6 +18,9 @@ services:
     Drutiny\Acquia\Api\SourceApi:
     Drutiny\Acquia\Api\CloudApi:
 
+    acquia.cloud.api:
+      class: Drutiny\Acquia\Api\CloudApi
+
     Drutiny\Acquia\Source\PolicySource:
       tags: [policy.source]
 
@@ -38,6 +41,7 @@ services:
     Drutiny\Acquia\Plugin\:
         resource: 'src/Plugin/*'
         tags: [plugin]
+        shared: false
 
     Drutiny\Acquia\AcquiaEnvExpressionFunction:
         tags: [drutiny.expression_language.function]

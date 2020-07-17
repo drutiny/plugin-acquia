@@ -53,7 +53,7 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
     $definition['depends'] = !empty($fields['field_depends']) ? Yaml::parse($fields['field_depends']) : [];
     $definition['parameters'] = !empty($fields['field_parameters']) ? Yaml::parse($fields['field_parameters']) : [];
 
-    if (isset($definition['parameters']['_chart']) && empty($definition['parameters']['_chart'])) {
+    if (isset($definition['parameters']['_chart'])) {
       unset($definition['parameters']['_chart']);
     }
 
