@@ -4,10 +4,7 @@ namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\AcquiaTargetInterface;
-use Drutiny\Acquia\CloudApiV2;
 use Drutiny\AuditValidationException;
 
 /**
@@ -68,18 +65,14 @@ class StackMetrics extends AbstractAnalysis {
         );
     }
 
-  protected function requireCloudApiV2(Sandbox $sandbox)
-  {
-    return Manager::load('acquia_api_v2');
-  }
-
   /**
    * @inheritdoc
    */
   public function gather(Sandbox $sandbox) {
 
-    $target = $sandbox->getTarget();
-    $env = ($target instanceof AcquiaTargetInterface) ? $target->getEnvironment() : CloudApiDrushAdaptor::getEnvironment($target);
+    $api = $this->container->get('acquia.cloud.api')->getClient();
+    $env = $this->target['acquia.cloud.environment.id'];
+
 
     $metrics = $this->getParameter('metrics');
 
@@ -87,7 +80,7 @@ class StackMetrics extends AbstractAnalysis {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
     }
 
-    $response = CloudApiV2::get('environments/' . $env['id'] . '/metrics/stackmetrics/data', [
+    $response = $api->getClient()->get('environments/' . $env . '/metrics/stackmetrics/data', [
       'filter' => implode(',', array_map(function ($metric) {
         return 'metric:' . $metric;
       }, $metrics)),
