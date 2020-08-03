@@ -86,6 +86,28 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
 
     unset($definition['signature'], $definition['source']);
 
+    switch ($definition['severity'] ?? false) {
+        case Policy::SEVERITY_LOW:
+        case 'low':
+            $definition['severity'] = 'low';
+            break;
+        case Policy::SEVERITY_NORMAL:
+        case 'normal':
+            $definition['severity'] = 'normal';
+            break;
+        case Policy::SEVERITY_HIGH:
+        case 'high':
+            $definition['severity'] = 'high';
+            break;
+        case Policy::SEVERITY_CRITICAL:
+        case 'critical':
+            $definition['severity'] = 'critical';
+            break;
+        default:
+            $definition['severity'] = 'normal';
+            break;
+    }
+
     $policy = new Policy();
     return $policy->setProperties($definition);
   }

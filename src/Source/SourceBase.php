@@ -51,7 +51,7 @@ class SourceBase {
    * {@inheritdoc}
    */
   public function getName() {
-    return '<notice>ACQUIA</notice>';
+    return '<fg=cyan>ACQUIA</>';
   }
 
   /**

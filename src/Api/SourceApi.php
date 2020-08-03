@@ -34,6 +34,11 @@ class SourceApi {
       ]);
   }
 
+  public function setCache(CacheInterface $cache)
+  {
+      $this->cache = $cache;
+  }
+
   public function get(string $endpoint, array $params = [])
   {
       $cid = 'acquia.api.'.hash('md5', $endpoint.http_build_query($params));

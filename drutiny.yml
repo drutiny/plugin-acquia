@@ -1,11 +1,23 @@
 parameters:
     acquia.api.base_uri: https://cskb.acquia.com/
-
+    cache.acquia_source_ttl: 2592000 # 30 Days
 services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         public: true
+
+    acquia.templates:
+      class: Twig\Loader\FilesystemLoader
+      arguments: [ '%acquia.twig_dir%' ] # See drutiny.php
+      tags: [twig.loader]
+
+    cache.acquia_source:
+        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+        arguments: [acquia_source, '%cache.acquia_source_ttl%', '%cache.directory%']
+        calls:
+          - [setLogger, ['@logger']]
+          - [prune]
 
     target.acquia:
       class: Drutiny\Acquia\AcquiaTarget
@@ -16,6 +28,9 @@ services:
       tags: [command]
 
     Drutiny\Acquia\Api\SourceApi:
+      calls:
+        - [setCache, ['@cache.acquia_source']]
+
     Drutiny\Acquia\Api\CloudApi:
 
     acquia.cloud.api:

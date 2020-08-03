@@ -2,15 +2,16 @@
 
 namespace Drutiny\Acquia\Source;
 
-use Drutiny\ProfileSource\ProfileSourceInterface;
+use Drutiny\Acquia\Api\SourceApi;
+use Drutiny\LanguageManager;
+use Drutiny\Policy;
 use Drutiny\Profile;
 use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
-use Drutiny\LanguageManager;
-use Drutiny\Acquia\Api\SourceApi;
+use Drutiny\ProfileSource\ProfileSourceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Load profiles from CSKB.
@@ -47,6 +48,27 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
     $response = $this->client->get($endpoint, $query);
 
     $fields = $response['data']['attributes'];
+    $policies = Yaml::parse($fields['field_policies']);
+
+    foreach ($policies as $policy_name => $info) {
+        switch ($info['severity'] ?? false) {
+            case Policy::SEVERITY_LOW:
+                $policies[$policy_name]['severity'] = 'low';
+                break;
+            case Policy::SEVERITY_NORMAL:
+                $policies[$policy_name]['severity'] = 'normal';
+                break;
+            case Policy::SEVERITY_HIGH:
+                $policies[$policy_name]['severity'] = 'high';
+                break;
+            case Policy::SEVERITY_CRITICAL:
+                $policies[$policy_name]['severity'] = 'critical';
+                break;
+            default:
+                $policies[$policy_name]['severity'] = 'normal';
+                break;
+        }
+    }
 
     $profile = $this->container->get('profile');
     $profile->setProperties([
@@ -54,7 +76,7 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
       'name' => $fields['field_name'],
       'uuid' => $definition['uuid'],
       'description' => $fields['field_description'],
-      'policies' => Yaml::parse($fields['field_policies']),
+      'policies' => $policies,
       'excluded_policies' => !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [],
       'include' => $fields['field_include'],
       'format' => [
