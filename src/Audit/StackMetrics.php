@@ -6,6 +6,7 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\Acquia\AcquiaTargetInterface;
 use Drutiny\AuditValidationException;
+use Drutiny\Report\Format\HTML;
 
 /**
  *
@@ -80,13 +81,14 @@ class StackMetrics extends AbstractAnalysis {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
     }
 
-    $response = $api->getClient()->get('environments/' . $env . '/metrics/stackmetrics/data', [
+    $response = $api->getClient()->get('environments/' . $env . '/metrics/stackmetrics/data', ['query' => [
       'filter' => implode(',', array_map(function ($metric) {
         return 'metric:' . $metric;
       }, $metrics)),
       'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ISO8601),
       'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ISO8601),
-    ]);
+    ]]);
+    $response = json_decode($response->getBody(), true);
 
     $table_headers = ['Date'];
     $table_rows = [];
@@ -137,7 +139,7 @@ class StackMetrics extends AbstractAnalysis {
       'stacked' => $this->getParameter('stacked',FALSE),
       'y-axis' => $this->getParameter('y-axis-label','Percentage'),
       'maintain-aspect-ratio' => $this->getParameter('maintain-aspect-ratio',TRUE),
-      'title' => $sandbox->getPolicy()->get('title'),
+      'title' => $this->getPolicy()->title,
       'series' => [],
       'series-labels' => [],
       'legend' => 'bottom',
@@ -154,12 +156,7 @@ class StackMetrics extends AbstractAnalysis {
     $graph['series'] = implode(',', $graph['series']);
     $graph['series-labels'] = implode(',', $graph['series-labels']);
 
-    $element = [];
-    foreach ($graph as $key => $value) {
-      $element[] = $key . '="' . $value . '"';
-    }
-    $element = '[[[' . implode(' ', $element) . ']]]';
-    $this->set('graph', $element);
+    $this->set('graph', HTML::filterChart($graph));
   }
 
 }
