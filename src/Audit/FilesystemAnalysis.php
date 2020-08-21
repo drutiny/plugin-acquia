@@ -6,9 +6,28 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\CloudApiV2;
+use Drutiny\Annotation\Param;
 
 /**
- * Check to ensure Production Mode is enabled on Acquia Cloud.
+ * Audit the usage of the filesystem.
+ *
+ * @Param(
+ *  name = "expression",
+ *  type = "string",
+ *  default = "true",
+ *  description = "The expression language to evaludate. See https://symfony.com/doc/current/components/expression_language/syntax.html"
+ * )
+ * @Param(
+ *  name = "not_applicable",
+ *  type = "string",
+ *  default = "false",
+ *  description = "The expression language to evaludate if the analysis is not applicable. See https://symfony.com/doc/current/components/expression_language/syntax.html"
+ * )
+ * @Param(
+ *  name = "unit",
+ *  description = "the unit of measurement to describe the volume usage in. E.g. B,M,G,T.",
+ *  default = "G"
+ * )
  */
 class FilesystemAnalysis extends EnvironmentAnalysis {
 
@@ -18,16 +37,29 @@ class FilesystemAnalysis extends EnvironmentAnalysis {
   public function gather(Sandbox $sandbox) {
     parent::gather($sandbox);
 
-    $output = $sandbox->exec('df -h | grep gfs');
+    $unit = $sandbox->getParameter('unit', "G");
+
+    // Report file system disk space usage based on the unit
+    $output = $sandbox->exec("df -B$unit | grep gfs");
+
+    // Remove all occurrences the storage unit and % from the output.
+    // This will allow the values to be used in conditional expressions.
+    $output = str_replace([$unit,'%'], '', $output);
+
     list($volume, $capacity, $used, $free, $usage, $mountpoint) = array_values(array_filter(preg_split("/\t|\s/", $output)));
+<<<<<<< HEAD
     $this->set('filesystem', [
+=======
+
+    $sandbox->setParameter('filesystem', [
+>>>>>>> 886cd1b... Added the 'unit' param and adjusted output for expression use.
       'volume' => $volume,
-      'capacity' => $capacity,
-      'used' => $used,
-      'free' => $free,
-      'usage' => $usage,
+      'capacity' => (int)$capacity,
+      'used' => (int)$used,
+      'free' => (int)$free,
+      'percent_used' => (int)$usage,
       'mountpoint' => $mountpoint,
+      'unit' => $unit,
     ]);
   }
-
 }
