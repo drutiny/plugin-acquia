@@ -60,9 +60,9 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'environmentId' => $environment_id
     ]));
 
+  if ($app['hosting']['type'] != 'acsf') {
     $this->set('variables', $client->getEnvironmentsVariables([
       'environmentId' => $environment_id
     ]));
   }
-
 }
