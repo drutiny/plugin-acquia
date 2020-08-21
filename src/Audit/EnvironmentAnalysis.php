@@ -69,9 +69,11 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'environmentId' => $environment['id']
     ]));
 
-    $sandbox->setParameter('variables', $client->getEnvironmentsVariables([
-      'environmentId' => $environment['id']
-    ]));
+    if ($app['hosting']['type'] != 'acsf') {
+      $sandbox->setParameter('variables', $client->getEnvironmentsVariables([
+        'environmentId' => $environment['id']
+      ]));
+    }
   }
 
 }
