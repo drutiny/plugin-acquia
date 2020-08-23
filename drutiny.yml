@@ -36,6 +36,10 @@ services:
     acquia.cloud.api:
       class: Drutiny\Acquia\Api\CloudApi
 
+    acquia.lift.api:
+      class: Drutiny\Acquia\Api\LiftProfileManagerClient
+      factory: ['Drutiny\Acquia\Api\LiftProfileManagerClient', 'create']
+
     Drutiny\Acquia\Source\PolicySource:
       tags: [policy.source]
 

@@ -61,7 +61,7 @@ class AcquiaTarget extends DrushTarget
             $this['acquia.cloud.environment.'.$key] = $value;
         }
 
-        $this['uri'] = $this['acquia.cloud.environment.active_domain'];
+        $this->setUri($this['acquia.cloud.environment.active_domain']);
         $this->buildAttributes();
 
         return $this;

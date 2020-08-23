@@ -31,11 +31,11 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
 
     public function configure()
     {
-           $this->addParameter(
-        'expression',
-        static::PARAMETER_OPTIONAL,
-        'The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-        true
+        $this->addParameter(
+          'expression',
+          static::PARAMETER_OPTIONAL,
+          'The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
+          true
         );
 
     }
@@ -45,7 +45,7 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
    */
   public function gather(Sandbox $sandbox) {
     parent::gather($sandbox);
-    
+
     // Grab the environment and sitegroup name
     $app = $this->getParameter('app');
     $hosting_id = explode(':', $app['hosting']['id']);

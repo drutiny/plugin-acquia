@@ -61,6 +61,8 @@ class CloudBridge implements EventSubscriberInterface
                 }
                 $target['acquia.cloud.environment.'.$key] = $value;
             }
+
+            $target->setUri($target['acquia.cloud.environment.active_domain']);
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {

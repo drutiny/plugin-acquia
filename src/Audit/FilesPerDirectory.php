@@ -19,11 +19,10 @@ class FilesPerDirectory extends Audit {
 
     public function configure()
     {
-           $this->addParameter(
-        'limit',
-        static::PARAMETER_OPTIONAL,
-        'The limit of files per directory.',
-        
+        $this->addParameter(
+          'limit',
+          static::PARAMETER_OPTIONAL,
+          'The limit of files per directory.'  
         );
 
     }

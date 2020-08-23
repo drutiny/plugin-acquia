@@ -4,73 +4,64 @@ namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
-use Drutiny\Acquia\CloudApiV2;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.
  */
 class EnvironmentAnalysis extends AbstractAnalysis {
 
-  protected function requireCloudApiV2()
-  {
-    return Manager::load('acquia_api_v2');
-  }
-
   /**
    * @inheritdoc
    */
   public function gather(Sandbox $sandbox) {
-    $environment = CloudApiDrushAdaptor::getEnvironment($sandbox->getTarget());
-    $app = CloudApiV2::get('applications/' . $environment['application']['uuid']);
-
-    $this->set('environment', $environment);
+    $environment_id = $this->target['acquia.cloud.environment.id'];
+    $app = $this->target['acquia.cloud.application']->export();
+    $this->set('environment', $this->target['acquia.cloud.environment']->export());
     $this->set('app', $app);
-    $client = CloudApiV2::getApiClient();
+    $client = $this->container->get('acquia.cloud.api')->getClient();
 
     // $this->set('runtimes', $client->getAvailableRuntimes([
-    //   'environmentId' => $environment['id']
+    //   'environmentId' => $environment_id
     // ]));
 
     $this->set('cron', $client->getCronJobsByEnvironmentId([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     $this->set('databases', $client->getEnvironmentsDatabases([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     $this->set('dns', $client->getEnvironmentsDns([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     // $this->set('logs', $client->getEnvironmentsLogs([
-    //   'environmentId' => $environment['id']
+    //   'environmentId' => $environment_id
     // ]));
 
     $this->set('servers', $client->getEnvironmentsServers([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     $this->set('apm_settings', $client->getEnvironmentsApmSetting([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     // $this->set('ssl_settings', $client->getSsl([
-    //   'environmentId' => $environment['id']
+    //   'environmentId' => $environment_id
     // ]));
 
     $this->set('certificates', $client->getCertificates([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     $this->set('csrs', $client->getCertificateSigningRequests([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
 
     $this->set('variables', $client->getEnvironmentsVariables([
-      'environmentId' => $environment['id']
+      'environmentId' => $environment_id
     ]));
   }
 

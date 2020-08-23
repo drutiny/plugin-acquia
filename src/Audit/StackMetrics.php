@@ -74,7 +74,6 @@ class StackMetrics extends AbstractAnalysis {
     $api = $this->container->get('acquia.cloud.api')->getClient();
     $env = $this->target['acquia.cloud.environment.id'];
 
-
     $metrics = $this->getParameter('metrics');
 
     if (!is_array($metrics)) {

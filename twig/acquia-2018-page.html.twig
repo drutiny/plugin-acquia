@@ -6,14 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ profile.title }} - {{ assessment.uri }}</title>
   {% block head_icons %}
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drutiny/drutiny/2.1.x/assets/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drutiny/drutiny/2.1.x/assets/favicon-16x16.png" sizes="16x16">
-  <link rel="manifest" href="https://raw.githubusercontent.com/drutiny/drutiny/2.1.x/assets/manifest.json">
-  <link rel="mask-icon" href="https://raw.githubusercontent.com/drutiny/drutiny/2.1.x/assets/safari-pinned-tab.svg" color="#00a9e3">
+  <link rel="shortcut icon" href="https://www.acquia.com/themes/custom/uplifting/favicon.ico" type="image/vnd.microsoft.icon">
   <meta name="theme-color" content="#ffffff">
   {% endblock %}
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/simplex/bootstrap.min.css" integrity="sha384-FYrl2Nk72fpV6+l3Bymt1zZhnQFK75ipDqPXK0sOR0f/zeOSZ45/tKlsKucQyjSp" crossorigin="anonymous">
   {% include 'report/css/page.css' %}
   {% block extra_css %}{% endblock %}
   <style>
@@ -35,16 +31,15 @@
       font-size: 60px;
       line-height: 1em;
       font-style: italic;
-      text-transform: uppercase;
+      /* text-transform: uppercase; */
     }
     h2, h3, h4 {
       color: #26a3dd !important;
       line-height: 1.2em;
-      text-transform: uppercase;
     }
     {# Body and general #}
     body {
-      margin-top: 60px;
+      margin-top: 0;
       color: #1D1714;
     }
     .table>thead>tr>th {
@@ -68,7 +63,7 @@
     }
     {# Header  #}
     #acquia-logo {
-      max-width: 600px;
+      max-width: 300px;
     }
     .jumbotron {
       position: relative;
@@ -100,7 +95,7 @@
       height: 3.7in;
     }
     .jumbotron .headerbrand {
-      height: 3.67in;
+      height: 2.3in;
       margin-left: auto;
       margin-right: auto;
       padding-top: 70px;
@@ -109,18 +104,8 @@
       position: relative;
       min-height: 2in;
     }
-    .headertext .bg_grid {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      z-index: -1;
-      object-fit: cover;
-      opacity: 0.1;
-      border-bottom: 2px solid #666;
-    }
     .container.headertext_text {
-      text-transform: uppercase;
+      /* text-transform: uppercase; */
       padding-top: 3em;
       padding-bottom: 3em;
       -webkit-print-color-adjust: exact;
@@ -225,12 +210,12 @@
         font-size: 30px;
         line-height: 1em;
         font-style: italic;
-        text-transform: uppercase;
+        /* text-transform: uppercase; */
       }
       h2, h3, h4 {
         color: #26a3dd !important;
         line-height: 1.2em;
-        text-transform: uppercase;
+        /* text-transform: uppercase; */
       }
       div#table_of_contents {
         page-break-before: always;
@@ -275,8 +260,6 @@
     }
   </style>
   <style>
-
-
   </style>
 </head>
 <body>
@@ -317,9 +300,6 @@
       <h2>{{ "now"|date("F jS, Y") }}</h2>
       <h1>{{ profile.title }}</h1>
       <p>{{ assessment.uri }}</p>
-    </div>
-    <div class="headertext_bg">
-      {% include 'assets/grid.twig.html' %}
     </div>
   </div>
 </div>
