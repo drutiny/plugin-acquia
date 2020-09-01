@@ -10,7 +10,7 @@
   "prefer-stable": true,
   "require": {
     "drutiny/drutiny": "3.0.x-dev",
-    "fiasco/cloud-api-sdk-php": "^0.2"
+    "fiasco/cloud-api-sdk-php": "^0.3"
   },
   "minimum-stability": "dev",
   "support": {
