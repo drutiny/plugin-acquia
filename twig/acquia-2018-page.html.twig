@@ -113,6 +113,10 @@
     .container.headertext_text h2 {
       color: #232C61 !important;
     }
+
+    .assessment-uri {
+      font-size: x-large;
+    }
     {# Footer #}
     footer {
       display: flex !important;
@@ -299,16 +303,11 @@
     <div class="container headertext_text">
       <h2>{{ "now"|date("F jS, Y") }}</h2>
       <h1>{{ profile.title }}</h1>
-      <p>{{ assessment.uri }}</p>
+      <p class="text-muted assessment-uri">{{ assessment.uri }}</p>
     </div>
   </div>
 </div>
 <div class="report_wrapper">
-  <div class="container">
-    <div class="row">
-      {{ profile.description }}
-    </div>
-  </div>
 
   {% include 'report/page/sections.html.twig' %}
 
