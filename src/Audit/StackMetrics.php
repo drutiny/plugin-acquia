@@ -36,14 +36,12 @@ class StackMetrics extends AbstractAnalysis {
         $this->addParameter(
           'chart-height',
           static::PARAMETER_OPTIONAL,
-          'The height of the graph in pixels.',
-          250
+          'The height of the graph in pixels.'
         );
         $this->addParameter(
           'chart-width',
           static::PARAMETER_OPTIONAL,
-          'The width of the graph in pixels.',
-          400
+          'The width of the graph in pixels.'
         );
         $this->addParameter(
           'y-axis-label',
@@ -133,8 +131,8 @@ class StackMetrics extends AbstractAnalysis {
       'type' => 'line',
       'labels' => 'tr td:first-child',
       'hide-table' => TRUE,
-      'height' => $this->getParameter('chart-height', 250),
-      'width' => $this->getParameter('chart-width', 400),
+      'height' => $this->getParameter('chart-height', 500),
+      //'width' => $this->getParameter('chart-width', 400),
       'stacked' => $this->getParameter('stacked',FALSE),
       'y-axis' => $this->getParameter('y-axis-label','Percentage'),
       'maintain-aspect-ratio' => $this->getParameter('maintain-aspect-ratio',TRUE),
