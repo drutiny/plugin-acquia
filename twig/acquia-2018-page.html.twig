@@ -9,7 +9,8 @@
   <link rel="shortcut icon" href="https://www.acquia.com/themes/custom/uplifting/favicon.ico" type="image/vnd.microsoft.icon">
   <meta name="theme-color" content="#ffffff">
   {% endblock %}
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/simplex/bootstrap.min.css" integrity="sha384-FYrl2Nk72fpV6+l3Bymt1zZhnQFK75ipDqPXK0sOR0f/zeOSZ45/tKlsKucQyjSp" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/simplex/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.css">
   {% include 'report/css/page.css' %}
   {% block extra_css %}{% endblock %}
   <style>
@@ -22,7 +23,7 @@
       font-weight: normal;
       font-style: normal;
     }
-    body, h1, h2, h3, h4, h5 {
+     body, h1, h2, h3, h4, h5 {
       font-family: 'proxima_nova_altregular' !important;
     }
     h1 {
@@ -31,7 +32,6 @@
       font-size: 60px;
       line-height: 1em;
       font-style: italic;
-      /* text-transform: uppercase; */
     }
     h2, h3, h4 {
       color: #26a3dd !important;
@@ -47,17 +47,11 @@
       width: unset;
     }
     .table>tbody>tr>td,
-    .table>tbody>tr>tH {
+    .table>tbody>tr>th {
       border-bottom: 1px solid #ecf0f1;
       width: unset;
     }
-    .navbar-pad {
-      margin-bottom: -60px;
-      margin-top:25px;
-    }
-    .navbar-pad + h2, .navbar-pad + h3, .navbar-pad + h4 {
-      padding-top: 65px;
-    }
+
     .panel {
       margin-top:1em;
     }
@@ -105,7 +99,6 @@
       min-height: 2in;
     }
     .container.headertext_text {
-      /* text-transform: uppercase; */
       padding-top: 3em;
       padding-bottom: 3em;
       -webkit-print-color-adjust: exact;
@@ -113,7 +106,10 @@
     .container.headertext_text h2 {
       color: #232C61 !important;
     }
-    {# Footer #}
+    .assessment-uri {
+      font-size: x-large;
+    }
+     {# Footer #}
     footer {
       display: flex !important;
     }
@@ -167,10 +163,6 @@
       top: 0;
       padding: 1em;
     }
-    {# Color adjustments #}
-    a {
-      color: #F47A20 !important;
-    }
     code {
       color: #E1126E !important;
     }
@@ -185,11 +177,11 @@
     .alert-info a {
         color: #f7dd02 !important;
     }
-    .navbar-default {
+     .navbar-default {
       background-color: #232C61;
     }
 
-    {# PDF / Printing #}
+     {# PDF / Printing #}
     @media print {
       #acquia-logo {
         width: 2in;
@@ -210,12 +202,10 @@
         font-size: 30px;
         line-height: 1em;
         font-style: italic;
-        /* text-transform: uppercase; */
       }
       h2, h3, h4 {
         color: #26a3dd !important;
         line-height: 1.2em;
-        /* text-transform: uppercase; */
       }
       div#table_of_contents {
         page-break-before: always;
@@ -253,39 +243,19 @@
       .alert-info a {
         color: #F47A20 !important;
       }
-
       .table {
           table-layout: fixed;
       }
+      .sidebar {
+        display:none;
+      }
     }
   </style>
-  <style>
-  </style>
 </head>
-<body>
-
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">
-        {% include 'assets/logo_notag.twig.html' %}
-        {{ profile.title }}
-      </a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      {# navbar | raw #}
-    </div><!--/.navbar-collapse -->
-  </div>
-</nav>
+<body data-spy="scroll" data-target="#toc">
 <a id="top"></a>
 <!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="wrap_header">
+<!-- <div class="wrap_header"> -->
   <div class="jumbotron">
     <div class="leftbg"></div>
     <div class="rigthbg">
@@ -294,25 +264,26 @@
     <div class="container headerbrand">
       {% include 'assets/logo.twig.html' %}
     </div>
-  </div>
+  </div> <!-- /jumbotron -->
   <div class="headertext">
     <div class="container headertext_text">
-      <h2>{{ "now"|date("F jS, Y") }}</h2>
       <h1>{{ profile.title }}</h1>
-      <p>{{ assessment.uri }}</p>
+      <p class="text-muted"><span class="assessment-uri">Prepared for <strong>{{ assessment.uri }}</strong></span><br> on <em>{{ "now"|date("F jS, Y") }}</em></p>
     </div>
-  </div>
-</div>
-<div class="report_wrapper">
-  <div class="container">
-    <div class="row">
-      {{ profile.description }}
-    </div>
-  </div>
+  </div> <!-- /headertext -->
 
-  {% include 'report/page/sections.html.twig' %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9">
+    {% include 'report/page/sections.html.twig' %}
+    </div> <!-- /col-lg-9 -->
+    <div class="sidebar col-lg-3">
+      <!-- #table_of_contents# -->
+      <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+    </div> <!-- /sidebar -->
+  </div>
+</div> <!-- /container -->
 
-</div>
 <div class="wrapper_footer container">
   <footer>
     <div class="footer_left">
