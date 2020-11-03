@@ -180,15 +180,6 @@
      .navbar-default {
       background-color: #232C61;
     }
-    .toc-list .toc-list-item {
-      list-style: none;
-    }
-    .toc-link::before {
-      width: 4px;
-    }
-    ul.is-collapsed {
-      display: none;
-    }
 
      {# PDF / Printing #}
     @media print {
@@ -273,24 +264,23 @@
     <div class="container headerbrand">
       {% include 'assets/logo.twig.html' %}
     </div>
-  </div>
+  </div> <!-- /jumbotron -->
   <div class="headertext">
     <div class="container headertext_text">
-      <h2>{{ "now"|date("F jS, Y") }}</h2>
       <h1>{{ profile.title }}</h1>
-      <p class="text-muted assessment-uri">{{ assessment.uri }}</p>
+      <p class="text-muted"><span class="assessment-uri">Prepared for <strong>{{ assessment.uri }}</strong></span><br> on <em>{{ "now"|date("F jS, Y") }}</em></p>
     </div>
-  </div>
+  </div> <!-- /headertext -->
 
 <div class="container">
   <div class="row">
+    <div class="col-lg-9">
+    {% include 'report/page/sections.html.twig' %}
+    </div> <!-- /col-lg-9 -->
     <div class="sidebar col-lg-3">
       <!-- #table_of_contents# -->
       <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
     </div> <!-- /sidebar -->
-    <div class="col-lg-9">
-    {% include 'report/page/sections.html.twig' %}
-    </div> <!-- /col-lg-9 -->
   </div>
 </div> <!-- /container -->
 
