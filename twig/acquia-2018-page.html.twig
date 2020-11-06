@@ -11,6 +11,7 @@
   {% endblock %}
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/simplex/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   {% include 'report/css/page.css' %}
   {% block extra_css %}{% endblock %}
   <style>
@@ -42,22 +43,52 @@
       margin-top: 0;
       color: #1D1714;
     }
-    .table>thead>tr>th {
-      border-bottom: 4px solid #ecf0f1;
-      width: unset;
+    table thead tr.table-active,
+    .table-hover .table-active:hover {
+      background-color: #66c8ca;
     }
-    .table>tbody>tr>td,
-    .table>tbody>tr>th {
-      border-bottom: 1px solid #ecf0f1;
-      width: unset;
+    table tbody tr {
+      background-color: #e7edf4;
+      border-bottom: 2px solid white;
     }
-
+    .table-hover tbody tr:hover td,
+    .table-hover tbody tr:hover th {
+      background-color: #d1e1eb;
+    }
+    .card-body .table-active>th {
+      background-color: #fff;
+      border-bottom: 2px solid gray;
+      border-top: none;
+      padding: 0.325rem;
+      padding-top: 1rem;
+    }
+    .card-body .table-hover .table-active:hover,
+    .card-body table thead tr.table-active,
+    .card-body .table-hover thead tr:hover th {
+      background-color: #fff;
+    }
     .panel {
       margin-top:1em;
     }
+    a {
+      color: #f47a20;
+    }
+    a:hover {
+      color: #232C61;
+    }
+    a.toc-link {
+      color: #232C61;
+    }
+    a.toc-link:hover {
+      color: #E1126E;
+    }
+    .is-active-link::before {
+      background-color: #FEC231;
+    }
+
     {# Header  #}
     #acquia-logo {
-      max-width: 300px;
+      max-width: 250px;
     }
     .jumbotron {
       position: relative;
@@ -66,33 +97,27 @@
       margin-bottom: 0;
       max-height: 3.67in;
       overflow: hidden;
+      background-image: linear-gradient(to bottom right, #222a62, #26a3dd);
     }
-    .jumbotron .leftbg {
-      border-top: 3.7in solid #26A3DD;
-      border-left: 0px solid transparent;
-      border-right: 1.79in solid transparent;
-      height: 0;
-      width: 65%;
-      min-width: 2in;
+    .jumbotron .gridbg {
       position: absolute;
-      z-index: -100;
-    }
-    .jumbotron .rigthbg {
-      width: 70%;
-      height: 3.7in;
-      position: absolute;
-      right: 0;
-      z-index: -200;
-    }
-    .jumbotron .rigthbg .bg_flow {
       width: 100%;
-      height: 3.7in;
+      height: 2.3in;
+      opacity: .2;
+      background-image: {% include 'assets/grid.twig.html' %};
+    }
+    .jumbotron .flowbg {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 25px;
+      background-image: {% include 'assets/flow.twig.html' %};
     }
     .jumbotron .headerbrand {
       height: 2.3in;
       margin-left: auto;
       margin-right: auto;
-      padding-top: 70px;
+      padding-top: 60px;
     }
     .headertext {
       position: relative;
@@ -109,6 +134,7 @@
     .assessment-uri {
       font-size: x-large;
     }
+
      {# Footer #}
     footer {
       display: flex !important;
@@ -166,7 +192,7 @@
     code {
       color: #E1126E !important;
     }
-    .panel-success>.panel-heading {
+    /* .panel-success>.panel-heading {
       background-color: #66C8CA !important;
       border-color: #66C8CA !important;
     }
@@ -179,7 +205,7 @@
     }
      .navbar-default {
       background-color: #232C61;
-    }
+    } */
 
      {# PDF / Printing #}
     @media print {
@@ -240,9 +266,9 @@
         color: inherit !important;
       }
 
-      .alert-info a {
+      /* .alert-info a {
         color: #F47A20 !important;
-      }
+      } */
       .table {
           table-layout: fixed;
       }
@@ -257,13 +283,11 @@
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <!-- <div class="wrap_header"> -->
   <div class="jumbotron">
-    <div class="leftbg"></div>
-    <div class="rigthbg">
-      {% include 'assets/flow.twig.html' %}
-    </div>
+    <div class="gridbg"></div>
     <div class="container headerbrand">
       {% include 'assets/logo.twig.html' %}
     </div>
+    <div class="flowbg"></div>
   </div> <!-- /jumbotron -->
   <div class="headertext">
     <div class="container headertext_text">
