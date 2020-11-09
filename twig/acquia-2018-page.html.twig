@@ -79,7 +79,8 @@
     a.toc-link {
       color: #232C61;
     }
-    a.toc-link:hover {
+    a.toc-link:hover,
+    a.is-active-link {
       color: #E1126E;
     }
     .is-active-link::before {
@@ -192,20 +193,6 @@
     code {
       color: #E1126E !important;
     }
-    /* .panel-success>.panel-heading {
-      background-color: #66C8CA !important;
-      border-color: #66C8CA !important;
-    }
-    .alert-warning {
-      background-color: #F47A20 !important;
-      border-color: #F47A20 !important;
-    }
-    .alert-info a {
-        color: #f7dd02 !important;
-    }
-     .navbar-default {
-      background-color: #232C61;
-    } */
 
      {# PDF / Printing #}
     @media print {
@@ -298,11 +285,17 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-lg-9">
+    <div class="main col-lg-9">
+      <button type="button" class="close toc-toggle toc-toggle-open sticky-top" aria-label="Close">
+        <span class="fa fa-chevron-left" aria-hidden="true"></span>
+      </button>
     {% include 'report/page/sections.html.twig' %}
     </div> <!-- /col-lg-9 -->
     <div class="sidebar col-lg-3">
       <!-- #table_of_contents# -->
+      <button type="button" class="close toc-toggle toc-toggle-close sticky-top" aria-label="Close">
+        <span class="fa fa-times" aria-hidden="true"></span>
+      </button>
       <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
     </div> <!-- /sidebar -->
   </div>
