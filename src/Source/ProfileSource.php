@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
  * Load profiles from CSKB.
@@ -71,21 +72,27 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
     }
 
     $profile = $this->container->get('profile');
-    $profile->setProperties([
+
+    $profile_fields = [
       'title' => $fields['title'],
       'name' => $fields['field_name'],
       'uuid' => $definition['uuid'],
       'description' => $fields['field_description'],
       'policies' => $policies,
-      'excluded_policies' => !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [],
       'include' => $fields['field_include'],
       'format' => [
         'html' => [
-          'content' => Yaml::parse($fields['field_html_content']),
           'template' => $fields['field_html_template'],
         ]
       ]
-    ]);
+    ];
+
+    try {
+      $profile_fields['excluded_policies'] = !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [];
+      $profile_fields['format']['html']['content'] = Yaml::parse($fields['field_html_content']);
+    }
+    catch (ParseException $e) {}
+    $profile->setProperties($profile_fields);
 
     return $profile;
   }
