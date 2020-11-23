@@ -7,6 +7,7 @@ use Drutiny\LanguageManager;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drutiny\Acquia\Plugin\CskbEndpoint;
 
 /**
  * API client for CSKB.
@@ -14,13 +15,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SourceApi {
 
   protected $client;
-  protected $cache;
+  protected CacheInterface $cache;
+  protected array $config;
 
-  public function __construct(Client $client, CacheInterface $cache, ContainerInterface $container)
+  public function __construct(Client $client, CacheInterface $cache, ContainerInterface $container, CskbEndpoint $plugin)
   {
       $this->cache = $cache;
+      $this->config = $plugin->load();
       $this->client = $client->create([
-        'base_uri' => $container->getParameter('acquia.api.base_uri'),
+        'base_uri' => $this->config['base_url'] ?? $container->getParameter('acquia.api.base_uri'),
         'headers' => [
           'User-Agent' => 'drutiny-cli/3.x',
           'Accept' => 'application/vnd.api+json',
@@ -41,6 +44,9 @@ class SourceApi {
 
   public function get(string $endpoint, array $params = [])
   {
+      if (isset($this->config['share_key'])) {
+        $params['query']['share'] = $this->config['share_key'];
+      }
       $cid = 'acquia.api.'.hash('md5', $endpoint.http_build_query($params));
       return $this->cache->get($cid, function (ItemInterface $item) use ($endpoint, $params) {
         return json_decode($this->client->get($endpoint, $params)->getBody(), true);
