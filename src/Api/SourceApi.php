@@ -44,7 +44,7 @@ class SourceApi {
 
   public function get(string $endpoint, array $params = [])
   {
-      if (isset($this->config['share_key'])) {
+      if ($this->config['share_key']) {
         $params['query']['share'] = $this->config['share_key'];
       }
       $cid = 'acquia.api.'.hash('md5', $endpoint.http_build_query($params));

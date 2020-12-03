@@ -41,6 +41,7 @@ class SourceBase {
     return ['query' => [
       'filter[status][value]' => 1,
       'filter[field_scope_visibility][value]' => 'external',
+      'filter[field_compatibility][value]' => 'drutiny3',
       // Only include content that contains a translations for the
       // specified language.
       'filter[langcode]' => $this->languageManager->getCurrentLanguage(),

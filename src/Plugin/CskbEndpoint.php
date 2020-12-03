@@ -19,12 +19,14 @@ class CskbEndpoint extends Plugin {
         $this->addField(
             'base_url',
             "Where to find CSKB (https://cskb.acquia.com)",
-            static::FIELD_TYPE_CONFIG
+            static::FIELD_TYPE_CONFIG,
+            'https://cskb.acquia.com'
           )
           ->addField(
             'share_key',
             "When using Remote IDE, you may provide a share key to access the Remote IDE environment from drutiny.",
-            static::FIELD_TYPE_CREDENTIAL
+            static::FIELD_TYPE_CREDENTIAL,
+            false
           );
     }
 }
