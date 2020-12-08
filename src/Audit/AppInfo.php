@@ -21,7 +21,6 @@ class AppInfo extends Audit {
 
     $this->set('app', $app);
 
-
     // $this->set('databases', $client->getApplicationDatabases([
     //   'applicationUuid' => $app['uuid'],
     // ]));
