@@ -6,7 +6,6 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\CloudApiV2;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Adds the database size to the database result set.
