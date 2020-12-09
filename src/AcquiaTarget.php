@@ -35,6 +35,14 @@ class AcquiaTarget extends DrushTarget
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getId():string
+    {
+      return $this['acquia.cloud.environment.id'];
+    }
+
+    /**
      * Parse target data.
      */
     public function parse($alias): TargetInterface
