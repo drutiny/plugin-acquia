@@ -6,9 +6,10 @@ use Drutiny\Sandbox\Sandbox;
 use Drutiny\Credential\Manager;
 use Drutiny\Acquia\CloudApiDrushAdaptor;
 use Drutiny\Acquia\CloudApiV2;
+use Symfony\Component\Yaml\Yaml;
 
 /**
- * Check to ensure Production Mode is enabled on Acquia Cloud.
+ * Adds the database size to the database result set.
  */
 class DatabaseAnalysis extends EnvironmentAnalysis {
 
@@ -18,15 +19,21 @@ class DatabaseAnalysis extends EnvironmentAnalysis {
   public function gather(Sandbox $sandbox) {
     parent::gather($sandbox);
 
-    $data = $this->getParameter('databases');
+    $data = $this->get('databases');
+
     $this->set('databases', array_map(function ($database) use ($sandbox) {
+      // Extract the machine_name from the db_url.
+      $strArray = explode('/',$database['url']);
+      $db_machine_name = end($strArray);
 
       $sql = "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) as size
               FROM information_schema.tables
-              WHERE table_schema='{$database['name']}'
+              WHERE table_schema='{$db_machine_name}'
               GROUP BY table_schema;";
 
       $result = $sandbox->drush()->sqlq($sql);
+
+      $database['machine_name'] = $db_machine_name;
       $database['size'] = $result[0];
       return $database;
     }, $data['_embedded']['items']));
