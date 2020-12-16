@@ -27,9 +27,9 @@ class SubscriptionAnalysis extends AbstractAnalysis {
     //   'subscriptionUuid' => $subscription_uuid
     // ]));
 
-    // $this->set('entitlements', $client->getSubscriptionEntitlements([
-    //   'subscriptionUuid' => $subscription_uuid
-    // ]));
+    $this->set('entitlements', $client->getSubscriptionEntitlements([
+      'subscriptionUuid' => $subscription_uuid
+    ]));
     //
     // $this->set('ides', $client->getSubscriptionIdes([
     //   'subscriptionUuid' => $subscription_uuid
