@@ -64,6 +64,11 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       $this->set('variables', $client->getEnvironmentsVariables([
         'environmentId' => $environment_id
       ]));
+
+      $this->set('log_forwarding_destinations', $client->getEnvironmentsLogForwardingDestinations([
+        'environmentId' => $environment_id
+      ]));
+
     }
   }
 }
