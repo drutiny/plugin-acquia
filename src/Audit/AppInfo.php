@@ -18,7 +18,7 @@ class AppInfo extends Audit {
     $client = $this->container->get('acquia.cloud.api')->getClient();
     $app = $this->target['acquia.cloud.application']->export();
     $this->set('drush', $this->target['drush']->export());
-
+    $this->set('environment', $this->target['acquia.cloud.environment']->export());
     $this->set('app', $app);
 
     // $this->set('databases', $client->getApplicationDatabases([
