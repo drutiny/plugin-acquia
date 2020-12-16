@@ -23,20 +23,20 @@ class SubscriptionAnalysis extends AbstractAnalysis {
     //   'subscriptionUuid' => $subscription_uuid
     // ]));
 
-    $this->set('applications', $client->getSubscriptionApplications([
-      'subscriptionUuid' => $subscription_uuid
-    ]));
+    // $this->set('applications', $client->getSubscriptionApplications([
+    //   'subscriptionUuid' => $subscription_uuid
+    // ]));
 
-    $this->set('entitlements', $client->getSubscriptionEntitlements([
-      'subscriptionUuid' => $subscription_uuid
-    ]));
-
-    $this->set('ides', $client->getSubscriptionIdes([
-      'subscriptionUuid' => $subscription_uuid
-    ]));
-
-    $this->set('shield_acl', $client->getShieldAcl([
-      'subscriptionUuid' => $subscription_uuid
-    ]));
+    // $this->set('entitlements', $client->getSubscriptionEntitlements([
+    //   'subscriptionUuid' => $subscription_uuid
+    // ]));
+    //
+    // $this->set('ides', $client->getSubscriptionIdes([
+    //   'subscriptionUuid' => $subscription_uuid
+    // ]));
+    //
+    // $this->set('shield_acl', $client->getShieldAcl([
+    //   'subscriptionUuid' => $subscription_uuid
+    // ]));
   }
 }
