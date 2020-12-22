@@ -83,13 +83,14 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
       'format' => [
         'html' => [
           'template' => $fields['field_html_template'],
+          'content' => $fields['field_html_content'],
         ]
       ]
     ];
 
     try {
       $profile_fields['excluded_policies'] = !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [];
-      $profile_fields['format']['html']['content'] = Yaml::parse($fields['field_html_content']);
+      // $profile_fields['format']['html']['content'] = Yaml::parse($fields['field_html_content']);
     }
     catch (ParseException $e) {}
     $profile->setProperties($profile_fields);
