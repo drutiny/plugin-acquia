@@ -7,6 +7,7 @@ use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\Acquia\AcquiaTargetInterface;
 use Drutiny\AuditValidationException;
 use Drutiny\Report\Format\HTML;
+use Drutiny\Report\Twig\Helper;
 
 /**
  *
@@ -153,7 +154,7 @@ class StackMetrics extends AbstractAnalysis {
     $graph['series'] = implode(',', $graph['series']);
     $graph['series-labels'] = implode(',', $graph['series-labels']);
 
-    $this->set('graph', HTML::filterChart($graph));
+    $this->set('graph', $graph);
   }
 
 }
