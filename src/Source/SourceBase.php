@@ -4,7 +4,6 @@ namespace Drutiny\Acquia\Source;
 
 use Drutiny\Acquia\Api\SourceApi;
 use Drutiny\LanguageManager;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,13 +18,11 @@ class SourceBase {
 
   public function __construct(
       SourceApi $client,
-      CacheInterface $cache,
       ContainerInterface $container,
       LanguageManager $languageManager
       )
   {
     $this->client = $client;
-    $this->cache = $cache;
     $this->container = $container;
     $this->languageManager = $languageManager;
   }

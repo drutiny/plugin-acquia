@@ -15,12 +15,12 @@ use Drutiny\Acquia\Plugin\CskbEndpoint;
 class SourceApi {
 
   protected $client;
-  protected CacheInterface $cache;
   protected array $config;
+  protected $logger;
 
-  public function __construct(Client $client, CacheInterface $cache, ContainerInterface $container, CskbEndpoint $plugin)
+  public function __construct(Client $client, ContainerInterface $container, CskbEndpoint $plugin)
   {
-      $this->cache = $cache;
+      $this->logger = $container->get('logger');
       $this->config = $plugin->load();
       $this->client = $client->create([
         'base_uri' => $this->config['base_url'] ?? $container->getParameter('acquia.api.base_uri'),
@@ -37,20 +37,12 @@ class SourceApi {
       ]);
   }
 
-  public function setCache(CacheInterface $cache)
-  {
-      $this->cache = $cache;
-  }
-
   public function get(string $endpoint, array $params = [])
   {
       if ($this->config['share_key']) {
         $params['query']['share'] = $this->config['share_key'];
       }
-      $cid = 'acquia.api.'.hash('md5', $endpoint.http_build_query($params));
-      return $this->cache->get($cid, function (ItemInterface $item) use ($endpoint, $params) {
-        return json_decode($this->client->get($endpoint, $params)->getBody(), true);
-      });
+      return json_decode($this->client->get($endpoint, $params)->getBody(), true);
   }
 
   public function getList(string $endpoint, array $params = [])

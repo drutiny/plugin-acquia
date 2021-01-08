@@ -7,8 +7,6 @@ use Drutiny\PolicySource\PolicySourceInterface;
 use Drutiny\Acquia\Api\SourceApi;
 use Drutiny\LanguageManager;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Load policies from CSKB.
@@ -29,7 +27,7 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
 
     foreach ($this->client->getList($this->getApiPrefix().self::API_ENDPOINT, $params) as $item) {
       $list[$item['field_name']] = [
-        'signature' => $item['uuid'],
+        'uuid' => $item['uuid'],
         'name' => $item['field_name'],
         'class' => $item['field_class'][0]['attributes']['name'],
         'title' => $item['title'],
@@ -45,7 +43,7 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
   public function load(array $definition) {
     $query = $this->getRequestParams();
     $query['query']['include'] = 'field_tags';
-    $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['signature'];
+    $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['uuid'];
     $response = $this->client->get($endpoint, $query);
 
     $fields = $response['data']['attributes'];
@@ -82,9 +80,8 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
     $definition['failure'] = $response['data']['attributes']['field_failure'];
     $definition['type'] = $response['data']['attributes']['field_type'];
     $definition['warning'] = $response['data']['attributes']['field_warning'];
-    $definition['uuid'] = $definition['signature'];
 
-    unset($definition['signature'], $definition['source']);
+    unset($definition['source']);
 
     switch ($definition['severity'] ?? false) {
         case Policy::SEVERITY_LOW:

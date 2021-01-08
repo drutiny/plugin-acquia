@@ -10,8 +10,6 @@ use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
 use Drutiny\ProfileSource\ProfileSourceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
