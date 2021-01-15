@@ -23,6 +23,8 @@ class StackMetrics extends AbstractAnalysis {
 
     public function configure()
     {
+        parent::configure();
+        
         $this->addParameter(
           'metrics',
           static::PARAMETER_OPTIONAL,
@@ -54,14 +56,11 @@ class StackMetrics extends AbstractAnalysis {
           'stacked',
           static::PARAMETER_OPTIONAL,
           'Determines whether or not the graph data should be stacked.',
-
         );
-
         $this->addParameter(
           'maintain-aspect-ratio',
           static::PARAMETER_OPTIONAL,
           '',
-
         );
     }
 
