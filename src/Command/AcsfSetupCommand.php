@@ -2,6 +2,7 @@
 
 namespace Drutiny\Acquia\Command;
 
+use Drutiny\Config\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,12 +17,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AcsfSetupCommand extends Command
 {
     protected $container;
-    protected $credentials;
+    protected Config $credentials;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->credentials = $container->get('credentials')->setNamespace('acsf:api');
+        $this->credentials = $container->get('credentials')->load('acsf:api');
         parent::__construct();
     }
 
@@ -63,8 +64,6 @@ class AcsfSetupCommand extends Command
           'username' => $input->getOption('username') ?? $io->ask("Username"),
           'key' => $input->getOption('key') ?? $io->ask("Key"),
         ];
-
-        $this->credentials->doWrite();
 
         $io->success("ACSF credentials for ".$input->getArgument('sitefactory')." have been saved.");
         return 0;

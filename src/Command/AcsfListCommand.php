@@ -2,6 +2,7 @@
 
 namespace Drutiny\Acquia\Command;
 
+use Drutiny\Config\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,13 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class AcsfListCommand extends Command
 {
-    protected $container;
-    protected $credentials;
+    protected Config $credentials;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->container = $container;
-        $this->credentials = $container->get('credentials')->setNamespace('acsf:api');
+        $this->credentials = $container->get('credentials')->load('acsf:api');
         parent::__construct();
     }
 
