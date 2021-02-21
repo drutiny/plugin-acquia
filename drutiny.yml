@@ -37,6 +37,10 @@ services:
       class: Drutiny\Acquia\DomainList\AcquiaSiteFactoryDomainList
       tags: [domain_list]
 
+    domain_list.ac:
+      class: Drutiny\Acquia\DomainList\AcquiaCloudDomainList
+      tags: [domain_list]
+
     Drutiny\Acquia\Source\ProfileSource:
       tags: [profile.source]
 

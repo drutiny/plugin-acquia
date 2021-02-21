@@ -20,7 +20,7 @@ class AcquiaSiteFactoryDomainList extends AbstractDomainList {
 
   public function __construct(ContainerInterface $container, CacheInterface $cache)
   {
-    $this->credentials = $container->get('credentials')->setNamespace('acsf:api');
+    $this->credentials = $container->get('credentials')->load('acsf:api');
     $this->client = $container->get('http.client');
     $this->cache = $cache;
     parent::__construct();
@@ -97,7 +97,7 @@ class AcquiaSiteFactoryDomainList extends AbstractDomainList {
         // So if the filters are available we want to apply them here to
         // before we choose which domain in an array to return.
         $domains = array_filter($domains, function ($domain) use ($options) {
-            if (isset($options['no-internal']) &&  strpos($domain, '.acsitefactory.com') !== FALSE) {
+            if (isset($options['no-internal']) &&  (strpos($domain, '.acsitefactory.com') !== FALSE)) {
               return false;
             }
             return true;
