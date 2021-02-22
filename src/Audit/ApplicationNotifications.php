@@ -22,6 +22,7 @@ class ApplicationNotifications extends AbstractAnalysis {
 
     $filters = [
       'created_at>=' . $this->getParameter('reporting_period_start')->format('c'),
+      'created_at<=' . $this->getParameter('reporting_period_end')->format('c'),
     ];
 
     $this->set('notifications', $client->getApplicationNotifications([

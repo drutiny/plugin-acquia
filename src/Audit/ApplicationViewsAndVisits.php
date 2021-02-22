@@ -24,7 +24,7 @@ class ApplicationViewsAndVisits extends AbstractAnalysis {
       'applicationUuid' => $app['uuid'],
       'filter' => implode(';', [
         'from=' . $this->getParameter('reporting_period_start')->format('c'),
-        'to=' => $this->getParameter('reporting_period_end')->format('c'),
+        'to=' . $this->getParameter('reporting_period_end')->format('c'),
       ])
     ]));
 
