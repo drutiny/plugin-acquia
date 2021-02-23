@@ -29,7 +29,7 @@ class CloudApiV2 {
     $options = [];
     $options['query'] = $params;
     try {
-      $response = self::getApiClient()->getClient()->request('GET', $path, $options);
+      $response = self::getApiClient()->getClient()->request('GET', '/'.$path, $options);
     }
     catch (ClientException $e) {
       $response = $e->getResponse();
@@ -40,8 +40,7 @@ class CloudApiV2 {
       throw new InvalidTargetException('[Acquia Cloud API v2] ' . $e->getMessage());
     }
 
-    $json = $response->getBody();
-    return json_decode($json, TRUE);
+    return $response;
   }
 
   public static function getApiClient()
@@ -51,11 +50,7 @@ class CloudApiV2 {
     }
     $creds = Manager::load('acquia_api_v2');
 
-    $handler = HandlerStack::create();
-    Client::processHandler($handler);
-    $handler->remove('cache');
-    $handler->unshift(new CacheMiddleware(new GreedyCacheStrategy(new VolatileRuntimeStorage(), 3600)), 'cache');
-    self::$client = new AcquiaCloudApi($creds['key_id'], $creds['secret'], $handler);
+    self::$client = new AcquiaCloudApi($creds['key_id'], $creds['secret']);
 
     return self::$client;
   }
