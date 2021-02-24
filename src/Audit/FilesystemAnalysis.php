@@ -17,30 +17,19 @@ class FilesystemAnalysis extends EnvironmentAnalysis
 
     public function configure()
     {
-        $this->addParameter(
-            'expression',
-            static::PARAMETER_OPTIONAL,
-            'The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-            'true'
-        );
-        $this->addParameter(
-            'not_applicable',
-            static::PARAMETER_OPTIONAL,
-            'The expression language to evaluate if the analysis is not applicable. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-            'false'
-        );
-        $this->addParameter(
-            'unit',
-            static::PARAMETER_OPTIONAL,
-            'the unit of measurement to describe the volume usage in. E.g. B,M,G,T.',
-            'G'
-        );
-        $this->addParameter(
-            'filesystem',
-            static::PARAMETER_OPTIONAL,
-            'the storage usage information for both disk and inodes.',
-            ''
-        );
+      parent::configure();
+      $this->addParameter(
+          'unit',
+          static::PARAMETER_OPTIONAL,
+          'the unit of measurement to describe the volume usage in. E.g. B,M,G,T.',
+          'G'
+      );
+      $this->addParameter(
+          'filesystem',
+          static::PARAMETER_OPTIONAL,
+          'the storage usage information for both disk and inodes.',
+          ''
+      );
 
     }
 
