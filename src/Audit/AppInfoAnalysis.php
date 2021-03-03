@@ -10,11 +10,6 @@ use Drutiny\Audit\AbstractAnalysis;
  */
 class AppInfoAnalysis extends AbstractAnalysis {
 
-  public function configure()
-  {
-    parent::configure();
-  }
-
   /**
    * @inheritdoc
    */
