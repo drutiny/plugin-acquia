@@ -15,7 +15,6 @@ class CloudApi
     {
         $creds = $plugin->load();
         $this->client = new AcquiaCloudApi($creds['key_id'], $creds['secret']);
-        $this->client->withClient($client->create());
     }
 
     public function getClient()
