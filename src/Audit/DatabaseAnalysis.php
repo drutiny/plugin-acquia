@@ -30,10 +30,14 @@ class DatabaseAnalysis extends EnvironmentAnalysis {
               WHERE table_schema='{$db_machine_name}'
               GROUP BY table_schema;";
 
-      $result = $sandbox->drush()->sqlq($sql);
+      $result = $this->target->getService('drush')->sqlq($sql)->run(function ($output) {
+        return (float) trim($output);
+      });
+
+      //$result = $sandbox->drush()->sqlq($sql);
 
       $database['machine_name'] = $db_machine_name;
-      $database['size'] = $result[0];
+      $database['size'] = $result;
       return $database;
     }, $data['_embedded']['items']));
 
