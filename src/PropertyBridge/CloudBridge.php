@@ -6,6 +6,7 @@ use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Entity\Exception\DataNotFoundException;
 use Drutiny\Event\DataBagEvent;
 use Drutiny\Target\Service\RemoteService;
+use Drutiny\Target\InvalidTargetException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -92,6 +93,9 @@ class CloudBridge implements EventSubscriberInterface
         });
 
         $target['drush.alias'] = "@$user";
+        if (!isset($data[$user])) {
+          throw new InvalidTargetException("Invalid target: @$user. Could not retrive drush site alias details.");
+        }
         $target['drush']->add($data[$user]);
     }
 

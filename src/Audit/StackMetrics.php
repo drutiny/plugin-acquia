@@ -24,7 +24,7 @@ class StackMetrics extends AbstractAnalysis {
     public function configure()
     {
         parent::configure();
-        
+
         $this->addParameter(
           'metrics',
           static::PARAMETER_OPTIONAL,
@@ -78,14 +78,13 @@ class StackMetrics extends AbstractAnalysis {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
     }
 
-    $response = $api->getClient()->get('environments/' . $env . '/metrics/stackmetrics/data', ['query' => [
+    $response = $api->getClient()->request('GET', '/environments/' . $env . '/metrics/stackmetrics/data', ['query' => [
       'filter' => implode(',', array_map(function ($metric) {
         return 'metric:' . $metric;
       }, $metrics)),
       'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ISO8601),
       'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ISO8601),
     ]]);
-    $response = json_decode($response->getBody(), true);
 
     $table_headers = ['Date'];
     $table_rows = [];
