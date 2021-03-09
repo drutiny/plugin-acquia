@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * @Drutiny\Annotation\Target(
@@ -91,14 +92,22 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
       $this->progressBar->start($response['total']);
       foreach ($response['_embedded']['items'] as $app) {
         $this->logger->notice("Building environment targets for {$app['name']}.");
-        $env_res = $this->api->getApplicationEnvironments(['applicationUuid' => $app['uuid']]);
-        foreach ($env_res['_embedded']['items'] as $env) {
-          $targets[] = [
-            'id' => $env['id'],
-            'uri' => $env['active_domain'],
-            'name' => sprintf('%s: %s', $env['label'], $app['name']),
-          ];
+
+        try {
+          $env_res = $this->api->getApplicationEnvironments(['applicationUuid' => $app['uuid']]);
+          foreach ($env_res['_embedded']['items'] as $env) {
+            $targets[] = [
+              'id' => $env['id'],
+              'uri' => $env['active_domain'],
+              'name' => sprintf('%s: %s', $env['label'], $app['name']),
+            ];
+          }
         }
+        catch (ClientException $e) {
+          $res = json_decode($e->getReponse()->getBody(), true);
+          $this->logger->error("{$app['name']}: {$res['message']}");
+        }
+
         $this->progressBar->advance();
       }
       $this->progressBar->finish();
