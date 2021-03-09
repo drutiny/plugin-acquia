@@ -104,7 +104,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
           }
         }
         catch (ClientException $e) {
-          $res = json_decode($e->getReponse()->getBody(), true);
+          $res = json_decode($e->getResponse()->getBody(), true);
           $this->logger->error("{$app['name']}: {$res['message']}");
         }
 
