@@ -22,7 +22,7 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getList(LanguageManager $languageManager) {
+  public function getList(LanguageManager $languageManager):array {
     $list = [];
     $query = $this->getRequestParams();
     $query['query']['fields[node--profile]'] = 'title,field_name';
@@ -41,7 +41,8 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function load(array $definition) {
+  public function load(array $definition):Profile
+  {
     $query = $this->getRequestParams();
     $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['uuid'];
     $response = $this->client->get($endpoint, $query);

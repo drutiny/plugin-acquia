@@ -48,14 +48,14 @@ class SourceBase {
   /**
    * {@inheritdoc}
    */
-  public function getName() {
+  public function getName():string {
     return '<fg=cyan>ACQUIA</>';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getWeight() {
+  public function getWeight():int {
     return -80;
   }
 
