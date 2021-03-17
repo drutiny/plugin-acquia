@@ -70,9 +70,7 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
         }
     }
 
-    $profile = $this->container->get('profile');
-
-    $profile_fields = [
+    $definition = [
       'title' => $fields['title'],
       'name' => $fields['field_name'],
       'uuid' => $definition['uuid'],
@@ -88,12 +86,11 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface {
     ];
 
     try {
-      $profile_fields['excluded_policies'] = !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [];
+      $definition['excluded_policies'] = !empty($fields['field_excluded_policies']) ? Yaml::parse($fields['field_excluded_policies']) : [];
       // $profile_fields['format']['html']['content'] = Yaml::parse($fields['field_html_content']);
     }
     catch (ParseException $e) {}
-    $profile->setProperties($profile_fields);
 
-    return $profile;
+    return $this->container->get('profile.factory')->create($definition);
   }
 }
