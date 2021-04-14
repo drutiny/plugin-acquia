@@ -8,22 +8,26 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drutiny\Acquia\Plugin\CskbEndpoint;
+use Psr\Log\LoggerInterface;
+use GuzzleHttp\Client as GuzzleClient;
 
 /**
  * API client for CSKB.
  */
 class SourceApi {
 
-  protected $client;
+  protected GuzzleClient $client;
   protected array $config;
-  protected $logger;
+  protected string $baseUrl;
+  protected LoggerInterface $logger;
 
   public function __construct(Client $client, ContainerInterface $container, CskbEndpoint $plugin)
   {
       $this->logger = $container->get('logger');
       $this->config = $plugin->load();
+      $this->baseUrl = $this->config['base_url'] ?? $container->getParameter('acquia.api.base_uri');
       $this->client = $client->create([
-        'base_uri' => $this->config['base_url'] ?? $container->getParameter('acquia.api.base_uri'),
+        'base_uri' => $this->baseUrl,
         'headers' => [
           'User-Agent' => 'drutiny-cli/3.x',
           'Accept' => 'application/vnd.api+json',
@@ -39,10 +43,15 @@ class SourceApi {
 
   public function get(string $endpoint, array $params = [])
   {
-      if ($this->config['share_key']) {
-        $params['query']['share'] = $this->config['share_key'];
-      }
+      // if ($this->config['share_key']) {
+      //   $params['query']['share'] = $this->config['share_key'];
+      // }
       return json_decode($this->client->get($endpoint, $params)->getBody(), true);
+  }
+
+  public function send($request, $options)
+  {
+    return $this->client->send($request, $options);
   }
 
   public function getList(string $endpoint, array $params = [])
