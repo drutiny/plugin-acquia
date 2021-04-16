@@ -20,10 +20,6 @@ class EnvironmentAnalysis extends AbstractAnalysis {
     $this->set('app', $app);
     $client = $this->container->get('acquia.cloud.api')->getClient();
 
-    // $this->set('runtimes', $client->getAvailableRuntimes([
-    //   'environmentId' => $environment_id
-    // ]));
-
     $this->set('cron', $client->getCronJobsByEnvironmentId([
       'environmentId' => $environment_id
     ]));
@@ -32,13 +28,18 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'environmentId' => $environment_id
     ]));
 
+    $dbs = $client->getEnvironmentsDatabases([
+      'environmentId' => $environment_id
+    ]);
+
+    foreach ($dbs['_embedded']['items'] as $db) {
+      $dbsize = $this->dbSize($db['name']);
+      $this->set('dbsize_' . $db['name'], $dbsize);
+    }
+
     $this->set('dns', $client->getEnvironmentsDns([
       'environmentId' => $environment_id
     ]));
-
-    // $this->set('logs', $client->getEnvironmentsLogs([
-    //   'environmentId' => $environment_id
-    // ]));
 
     $this->set('servers', $client->getEnvironmentsServers([
       'environmentId' => $environment_id
@@ -47,10 +48,6 @@ class EnvironmentAnalysis extends AbstractAnalysis {
     $this->set('apm_settings', $client->getEnvironmentsApmSetting([
       'environmentId' => $environment_id
     ]));
-
-    // $this->set('ssl_settings', $client->getSsl([
-    //   'environmentId' => $environment_id
-    // ]));
 
     $this->set('certificates', $client->getCertificates([
       'environmentId' => $environment_id
@@ -64,10 +61,6 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       $this->set('variables', $client->getEnvironmentsVariables([
         'environmentId' => $environment_id
       ]));
-
-      // $this->set('log_forwarding_destinations', $client->getEnvironmentsLogForwardingDestinations([
-      //   'environmentId' => $environment_id
-      // ]));
 
     }
   }
