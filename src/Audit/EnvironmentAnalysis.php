@@ -60,6 +60,10 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'environmentId' => $environment_id
     ]));
 
+    $this->set('search_settings', $client->getApplicationSearchSettings([
+      'applicationUuid' => $app['uuid']
+    ]));
+
     if ($app['hosting']['type'] != 'acsf') {
       $this->set('variables', $client->getEnvironmentsVariables([
         'environmentId' => $environment_id
