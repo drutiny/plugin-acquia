@@ -17,7 +17,7 @@ class CustomDomains extends Audit {
 		$warn = FALSE;
 
 		foreach ($this->target['acquia.cloud.environment.domains'] as $domain) {
-			if ($this->urlExists($domain) == FALSE) {
+			if ($this->urlResponds($domain) == FALSE) {
 				$warn = TRUE;
 			}
 		}
@@ -40,7 +40,13 @@ class CustomDomains extends Audit {
 		return TRUE;
 	}
 
-	function urlExists( $url = NULL)
+	/**
+	 * Check if a domain responds to a ping.
+	 *
+	 * @param string $url
+	 * @return bool
+	 */
+	function urlResponds( $url = NULL)
 	{
 		if($url == NULL) return false;
 		$ch = curl_init($url);
