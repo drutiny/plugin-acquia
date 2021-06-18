@@ -53,7 +53,7 @@ class CustomDomains extends Audit {
 		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		// We don't use data for anything, but it's needed for curl_getinfo.
+		// We don't use data for anything, but it's needed to initialise $ch.
 		$data = curl_exec($ch);
 		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
