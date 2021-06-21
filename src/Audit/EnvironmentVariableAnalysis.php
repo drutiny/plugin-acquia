@@ -9,22 +9,6 @@ use Drutiny\Acquia\CloudApiV2;
 
 /**
  * Retrieve all custom environment variables for a particular Acquia Cloud environment.
- *
- * @Token(
- *  name = "env",
- *  type = "string",
- *  description = "The Acquia Cloud Environment."
- * )
- * @Token(
- *  name = "sitegroup",
- *  type = "string",
- *  description = "The name of the sitegroup (docroot)."
- * )
- * @Token(
- *  name = "variables",
- *  type = "array",
- *  description = "The list of custom environment variables for a particular Acquia Cloud environment."
- * )
  */
 class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
 
