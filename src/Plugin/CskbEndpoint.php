@@ -20,7 +20,7 @@ class CskbEndpoint extends Plugin {
             'base_url',
             "Where to find CSKB (https://cskb.acquia.com)",
             static::FIELD_TYPE_CONFIG,
-            'https://cskb.acquia.com'
+            'https://cskb.acquia.com/'
           )
           ->addField(
             'share_key',

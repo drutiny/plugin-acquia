@@ -10,6 +10,17 @@ use Drutiny\Audit\AbstractAnalysis;
  */
 class ApplicationViewsAndVisits extends AbstractAnalysis {
 
+  public function configure()
+  {
+      $this->addParameter(
+        'from',
+        static::PARAMETER_OPTIONAL,
+        'A relative interval from the reporting-period-end to calculate the ApplicationUsageData from.',
+        '-1 month'
+      );
+      parent::configure();
+  }
+
   /**
    * @inheritdoc
    */
@@ -20,10 +31,14 @@ class ApplicationViewsAndVisits extends AbstractAnalysis {
     $this->set('app', $app);
     $client = $this->container->get('acquia.cloud.api')->getClient();
 
+    // Use the from parameter if present, otherwise base the from date based
+    // on the reporting period start time.
+    $from = $this->get('from') ? date('c', strtotime($this->get('from'))) : $this->getParameter('reporting_period_start')->format('c');
+
     $this->set('metrics', $metrics = $client->getApplicationsUsageData([
       'applicationUuid' => $app['uuid'],
       'filter' => implode(';', [
-        'from=' . $this->getParameter('reporting_period_start')->format('c'),
+        'from=' . $from,
         'to=' . $this->getParameter('reporting_period_end')->format('c'),
       ])
     ]));
