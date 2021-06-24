@@ -64,6 +64,12 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'applicationUuid' => $app['uuid']
     ]));
 
+    if (array_key_exists('remote_admin', $app['flags']) && $app['flags']['remote_admin']) {
+      $this->set('ra_settings', $client->getApplicationRemoteAdministrationSettings([
+        'applicationUuid' => $app['uuid']
+      ]));
+    }
+
     if ($app['hosting']['type'] != 'acsf') {
       $this->set('variables', $client->getEnvironmentsVariables([
         'environmentId' => $environment_id
