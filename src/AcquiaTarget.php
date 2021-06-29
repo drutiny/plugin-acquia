@@ -73,7 +73,15 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
             if ('_' == substr($key, 0, 1)) {
                 continue;
             }
-            $this['acquia.cloud.environment.'.$key] = $value;
+
+            try {
+              $this['acquia.cloud.environment.'.$key] = $value;
+            }
+            catch (InvalidTargetException $e) {
+              // This occurs which drush cannot obain a drush alias data.
+              // It can safely be ignored.
+              $this->logger->debug("AcquiaTarget detected unrelated target exception: " . $e->getMessage());
+            }
         }
 
         $this->setUri($this['acquia.cloud.environment.active_domain']);
