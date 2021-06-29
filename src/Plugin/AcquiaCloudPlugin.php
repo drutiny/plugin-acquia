@@ -18,7 +18,7 @@ class AcquiaCloudPlugin extends Plugin {
     {
         $this->addField(
             'key_id',
-            "Your Key ID to connect to the Acquia Cloud API v2 with. To generate an\nAPI access token, login to https://cloud.acquia.com, then visit\nhttps://cloud.acquia.com/#/profile/tokens, and click **Create Token**:",
+            "Your Key ID to connect to the Acquia Cloud API v2 with. To generate an\nAPI access token, login to https://cloud.acquia.com, then visit\nhttps://cloud.acquia.com/a/profile/tokens, and click **Create Token**:",
             static::FIELD_TYPE_CREDENTIAL
             )
           ->addField(
