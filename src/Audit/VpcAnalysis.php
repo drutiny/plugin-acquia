@@ -26,9 +26,14 @@ class VpcAnalysis extends AbstractAnalysis {
         }
     }
     $vpc_info = [];
+
     foreach ($vpc_ids as $id) {
         // Fetch VPC information using AHT command.
         // Command: aht vpc:info <vpc_id> -> aht vpc:info $id
+        $vpc_info[] = $this->target->getService('local')
+            ->run('aht vpc:info ' . $id . '--format=json', function ($output) {
+                return json_decode($output, true);
+        });
     }
     $this->set('app_info', $servers);
     $this->set('vpc_info', $vpc_info);
