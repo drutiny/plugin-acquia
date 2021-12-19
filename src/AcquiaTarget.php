@@ -69,6 +69,9 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
             ]);
         });
 
+        // Load platform up first.
+        // $this['acquia.cloud.environment.platform'] = $environment['platform'];
+
         foreach ($environment as $key => $value) {
             if ('_' == substr($key, 0, 1)) {
                 continue;
@@ -83,6 +86,17 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
               $this->logger->debug("AcquiaTarget detected unrelated target exception: " . $e->getMessage());
             }
         }
+
+        // Build drush metadata starting from the alias if its available.
+        $data = $this['service.exec']->run('drush site:alias $DRUSH_ALIAS --format=json', function ($output) {
+            return json_decode($output, true);
+        });
+        $alias = substr($this['drush.alias'], 1);
+
+        if (!isset($data[$alias])) {
+          throw new InvalidTargetException("Invalid target: @$alias. Could not retrive drush site alias details.");
+        }
+        $this['drush']->add($data[$alias]);
 
         $this->setUri($this['acquia.cloud.environment.active_domain']);
         $this->buildAttributes();

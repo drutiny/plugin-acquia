@@ -75,28 +75,23 @@ class CloudBridge implements EventSubscriberInterface
     {
         $ssh_url = $event->getValue();
         $target = $event->getDatabag()->getObject();
+
         list($user, $host) = explode('@', $ssh_url, 2);
 
         try {
             $target['service.exec'] = new RemoteService($target['service.local']);
-            $target['service.exec']->setConfig('User', $user);
-            $target['service.exec']->setConfig('Host', $host);
+            // Event listeners may override this RemoteService set calls.
+            if (get_class($target['service.exec']) == 'Drutiny\Target\Service\RemoteService') {
+              $target['service.exec']->setConfig('User', $user);
+              $target['service.exec']->setConfig('Host', $host);
+            }
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {
             $this->logger->error($e->getMessage());
             return;
         }
-
-        $data = $target['service.exec']->run("drush site:alias @$user --format=json", function ($output) {
-            return json_decode($output, true);
-        });
-
         $target['drush.alias'] = "@$user";
-        if (!isset($data[$user])) {
-          throw new InvalidTargetException("Invalid target: @$user. Could not retrive drush site alias details.");
-        }
-        $target['drush']->add($data[$user]);
     }
 
     protected function findApplication($realm, $site)
