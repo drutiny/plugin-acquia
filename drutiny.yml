@@ -1,5 +1,6 @@
 parameters:
     acquia.api.base_uri: https://cskb.acquia.com/
+    amplitude.api_key: 85ec40a1b0b929c4bf96de44f824fc46
 services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -58,3 +59,12 @@ services:
 
     Drutiny\Acquia\AcquiaEnvExpressionFunction:
         tags: [drutiny.expression_language.function]
+
+    Drutiny\Acquia\EventSubscriber\Drutiny:
+        tags: [drutiny.event_subscriber]
+
+    Zumba\Amplitude\Amplitude:
+        calls:
+          - [getInstance]
+          - [init, ['%amplitude.api_key%']]
+          - [logQueuedEvents]
