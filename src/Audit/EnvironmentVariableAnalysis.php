@@ -12,18 +12,6 @@ use Drutiny\Acquia\CloudApiV2;
  */
 class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
 
-
-    public function configure()
-    {
-        $this->addParameter(
-          'expression',
-          static::PARAMETER_OPTIONAL,
-          'The expression language to evaluate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-          true
-        );
-
-    }
-
   /**
    * @inheritdoc
    */
@@ -31,7 +19,7 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     parent::gather($sandbox);
 
     // Grab the environment and sitegroup name
-    $app = $this->getParameter('app');
+    $app = $this->target['acquia.cloud.application']->export();
     $hosting_id = explode(':', $app['hosting']['id']);
     list($env, $sitegroup) = $hosting_id;
 
@@ -47,8 +35,10 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     $data = $this->getParameter('variables');
     $variables=[];
 
-    foreach ($data['_embedded']['items'] as $item) {
-      $variables[$item['name']] = $item['value'];
+    if (!empty($variables)) {
+      foreach ($data['_embedded']['items'] as $item) {
+        $variables[$item['name']] = $item['value'];
+      }
     }
 
     // Create the variables token
