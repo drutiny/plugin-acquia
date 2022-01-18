@@ -54,7 +54,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
      */
     public function parse($alias): TargetInterface
     {
-        list($product, $uuid) = explode(':', $alias, 2);
+        $uuid = $alias;
 
         // Look for Acquia Cloud API v2 UUID.
         if (!preg_match('/^(([a-z0-9]+)-){5}([a-z0-9]+)$/', $uuid)) {
