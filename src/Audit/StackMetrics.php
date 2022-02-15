@@ -78,12 +78,24 @@ class StackMetrics extends AbstractAnalysis {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
     }
 
+    $duration = ($sandbox->getReportingPeriodEnd()->format('U') - $sandbox->getReportingPeriodStart()->format('U'))/60;
+    $resolution = 'minute';
+    // > 180 minutes (3 hours) means we need to use a higher resolution.
+    if ($duration > 180) {
+      $resolution = 'hour';
+    }
+    // Greater than 12.5 days means we need to use a higher resolution.
+    if ($duration > 18000) {
+      $resolution = 'day';
+    }
+
     $response = $api->getClient()->request('GET', '/environments/' . $env . '/metrics/stackmetrics/data', ['query' => [
       'filter' => implode(',', array_map(function ($metric) {
         return 'metric:' . $metric;
       }, $metrics)),
       'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ISO8601),
       'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ISO8601),
+      'resolution' => $resolution,
     ]]);
 
     $table_headers = ['Date'];
