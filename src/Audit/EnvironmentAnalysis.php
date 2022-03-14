@@ -60,7 +60,7 @@ class EnvironmentAnalysis extends AbstractAnalysis {
       'environmentId' => $environment_id
     ]));
 
-    $this->set('search_settings', $client->getApplicationSearchSettings([
+    $this->set('search_settings', $client->getApplicationSearchConfigurationSets([
       'applicationUuid' => $app['uuid']
     ]));
 
