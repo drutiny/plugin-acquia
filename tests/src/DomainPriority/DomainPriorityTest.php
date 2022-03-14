@@ -2,7 +2,7 @@
 
 namespace DrutinyTests\Acquia\DomainPriority;
 
-use Drutiny\Acquia\AcquiaSiteFactoryDomainList;
+use Drutiny\Acquia\DomainList\AcquiaSiteFactoryDomainList;
 use PHPUnit\Framework\TestCase;
 
 class DomainPriorityTest extends TestCase {
