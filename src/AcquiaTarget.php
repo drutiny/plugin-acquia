@@ -52,7 +52,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     /**
      * Parse target data.
      */
-    public function parse($alias): TargetInterface
+    public function parse(string $alias, ?string $uri = null): TargetInterface
     {
         $uuid = $alias;
 
@@ -98,7 +98,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         }
         $this['drush']->add($data[$alias]);
 
-        $this->setUri($this['acquia.cloud.environment.active_domain']);
+        $this->setUri($uri ?? $this['acquia.cloud.environment.active_domain']);
         $this->buildAttributes();
 
         return $this;
