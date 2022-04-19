@@ -43,9 +43,6 @@ class SourceApi {
 
   public function get(string $endpoint, array $params = [])
   {
-      // if ($this->config['share_key']) {
-      //   $params['query']['share'] = $this->config['share_key'];
-      // }
       return json_decode($this->client->get($endpoint, $params)->getBody(), true);
   }
 
