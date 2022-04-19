@@ -6,7 +6,7 @@ use Drutiny\Entity\EventDispatchedDataBag;
 use Drutiny\Target\DrushTarget;
 use Drutiny\Target\InvalidTargetException;
 use Drutiny\Target\TargetSourceInterface;
-use Drutiny\Target\Service\LocalService;
+use Drutiny\Target\Service\ExecutionService;
 use Drutiny\Target\TargetInterface;
 use Drutiny\Acquia\Api\CloudApi;
 use AcquiaCloudApi\AcquiaCloudApi;
@@ -28,7 +28,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     protected ProgressBar $progressBar;
 
     public function __construct(
-      LocalService $local,
+      ExecutionService $service,
       LoggerInterface $logger,
       EventDispatchedDataBag $databag,
       CloudApi $api,
@@ -38,7 +38,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         $this->api = $api->getClient();
         $this->cache = $cache;
         $this->progressBar = $progressBar;
-        parent::__construct($local, $logger, $databag);
+        parent::__construct($service, $logger, $databag);
     }
 
     /**
