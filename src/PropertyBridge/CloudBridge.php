@@ -20,6 +20,9 @@ class CloudBridge implements EventSubscriberInterface
     {
         $this->api = $api->getClient();
         $this->cache = $cache;
+        if (method_exists($logger, 'withName')) {
+          $logger = $logger->withName(get_class($this));
+        }
         $this->logger = $logger;
     }
 
@@ -79,12 +82,10 @@ class CloudBridge implements EventSubscriberInterface
         list($user, $host) = explode('@', $ssh_url, 2);
 
         try {
-            $target['service.exec'] = new RemoteService($target['service.local']);
-            // Event listeners may override this RemoteService set calls.
-            if (get_class($target['service.exec']) == 'Drutiny\Target\Service\RemoteService') {
-              $target['service.exec']->setConfig('User', $user);
-              $target['service.exec']->setConfig('Host', $host);
-            }
+            $service = new RemoteService($target['service.exec']->get('local'));
+            $service->setConfig('User', $user);
+            $service->setConfig('Host', $host);
+            $target['service.exec']->addHandler($service, 'acquia');
         }
         // If the config doesn't exist then do nothing.
         catch (DataNotFoundException $e) {
