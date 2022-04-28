@@ -1,0 +1,4 @@
+name: Drutiny Acquia Plugin
+package: acquia-drutiny
+version: 4.x
+vcs: https://github.com/drutiny/plugin-acquia.git
