@@ -19,18 +19,17 @@ class CloudApi
     public function __construct(AcquiaCloudPlugin $plugin, Client $client, LoggerInterface $logger)
     {
         try {
-          $creds = $plugin->load();
-          $this->client = new AcquiaCloudApi($creds['key_id'], $creds['secret']);
-        }
-        catch (PluginRequiredException $e) {
-          $logger->warning($e->getMessage());
+            $creds = $plugin->load();
+            $this->client = new AcquiaCloudApi($creds['key_id'], $creds['secret']);
+        } catch (PluginRequiredException $e) {
+            $logger->warning($e->getMessage());
         }
     }
 
-    public function getClient()
+    public function getClient(): AcquiaCloudApi
     {
         if (!isset($this->client)) {
-          throw new PluginRequiredException('acquia:cloud');
+            throw new PluginRequiredException('acquia:cloud');
         }
         return $this->client;
     }
