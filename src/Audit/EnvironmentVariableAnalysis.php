@@ -32,10 +32,11 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     $this->set('env', $env);
     $this->set('sitegroup', $sitegroup);
 
-    $data = $this->getParameter('variables');
+    $data = $this->get('variables');
+
     $variables=[];
 
-    if (!empty($variables)) {
+    if (!empty($data)) {
       foreach ($data['_embedded']['items'] as $item) {
         $variables[$item['name']] = $item['value'];
       }
