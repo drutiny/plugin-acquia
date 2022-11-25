@@ -25,11 +25,17 @@ class AcquiaCloudPlugin extends Plugin
         // Re-use the values in cloud_api.conf.
         $conf = json_decode(file_get_contents($cloud_api_conf), true);
 
-        if (isset($conf['key']) && empty($this->getField('key_id'))) {
-            $this->setField('key_id', $conf['key']);
+        if (isset($conf['keys'])) {
+          $key = key($conf['keys']);
+          $secret = $conf['keys'][$key]['secret'];
         }
-        if (isset($conf['secret']) && empty($this->getField('secret'))) {
-            $this->setField('secret', $conf['secret']);
+        elseif (isset($conf['key']) && isset($conf['secret'])) {
+          $key = $conf['key'];
+          $secret = $conf['secret'];
+        }
+        if (isset($key)) {
+          $this->setField('key_id', $key);
+          $this->setField('secret', $secret);
         }
     }
 
