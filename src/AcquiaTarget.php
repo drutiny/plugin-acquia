@@ -90,7 +90,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         // When using AHT, this remote service will likely fail, which is fine
         // because we expect AHT for handle the remote commands. This prevents
         // a user prompt from occuring for something that will gracefully fail.
-        if ($this->hasProperty('aht.app')) {
+        if ($this->hasProperty('aht.app') && $this['service.exec']->has('acquia')) {
           $this['service.exec']->get('acquia')
             ->setConfig('StrictHostKeyChecking', 'no')
             ->setConfig('UserKnownHostsFile', '/dev/null');
@@ -100,7 +100,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         $data = $this['service.exec']->run('drush site:alias $DRUSH_ALIAS --format=json', function ($output) {
             return json_decode($output, true);
         });
-        $alias = substr($this['drush.alias'], 1);
+        $alias = substr($this['drush.alias'], 1, strlen($this['drush.alias']) - 1);
 
         if (!isset($data[$alias])) {
           throw new InvalidTargetException("Invalid target: @$alias. Could not retrive drush site alias details.");
