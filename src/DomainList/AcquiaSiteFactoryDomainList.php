@@ -2,7 +2,9 @@
 
 namespace Drutiny\Acquia\DomainList;
 
+use Drutiny\Config\Config;
 use Drutiny\DomainList\AbstractDomainList;
+use Drutiny\Http\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -10,6 +12,11 @@ use Symfony\Contracts\Cache\CacheInterface;
  * Acquia Site Factory Domain List.
  */
 class AcquiaSiteFactoryDomainList extends AbstractDomainList {
+
+  protected Config $credentials;
+  protected Client $client;
+  protected CacheInterface $cache;
+
   /**
    * The maximum number of sites returned in a single API command to Site
    * Factory.
