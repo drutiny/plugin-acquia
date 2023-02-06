@@ -10,7 +10,7 @@ use Drutiny\Audit\AbstractAnalysis;
  */
 class ApplicationViewsAndVisits extends AbstractAnalysis {
 
-  public function configure()
+  public function configure():void
   {
       $this->addParameter(
         'from',

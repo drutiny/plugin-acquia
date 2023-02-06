@@ -12,7 +12,7 @@ use Drutiny\Audit\AbstractAnalysis;
 class LiftAPIAnalysis extends AbstractAnalysis {
 
 
-    public function configure()
+    public function configure():void
     {
         $this->addParameter(
           'expression',

@@ -21,7 +21,7 @@ use Drutiny\Report\Twig\Helper;
 class StackMetrics extends AbstractAnalysis {
 
 
-    public function configure()
+    public function configure():void
     {
         parent::configure();
 

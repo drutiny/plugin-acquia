@@ -15,7 +15,7 @@ class FilesystemAnalysis extends EnvironmentAnalysis
 {
 
 
-    public function configure()
+    public function configure():void
     {
       parent::configure();
       $this->addParameter(
