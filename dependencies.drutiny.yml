@@ -1,0 +1,49 @@
+Acquia:
+  isACE: 
+    description: Environment is using Acquia Cloud Enterprise
+    expression: attribute(drush, 'ac-realm') == 'prod'
+  isDevCloud:
+    description: Environment is using Acquia Developer Cloud
+    expression: attribute(drush, 'ac-realm') == 'devcloud'
+  isACSF:
+    description: Environment is using Acquia Cloud Site Factory
+    expression: attribute(drush, 'ac-realm') == 'enterprise-g1'
+  isSiteFactory:
+    description: Environment is using Acquia Cloud Site Factory
+    expression: Acquia.isACSF
+  isDrupal:
+    description: Environment is for hosting Drupal applications
+    expression: acquia.cloud.environment.type == 'drupal'
+  isProduction:
+    description: Environment is a production environment
+    expression: acquia.cloud.environment.flags['production']
+  hasPlatformCDN:
+    description: Environment has Acquia Platform CDN
+    expression: acquia.cloud.environment.flags['cdn']
+  hasLiveDev:
+    description: Environment has Live Dev enabled
+    expression: acquia.cloud.environment.flags['livedev']
+  isMultiRegion:
+    description: Environment is apart of a multi-region environment
+    expression: acquia.cloud.environment.flags['multi_region']
+  isMultiCert:
+    description: Environment has multiple SSL certificates enabled
+    expression: acquia.cloud.environment.flags['multicert']
+  hasRemoteAdmin:
+    description: Environment has Remote Administration enabled
+    expression: acquia.cloud.environment.flags['remote_admin']
+  hasCloudActions:
+    description: Environment has Cloud Actions enabled
+    expression: acquia.cloud.environment.flags['cloud_actions']
+  hasEmail:
+    description: Environment has platform email enabled
+    expression: acquia.cloud.environment.flags['email']
+  isTaggedDeployment:
+    description: Environment has a VCS tag deployed to it.
+    expression: acquia.cloud.environment.vcs['path'] starts with 'tags/'
+  isBranchDeployment:
+    description: Environment has a VCS branch deployed to it.
+    expression: not Acquia.isTaggedDeployment
+  usingWelcomeTag:
+    description: Environment has the Acquia welcome tag deployed.
+    expression: acquia.cloud.environment.vcs['path'] == 'tags/WELCOME'

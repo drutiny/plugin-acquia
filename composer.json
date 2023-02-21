@@ -9,7 +9,7 @@
   ],
   "prefer-stable": true,
   "require": {
-    "drutiny/drutiny": "^3.5.0",
+    "drutiny/drutiny": "^3.6-dev",
     "fiasco/cloud-api-sdk-php": "^2.0",
     "zumba/amplitude-php": "^1.0",
     "loophp/phposinfo": "^1.7"

@@ -12,8 +12,8 @@ services:
       arguments: [ '%acquia.twig_dir%' ] # See drutiny.php
       tags: [twig.loader]
 
-    target.acquia:
-      class: Drutiny\Acquia\AcquiaTarget
+    Drutiny\Acquia\AcquiaTarget:
+      tags: [target]
 
     Drutiny\Acquia\Command\AcsfSetupCommand:
       tags: [command]
@@ -45,20 +45,19 @@ services:
     Drutiny\Acquia\Source\ProfileSource:
       tags: [profile.source]
 
-    Drutiny\Acquia\PropertyBridge\CloudBridge:
-      tags: [drutiny.event_subscriber]
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    Drutiny\Acquia\Audit\:
-        resource: 'src/Audit/*'
+    Drutiny\Acquia\EventsSubscriber:
+      tags: [kernel.event_subscriber]
 
     Drutiny\Acquia\Plugin\:
         resource: 'src/Plugin/*'
         tags: [plugin]
         shared: false
 
-    Drutiny\Acquia\AcquiaEnvExpressionFunction:
-        tags: [drutiny.expression_language.function]
+    Drutiny\Acquia\Helper\:
+        resource: 'src/Helper/*'
+
+    # Drutiny\Acquia\AcquiaEnvExpressionFunction:
+    #     tags: [drutiny.expression_language.function]
 
     Drutiny\Acquia\EventSubscriber\Drutiny:
         tags: [drutiny.event_subscriber]

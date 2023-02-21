@@ -46,9 +46,9 @@ class FilesystemAnalysis extends EnvironmentAnalysis
 
         // Report file system disk space and inode usage.
         if ($app['hosting']['type'] != 'acp') {
-          $output = $this->target->getService('exec')->run("df -B$unit | grep gfs && df --inodes | grep gfs");
+          $output = $this->target->run("df -B$unit | grep gfs && df --inodes | grep gfs");
         } else {
-          $output = $this->target->getService('exec')->run("df -B$unit | grep ebs1 && df --inodes | grep ebs1");
+          $output = $this->target->run("df -B$unit | grep ebs1 && df --inodes | grep ebs1");
         }
         list($disk, $inode) = array_values(explode(PHP_EOL, $output));
 
