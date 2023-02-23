@@ -56,9 +56,6 @@ services:
     Drutiny\Acquia\Helper\:
         resource: 'src/Helper/*'
 
-    # Drutiny\Acquia\AcquiaEnvExpressionFunction:
-    #     tags: [drutiny.expression_language.function]
-
     Drutiny\Acquia\EventSubscriber\Drutiny:
         tags: [drutiny.event_subscriber]
 
