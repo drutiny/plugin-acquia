@@ -15,11 +15,6 @@ services:
     Drutiny\Acquia\AcquiaTarget:
       tags: [target]
 
-    Drutiny\Acquia\Command\AcsfSetupCommand:
-      tags: [command]
-    Drutiny\Acquia\Command\AcsfListCommand:
-      tags: [command]
-
     Drutiny\Acquia\Api\SourceApi:
 
     Drutiny\Acquia\Api\CloudApi:
@@ -48,10 +43,7 @@ services:
     Drutiny\Acquia\EventsSubscriber:
       tags: [kernel.event_subscriber]
 
-    Drutiny\Acquia\Plugin\:
-        resource: 'src/Plugin/*'
-        tags: [plugin]
-        shared: false
+    Drutiny\Acquia\Plugin\AcquiaCloudPlugin:
 
     Drutiny\Acquia\Helper\:
         resource: 'src/Helper/*'

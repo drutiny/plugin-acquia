@@ -3,13 +3,22 @@
 namespace Drutiny\Acquia;
 
 use Drutiny\Acquia\Helper\CloudApiHelper;
+use Drutiny\Attribute\Plugin;
+use Drutiny\Attribute\PluginField;
+use Drutiny\Plugin as DrutinyPlugin;
+use Drutiny\Plugin\FieldType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-
+#[Plugin(name: 'acquia:telemetry')]
+#[PluginField(
+  name: 'consent',
+  description: "Enable anonymous sharing of usage and performance data with Acquia",
+  type: FieldType::CONFIG
+)]
 class EventsSubscriber implements EventSubscriberInterface {
 
-    public function __construct(protected CloudApiHelper $helper)
+    public function __construct(protected CloudApiHelper $helper, protected DrutinyPlugin $plugin)
     {
     }
 

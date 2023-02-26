@@ -2,20 +2,33 @@
 
 namespace Drutiny\Acquia\DomainList;
 
+use Drutiny\Attribute\Plugin;
+use Drutiny\Attribute\PluginField;
 use Drutiny\Config\Config;
 use Drutiny\DomainList\AbstractDomainList;
 use Drutiny\Http\Client;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drutiny\Plugin\PluginCollection;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Acquia Site Factory Domain List.
  */
+#[Plugin(name: 'acsf:api', collectionKey: 'factory', as: '$pluginCollection')]
+#[PluginField(
+  name: 'factory',
+  description: 'The domain of the site factory console.',
+)]
+#[PluginField(
+  name: 'username',
+  description: 'The username to connect to the API as.',
+)]
+#[PluginField(
+  name: 'key',
+  description: 'The API key to connect to the API with.',
+)]
 class AcquiaSiteFactoryDomainList extends AbstractDomainList {
 
   protected Config $credentials;
-  protected Client $client;
-  protected CacheInterface $cache;
 
   /**
    * The maximum number of sites returned in a single API command to Site
@@ -25,11 +38,11 @@ class AcquiaSiteFactoryDomainList extends AbstractDomainList {
    */
   const LIST_SITES_LIMIT = 100;
 
-  public function __construct(ContainerInterface $container, CacheInterface $cache)
+  public function __construct(
+    protected CacheInterface $cache,
+    protected Client $client,
+    protected PluginCollection $pluginCollection)
   {
-    $this->credentials = $container->get('credentials')->load('acsf:api');
-    $this->client = $container->get('http.client');
-    $this->cache = $cache;
     parent::__construct();
   }
 

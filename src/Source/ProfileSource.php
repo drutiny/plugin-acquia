@@ -2,13 +2,10 @@
 
 namespace Drutiny\Acquia\Source;
 
-use Drutiny\Acquia\Api\SourceApi;
 use Drutiny\LanguageManager;
 use Drutiny\Policy;
 use Drutiny\Profile;
-use Drutiny\Profile\ProfileSource as DrutinyProfileSource;
 use Drutiny\ProfileSource\ProfileSourceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -116,6 +113,6 @@ class ProfileSource extends SourceBase implements ProfileSourceInterface
         } catch (ParseException $e) {
         }
 
-        return $this->container->get('profile.factory')->create($definition);
+        return $this->profileFactory->create($definition);
     }
 }

@@ -4,27 +4,19 @@ namespace Drutiny\Acquia\Source;
 
 use Drutiny\Acquia\Api\SourceApi;
 use Drutiny\LanguageManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drutiny\ProfileFactory;
 
 /**
  * Load policies from CSKB.
  */
 class SourceBase {
 
-  protected $client;
-  protected $cache;
-  protected $container;
-  protected $languageManager;
-
   public function __construct(
-      SourceApi $client,
-      ContainerInterface $container,
-      LanguageManager $languageManager
+      protected SourceApi $client,
+      protected LanguageManager $languageManager,
+      protected ProfileFactory $profileFactory
       )
   {
-    $this->client = $client;
-    $this->container = $container;
-    $this->languageManager = $languageManager;
   }
 
   public function getApiPrefix()
