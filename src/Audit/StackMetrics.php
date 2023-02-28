@@ -2,33 +2,24 @@
 
 namespace Drutiny\Acquia\Audit;
 
+use Drutiny\Audit\AuditValidationException;
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Audit\AbstractAnalysis;
-use Drutiny\Acquia\AcquiaTargetInterface;
-use Drutiny\AuditValidationException;
-use Drutiny\Report\Format\HTML;
-use Drutiny\Report\Twig\Helper;
 
 /**
- *
- * @Param(
- *  name = "maintain-aspect-ratio",
- *  description = "Maintain the original canvas aspect ratio (width / height) when resizing.",
- *  type = "boolean",
- *  default = TRUE
- * )
+ * 
  */
-class StackMetrics extends AbstractAnalysis {
+class StackMetrics extends CloudApiAnalysis {
 
 
     public function configure():void
     {
-        parent::configure();
+        
+        $this->setDeprecated();
 
         $this->addParameter(
           'metrics',
           static::PARAMETER_OPTIONAL,
-          'one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory ',
+          'one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory '
         );
         $this->addParameter(
           'chart-type',
@@ -62,14 +53,13 @@ class StackMetrics extends AbstractAnalysis {
           static::PARAMETER_OPTIONAL,
           '',
         );
+        parent::configure();
     }
 
   /**
    * @inheritdoc
    */
   public function gather(Sandbox $sandbox) {
-
-    $api = $this->container->get('acquia.cloud.api')->getClient();
     $env = $this->target['acquia.cloud.environment.id'];
 
     $metrics = $this->getParameter('metrics');
@@ -89,32 +79,34 @@ class StackMetrics extends AbstractAnalysis {
       $resolution = 'day';
     }
 
-    $response = $api->getClient()->request('GET', '/environments/' . $env . '/metrics/stackmetrics/data', ['query' => [
-      'filter' => implode(',', array_map(function ($metric) {
-        return 'metric:' . $metric;
-      }, $metrics)),
-      'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ISO8601),
-      'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ISO8601),
-      'resolution' => $resolution,
-    ]]);
+    $response = $this->call(verb: 'get', path: "/environments/{acquia.cloud.environment.uuid}/metrics/stackmetrics/data", options: [
+      'query' => [
+        'filter' => implode(',', array_map(function ($metric) {
+          return 'metric:' . $metric;
+        }, $metrics)),
+        'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ATOM),
+        'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ATOM),
+        'resolution' => $resolution,
+      ]
+    ]);
 
     $table_headers = ['Date'];
     $table_rows = [];
 
-    foreach ($response['_embedded']['items'] as $item) {
-      if (!empty($item['metadata']['host'])) {
-        list($item['name'],) = explode('.', $item['metadata']['host'], 2);
+    foreach ($response as $item) {
+      if (!empty($item->metadata->host)) {
+        list($item->name,) = explode('.', $item->metadata->host, 2);
       }
-      if (!isset($item['name'])) {
-        $item['name'] = $item['metric'];
+      if (!isset($item->name)) {
+        $item->name = $item->metric;
       }
       elseif (count($metrics) > 1) {
-        $item['name'] .= ':' . $item['metric'];
+        $item->name .= ':' . $item->metric;
       }
-      $table_headers[] = $item['name'];
+      $table_headers[] = $item->name;
 
-      $idx = array_search($item['name'], $table_headers);
-      foreach ($item['datapoints'] as $plot) {
+      $idx = array_search($item->name, $table_headers);
+      foreach ($item->datapoints as $plot) {
         // $y == value
         // $x == epoch
         list($y, $x) = $plot;

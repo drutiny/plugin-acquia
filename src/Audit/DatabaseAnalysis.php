@@ -3,9 +3,6 @@
 namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
-use Drutiny\Acquia\CloudApiV2;
 
 /**
  * Adds the database size to the database result set.
@@ -37,11 +34,11 @@ class DatabaseAnalysis extends EnvironmentAnalysis {
 
     $this->set('databases', array_map(function ($database) use ($sandbox, $db_sizes) {
       // Extract the machine_name from the db_url.
-      $strArray = explode('/',$database['url']);
+      $strArray = explode('/',$database->url);
       $db_machine_name = end($strArray);
 
-      $database['machine_name'] = $db_machine_name;
-      $database['size'] = array_key_exists($db_machine_name, $db_sizes) ? $db_sizes[$db_machine_name] : 0;
+      $database->machine_name = $db_machine_name;
+      $database->size = array_key_exists($db_machine_name, $db_sizes) ? $db_sizes[$db_machine_name] : 0;
       return $database;
     }, $data['_embedded']['items']));
 

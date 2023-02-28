@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Acquia\Helper\CloudApiHelper;
+use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Attribute\Plugin;
 use Drutiny\Attribute\PluginField;
 use Drutiny\Plugin as DrutinyPlugin;
@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 )]
 class EventsSubscriber implements EventSubscriberInterface {
 
-    public function __construct(protected CloudApiHelper $helper, protected DrutinyPlugin $plugin)
+    public function __construct(protected CloudApi $api, protected DrutinyPlugin $plugin)
     {
     }
 
@@ -36,11 +36,11 @@ class EventsSubscriber implements EventSubscriberInterface {
         if (!$target->hasProperty('drush.ac-site') || $target->hasProperty('acquia.cloud.environment')) {
             return;
         }
-        $application = $this->helper->findApplication($target['drush.ac-realm'], $target['drush.ac-site']);
-        $this->helper->mapToTarget($application, $target, 'acquia.cloud.application');
+        $application = $this->api->findApplication($target['drush.ac-realm'], $target['drush.ac-site']);
+        $this->api->mapToTarget($application, $target, 'acquia.cloud.application');
 
-        $environment = $this->helper->findEnvironment($application['uuid'], $target['drush.ac-env']);
-        $this->helper->mapToTarget($environment, $target, 'acquia.cloud.environment');
+        $environment = $this->api->findEnvironment($application['uuid'], $target['drush.ac-env']);
+        $this->api->mapToTarget($environment, $target, 'acquia.cloud.environment');
 
         $target->setUri($environment['active_domain']);
     }

@@ -7,9 +7,9 @@ use Drutiny\Target\InvalidTargetException;
 use Drutiny\Target\TargetSourceInterface;
 use Drutiny\Target\TargetInterface;
 use Drutiny\Acquia\Api\CloudApi;
-use AcquiaCloudApi\AcquiaCloudApi;
+use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use Drutiny\Acquia\Helper\CloudApiHelper;
 use Drutiny\Attribute\AsTarget;
 use Drutiny\LocalCommand;
 use Drutiny\Target\DrushTarget;
@@ -17,7 +17,6 @@ use Drutiny\Target\Service\ServiceFactory;
 use Drutiny\Target\Transport\SshTransport;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -28,20 +27,16 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[AsTarget(name: 'acquia')]
 class AcquiaTarget extends DrushTarget implements TargetSourceInterface
 {
-    protected AcquiaCloudApi $api;
-
     public function __construct(
       LoggerInterface $logger,
       EventDispatchedDataBag $databag,
       LocalCommand $localCommand,
       ServiceFactory $serviceFactory,
       EventDispatcher $eventDispatcher,
-      protected CloudApiHelper $helper,
-      CloudApi $api,
+      protected CloudApi $api,
       protected CacheInterface $cache,
       protected ProgressBar $progressBar)
     {
-        $this->api = $api->getClient();
         parent::__construct(
           logger: $logger, 
           databag: $databag, 
@@ -74,20 +69,20 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
 
         $this->logger->info('Loading environment from API...');
         if ($is_uuid) {
-          $environment = $this->helper->getEnvironment($uuid);
-          $application = $this->helper->getApplication($environment['application']['uuid']);
+          $environment = $this->api->getEnvironment($uuid);
+          $application = $this->api->getApplication($environment['application']['uuid']);
         }
         else {
           list(, $realm, $app, $env) = $matches;
-          $application = $this->helper->findApplication($realm, $app);
-          $environment = $this->helper->findEnvironment($application['uuid'], $env);
+          $application = $this->api->findApplication($realm, $app);
+          $environment = $this->api->findEnvironment($application['uuid'], $env);
         }
-        $this->helper->mapToTarget($application, $this, 'acquia.cloud.application');
-        $this->helper->mapToTarget($environment, $this, 'acquia.cloud.environment');
+        $this->api->mapToTarget($application, $this, 'acquia.cloud.application');
+        $this->api->mapToTarget($environment, $this, 'acquia.cloud.environment');
 
         $this->setUri($uri ?: $environment['active_domain']);
-        
-        list($user, $host) = explode('@', $environment['ssh_url'], 2);
+
+        list($user, $host) = explode('@', $environment['sshUrl'], 2);
         // At the remote, this is what the Drush alias should be. This becomes
         // an environment variable (e.g. $DRUSH_ALIAS).
         $this['drush.alias'] = "@$user";
@@ -107,60 +102,36 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     public function getAvailableTargets():array
     {
       $targets = [];
-      $response = $this->api->getApplications();
-      $this->progressBar->start($response['total']);
-      foreach ($response['_embedded']['items'] as $app) {
-        $this->logger->notice("Building environment targets for {$app['name']}.");
+      $resource = new Applications($this->api->getApiClient());
+      $applications = $resource->getAll();
+      $this->progressBar->start(count($applications));
+      foreach ($applications as $app) {
+        $this->logger->notice("Building environment targets for {$app->name}.");
 
         try {
-          $env_res = $this->api->getApplicationEnvironments(['applicationUuid' => $app['uuid']]);
-          foreach ($env_res['_embedded']['items'] as $env) {
+          $resource = new Environments($this->api->getApiClient());
+          $environments = $resource->getAll($app->uuid);
+
+          foreach ($environments as $env) {
             $targets[] = [
-              'id' => $env['id'],
-              'uri' => $env['active_domain'],
-              'name' => sprintf('%s: %s', $env['label'], $app['name']),
+              'id' => $app->hosting->id . '.' . $env->name,
+              'uri' => $env->active_domain,
+              'name' => sprintf('%s: %s', $env->label, $app->name),
             ];
           }
         }
         catch (ClientException $e) {
           $res = json_decode($e->getResponse()->getBody(), true);
-          $this->logger->error("{$app['name']}: {$res['message']}");
+          $this->logger->error("{$app->name}: {$res->message}");
         }
         catch (ApiErrorException $e) {
-          $this->logger->warning($app['name'] .": ".$e->getMessage());
+          $this->logger->warning($app->name .": ".$e->getMessage());
         }
 
         $this->progressBar->advance();
       }
       $this->progressBar->finish();
       return $targets;
-    }
-
-    /**
-     * Load up the environment data from Acquia Cloud API.
-     */
-    protected function loadEnvironmentFromCloudApi($uuid) {
-      $environment = $this->cache->get('acquia.cloud.environment.'.$uuid, function (ItemInterface $item) use ($uuid) {
-          return $this->api->getEnvironment([
-            'environmentId' => $uuid,
-          ]);
-      });
-
-      foreach ($environment as $key => $value) {
-          if ('_' == substr($key, 0, 1)) {
-              continue;
-          }
-
-          try {
-            $this['acquia.cloud.environment.'.$key] = $value;
-          }
-          catch (InvalidTargetException $e) {
-            // This occurs which drush cannot obain a drush alias data.
-            // It can safely be ignored.
-            $this->logger->debug("AcquiaTarget detected unrelated target exception: " . $e->getMessage());
-          }
-      }
-      return $environment;
     }
 
     /**

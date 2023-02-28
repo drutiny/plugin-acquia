@@ -3,82 +3,68 @@
 namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Audit\AbstractAnalysis;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.
  */
-class EnvironmentAnalysis extends AbstractAnalysis {
+class EnvironmentAnalysis extends CloudApiAnalysis {
+  
+  public function configure():void
+  {
+    parent::configure();
+    $this->setDeprecated();
+  }
 
   /**
    * @inheritdoc
    */
   public function gather(Sandbox $sandbox) {
-    $environment_id = $this->target['acquia.cloud.environment.id'];
-    $app = $this->target['acquia.cloud.application']->export();
-    $this->set('environment', $this->target['acquia.cloud.environment']->export());
-    $this->set('app', $app);
-    $client = $this->container->get('acquia.cloud.api')->getClient();
 
-    // $this->set('runtimes', $client->getAvailableRuntimes([
-    //   'environmentId' => $environment_id
-    // ]));
+    $calls['cron'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/crons'
+    ];
 
-    $this->set('cron', $client->getCronJobsByEnvironmentId([
-      'environmentId' => $environment_id
-    ]));
+    $calls['databases'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/databases'
+    ];
 
-    $this->set('databases', $client->getEnvironmentsDatabases([
-      'environmentId' => $environment_id
-    ]));
+    $calls['dns'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/dns'
+    ];
 
-    $this->set('dns', $client->getEnvironmentsDns([
-      'environmentId' => $environment_id
-    ]));
+    $calls['servers'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/servers'
+    ];
 
-    // $this->set('logs', $client->getEnvironmentsLogs([
-    //   'environmentId' => $environment_id
-    // ]));
+    $calls['apm_settings'] = [
+      'path' => '/subscriptions/{acquia.cloud.application.subscription.uuid}/apm'
+    ];
 
-    $this->set('servers', $client->getEnvironmentsServers([
-      'environmentId' => $environment_id
-    ]));
+    $calls['certificates'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/ssl/certificates'
+    ];
 
-    $this->set('apm_settings', $client->getEnvironmentsApmSetting([
-      'environmentId' => $environment_id
-    ]));
+    $calls['csrs'] = [
+      'path' => '/environments/{acquia.cloud.environment.uuid}/ssl/csrs'
+    ];
 
-    // $this->set('ssl_settings', $client->getSsl([
-    //   'environmentId' => $environment_id
-    // ]));
+    $calls['search_settings'] = [
+      'path' => '/applications/{acquia.cloud.application.uuid}/search/config-sets'
+    ];
 
-    $this->set('certificates', $client->getCertificates([
-      'environmentId' => $environment_id
-    ]));
-
-    $this->set('csrs', $client->getCertificateSigningRequests([
-      'environmentId' => $environment_id
-    ]));
-
-    $this->set('search_settings', $client->getApplicationSearchConfigurationSets([
-      'applicationUuid' => $app['uuid']
-    ]));
-
-    if (array_key_exists('remote_admin', $app['flags']) && $app['flags']['remote_admin']) {
-      $this->set('ra_settings', $client->getApplicationRemoteAdministrationSettings([
-        'applicationUuid' => $app['uuid']
-      ]));
+    if (array_key_exists('remote_admin', $this->target['acquia.cloud.application.flags']) &&  $this->target['acquia.cloud.application.flags']['remote_admin']) {
+      $calls['remote_admin'] = [
+        'path' => '/applications/{acquia.cloud.application.uuid}/settings/ra'
+      ];  
     }
 
-    if ($app['hosting']['type'] != 'acsf') {
-      $this->set('variables', $client->getEnvironmentsVariables([
-        'environmentId' => $environment_id
-      ]));
-
-      // $this->set('log_forwarding_destinations', $client->getEnvironmentsLogForwardingDestinations([
-      //   'environmentId' => $environment_id
-      // ]));
-
+    if ($this->target['acquia.cloud.application.hosting']['type'] != 'acsf') {
+      $calls['variables'] = [
+        'path' => '/environments/{acquia.cloud.environment.uuid}/variables'
+      ]; 
     }
+    $this->setParameter('is_legacy', true);
+    $this->setParameter('calls', $calls);
+    parent::gather($sandbox);
   }
 }

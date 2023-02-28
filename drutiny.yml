@@ -45,9 +45,6 @@ services:
 
     Drutiny\Acquia\Plugin\AcquiaCloudPlugin:
 
-    Drutiny\Acquia\Helper\:
-        resource: 'src/Helper/*'
-
     Drutiny\Acquia\EventSubscriber\Drutiny:
         tags: [drutiny.event_subscriber]
 

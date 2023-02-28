@@ -3,9 +3,6 @@
 namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
-use Drutiny\Acquia\CloudApiV2;
 
 /**
  * Retrieve all custom environment variables for a particular Acquia Cloud environment.
@@ -32,12 +29,12 @@ class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
     $this->set('env', $env);
     $this->set('sitegroup', $sitegroup);
 
-    $data = $this->getParameter('variables');
+    $data = $this->get('variables');
     $variables=[];
 
-    if (!empty($variables)) {
-      foreach ($data['_embedded']['items'] as $item) {
-        $variables[$item['name']] = $item['value'];
+    if (!empty($data)) {
+      foreach ($data as $item) {
+        $variables[$item->name] = $item->value;
       }
     }
 

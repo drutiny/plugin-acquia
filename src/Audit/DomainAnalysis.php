@@ -3,9 +3,6 @@
 namespace Drutiny\Acquia\Audit;
 
 use Drutiny\Sandbox\Sandbox;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
-use Drutiny\Acquia\CloudApiV2;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.

@@ -10,9 +10,9 @@
   "prefer-stable": true,
   "require": {
     "drutiny/drutiny": "^3.6-dev",
-    "fiasco/cloud-api-sdk-php": "^2.0",
     "zumba/amplitude-php": "^1.0",
-    "loophp/phposinfo": "^1.7"
+    "loophp/phposinfo": "^1.7",
+    "typhonius/acquia-php-sdk-v2": "master-dev"
   },
   "minimum-stability": "dev",
   "support": {

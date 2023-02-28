@@ -2,6 +2,8 @@
 
 namespace Drutiny\Acquia\Plugin;
 
+use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use Drutiny\Plugin;
 
 class AcquiaCloudPlugin extends Plugin
@@ -14,6 +16,17 @@ class AcquiaCloudPlugin extends Plugin
       $this->checkForAcquiaCLi();
     }
 
+    /**
+     * Get the Acquia CLoud connector.
+     */
+    public function getApiClient(): Client
+    {
+      $connector = new Connector([
+        'key' => $this->key_id,
+        'secret' => $this->secret
+      ]);
+      return Client::factory($connector);
+    }
 
     /**
      * Use Acquia CLI credentials if they're available.

@@ -2,6 +2,8 @@
 
 namespace Drutiny\Acquia\Audit;
 
+use AcquiaCloudApi\Endpoints\IdentityProviders;
+use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit;
 
@@ -14,66 +16,41 @@ class AppInfo extends Audit {
    * @inheritdoc
    */
   public function audit(Sandbox $sandbox) {
-
-    $client = $this->container->get('acquia.cloud.api')->getClient();
+    $api = $this->container->get(CloudApi::class);
     $app = $this->target['acquia.cloud.application']->export();
-    $this->set('drush', $this->target['drush']->export());
 
+    // @deprecated
+    // Use the target directly instead.
+    $this->set('drush', $this->target['drush']->export());
     $this->set('app', $app);
 
-    // $this->set('databases', $client->getApplicationDatabases([
-    //   'applicationUuid' => $app['uuid'],
-    // ]));
-    //
-    // $this->set('hosting_settings', $client->getApplicationHostingSettings([
-    //   'applicationUuid' => $app['uuid']
-    // ]));
-    //
-    // $this->set('legacy_product_keys_settings', $client->getApplicationLegacyProductKeysSettings([
-    //   'applicationUuid' => $app['uuid']
-    // ]));
-    //
-    // $this->set('remote_administration_settings', $client->getApplicationRemoteAdministrationSettings([
-    //   'applicationUuid' => $app['uuid']
-    // ]));
-    //
-    // $this->set('search_settings', $client->getApplicationSearchSettings([
-    //   'applicationUuid' => $app['uuid']
-    // ]));
-    //
-    // $this->set('security_settings', $client->getApplicationSecuritySettings([
-    //   'applicationUuid' => $app['uuid']
-    // ]));
+    $client = $api->getApiClient();
 
-    $this->set('teams', $teams = $client->getApplicationTeams([
-      'applicationUuid' => $app['uuid']
-    ]));
+    $teams = $client->request('get', "/applications/{acquia.cloud.application.uuid}/teams");
+
+    $this->set('teams', $teams = $client->request('get', "/applications/{$app['uuid']}/teams"));
 
     $members = [];
-    foreach ($teams['_embedded']['items'] as $team) {
-      $team_members = $client->getTeamMembers([
-        'teamUuid' => $team['uuid'],
-        'limit' => 100
+    foreach ($teams as $team) {
+      $team_members = $client->request('get', "/teams/{$team->uuid}/members",[
+        'query' => ['limit' => 100]
       ]);
 
-      foreach ($team_members['_embedded']['items'] as $team_member) {
-        $is_new = !isset($members[$team_member['uuid']]);
-        $member = $members[$team_member['uuid']] ?? $team_member;
+      foreach ($team_members as $team_member) {
+        $member = $members[$team_member->uuid] ?? $team_member;
 
-        foreach ($team_member['roles'] as $role) {
-          $member['team_roles'][] = sprintf('%s (%s)', $role['name'], $team['name']);
+        foreach ($team_member->roles as $role) {
+          $member->team_roles[] = sprintf('%s (%s)', $role->name, $team->name);
         }
-        $members[$member['uuid']] = $member;
+        $members[$member->uuid] = $member;
       }
     }
 
     $this->set('members', array_values($members));
 
-    $this->set('features', $client->getApplicationFeatures([
-      'applicationUuid' => $app['uuid']
-    ]));
-
-    $this->set('identity_providers', $client->getIdentityProviders());
+    $features = $client->request('get', "/applications/{$app['uuid']}/features");
+    $this->set('features', $features);
+    $this->set('identity_providers', (new IdentityProviders($client))->getAll());
 
     return Audit::NOTICE;
   }
