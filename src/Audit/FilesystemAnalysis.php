@@ -17,7 +17,7 @@ class FilesystemAnalysis extends EnvironmentAnalysis
 
     public function configure():void
     {
-      parent::configure();
+      
       $this->addParameter(
           'unit',
           static::PARAMETER_OPTIONAL,
@@ -30,7 +30,7 @@ class FilesystemAnalysis extends EnvironmentAnalysis
           'the storage usage information for both disk and inodes.',
           ''
       );
-
+      parent::configure();
     }
 
     /**
