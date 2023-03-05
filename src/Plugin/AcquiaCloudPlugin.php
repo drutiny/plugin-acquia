@@ -58,7 +58,7 @@ class AcquiaCloudPlugin extends Plugin
         }
         $this->saveAs([
           'key_id' => $key,
-          'secrect' => $secret
+          'secret' => $secret
         ]);
     }
 }
