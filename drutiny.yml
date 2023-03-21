@@ -45,9 +45,6 @@ services:
 
     Drutiny\Acquia\Plugin\AcquiaCloudPlugin:
 
-    Drutiny\Acquia\EventSubscriber\Drutiny:
-        tags: [drutiny.event_subscriber]
-
     Zumba\Amplitude\Amplitude:
         calls:
           - [getInstance]
