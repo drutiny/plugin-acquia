@@ -9,15 +9,7 @@ use Drutiny\ProfileFactory;
 /**
  * Load policies from CSKB.
  */
-class SourceBase {
-
-  public function __construct(
-      protected SourceApi $client,
-      protected LanguageManager $languageManager,
-      protected ProfileFactory $profileFactory
-      )
-  {
-  }
+trait SourceTrait {
 
   public function getApiPrefix()
   {
@@ -35,20 +27,6 @@ class SourceBase {
       // specified language.
       'filter[langcode]' => $this->languageManager->getCurrentLanguage(),
     ]];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getName():string {
-    return '<fg=cyan>ACQUIA</>';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getWeight():int {
-    return -80;
   }
 
 }

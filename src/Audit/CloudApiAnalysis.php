@@ -4,11 +4,20 @@ namespace Drutiny\Acquia\Audit;
 
 use AcquiaCloudApi\Connector\Client;
 use Drutiny\Acquia\Api\CloudApi;
+use Drutiny\Attribute\UseService;
 use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\Sandbox\Sandbox;
 use Psr\Cache\CacheItemInterface;
 
+#[UseService(CloudApi::class, 'setCloudApi')]
 class CloudApiAnalysis extends AbstractAnalysis {
+
+    protected CloudApi $api;
+
+    public function setCloudApi(CloudApi $api)
+    {
+        $this->api = $api;
+    }
 
     public function configure():void
     {
@@ -58,7 +67,7 @@ class CloudApiAnalysis extends AbstractAnalysis {
 
         return $this->cache->get($call->getCacheKey(), function (CacheItemInterface $cache) use ($call) {
             $cache->expiresAfter(120);
-            $client = $this->container->get(CloudApi::class)->getApiClient();
+            $client = $this->api->getApiClient();
             $call->addQuery($client);
             return $client->request($call->verb, $call->path, $call->options);
         });

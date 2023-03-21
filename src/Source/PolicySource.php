@@ -2,23 +2,43 @@
 
 namespace Drutiny\Acquia\Source;
 
-use Drutiny\Policy;
-use Drutiny\PolicySource\PolicySourceInterface;
 use Drutiny\Acquia\Api\SourceApi;
+use Drutiny\Attribute\AsSource;
+use Drutiny\Policy;
 use Drutiny\LanguageManager;
+use Drutiny\Policy\Severity;
+use Drutiny\PolicySource\AbstractPolicySource;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Load policies from CSKB.
  */
-class PolicySource extends SourceBase implements PolicySourceInterface {
+#[AsSource(name: 'ACQUIA', weight: -80)]
+#[Autoconfigure(tags: ['policy.source'])]
+class PolicySource extends AbstractPolicySource {
+  use SourceTrait;
 
   const API_ENDPOINT = 'jsonapi/node/policy';
+
+  public function __construct(
+    protected SourceApi $client,
+    protected LanguageManager $languageManager,
+    AsSource $source,
+    CacheInterface $cache,
+    protected LoggerInterface $logger
+    )
+  {
+    parent::__construct(source: $source, cache: $cache);
+  }
 
   /**
    * {@inheritdoc}
    */
-  public function getList(LanguageManager $languageManager) {
+  protected function doGetList(LanguageManager $languageManager):array
+  {
     $list = [];
     $params = $this->getRequestParams();
     $params['query']['fields[node--policy]'] = 'field_name,field_class,title';
@@ -40,7 +60,8 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function load(array $definition) {
+  protected function doLoad(array $definition):Policy
+  {
     $query = $this->getRequestParams();
     $query['query']['include'] = 'field_tags';
     $endpoint = $this->getApiPrefix().self::API_ENDPOINT.'/'.$definition['uuid'];
@@ -54,6 +75,14 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
 
     if (isset($definition['parameters']['_chart'])) {
       unset($definition['parameters']['_chart']);
+    }
+    // Clean up chart definitions.
+    foreach ($definition['chart'] as $key => $chart) {
+      // Remove empty properties allowing defaults to take place.
+      $definition['chart'][$key] = array_filter($chart, function($v) {
+        // Booleans remain but empty strings and null values go.
+        return !((is_string($v) && empty($v)) || is_null($v));
+      });
     }
 
     foreach ($response['included'] ?? [] as $include) {
@@ -77,37 +106,25 @@ class PolicySource extends SourceBase implements PolicySourceInterface {
     $definition['severity'] = $response['data']['attributes']['field_severity'];
     $definition['description'] = $response['data']['attributes']['field_description'];
     $definition['success'] = $response['data']['attributes']['field_success'];
-    $definition['remediation'] = $response['data']['attributes']['field_remediation'];
+    $definition['remediation'] = $response['data']['attributes']['field_remediation'] ?? '';
     $definition['failure'] = $response['data']['attributes']['field_failure'];
     $definition['type'] = $response['data']['attributes']['field_type'];
-    $definition['warning'] = $response['data']['attributes']['field_warning'];
+    $definition['warning'] = $response['data']['attributes']['field_warning'] ?? '';
 
     unset($definition['source']);
 
-    switch ($definition['severity'] ?? false) {
-        case Policy::SEVERITY_LOW:
-        case 'low':
-            $definition['severity'] = 'low';
-            break;
-        case Policy::SEVERITY_NORMAL:
-        case 'normal':
-            $definition['severity'] = 'normal';
-            break;
-        case Policy::SEVERITY_HIGH:
-        case 'high':
-            $definition['severity'] = 'high';
-            break;
-        case Policy::SEVERITY_CRITICAL:
-        case 'critical':
-            $definition['severity'] = 'critical';
-            break;
-        default:
-            $definition['severity'] = 'normal';
-            break;
+    // If severity isn't set, set it to the default value.
+    $definition['severity'] ??= Severity::getDefault()->value;
+
+    if (!is_string($definition['severity'])) {
+      $definition['severity'] = Severity::fromInt($definition['severity'])->value;
+    }
+    elseif (!Severity::has($definition['severity'])) {
+      $this->logger->warning("Severity of '{$definition['severity']}' is not an allowed value in Policy '{$definition['name']}' from {$this->source->name}.");
+      $definition['severity']  = Severity::getDefault()->value;
     }
 
-    $policy = new Policy();
-    return $policy->setProperties($definition);
+    return parent::doLoad($definition);
   }
 
 }

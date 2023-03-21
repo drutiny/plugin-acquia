@@ -63,6 +63,7 @@ class EnvironmentAnalysis extends CloudApiAnalysis {
         'path' => '/environments/{acquia.cloud.environment.uuid}/variables'
       ]; 
     }
+    $this->set('environment', $this->target['acquia.cloud.environment']);
     $this->setParameter('is_legacy', true);
     $this->setParameter('calls', $calls);
     parent::gather($sandbox);

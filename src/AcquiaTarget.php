@@ -2,7 +2,6 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Entity\EventDispatchedDataBag;
 use Drutiny\Target\InvalidTargetException;
 use Drutiny\Target\TargetSourceInterface;
 use Drutiny\Target\TargetInterface;
@@ -11,40 +10,22 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Drutiny\Attribute\AsTarget;
-use Drutiny\LocalCommand;
+use Drutiny\Attribute\UseService;
 use Drutiny\Target\DrushTarget;
-use Drutiny\Target\Service\ServiceFactory;
 use Drutiny\Target\Transport\SshTransport;
-use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use GuzzleHttp\Exception\ClientException;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Acquia Target
  */
 #[AsTarget(name: 'acquia')]
+#[UseService(CloudApi::class, 'setCloudApi')]
+#[UseService(ProgressBar::class, 'setProgressBar')]
 class AcquiaTarget extends DrushTarget implements TargetSourceInterface
 {
-    public function __construct(
-      LoggerInterface $logger,
-      EventDispatchedDataBag $databag,
-      LocalCommand $localCommand,
-      ServiceFactory $serviceFactory,
-      EventDispatcher $eventDispatcher,
-      protected CloudApi $api,
-      protected CacheInterface $cache,
-      protected ProgressBar $progressBar)
-    {
-        parent::__construct(
-          logger: $logger, 
-          databag: $databag, 
-          localCommand: $localCommand, 
-          serviceFactory: $serviceFactory,
-          eventDispatcher: $eventDispatcher
-        );
-    }
+    protected CloudApi $api;
+    protected ProgressBar $progressBar;
 
     /**
      * {@inheritdoc}
@@ -52,6 +33,14 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     public function getId():string
     {
       return $this['acquia.cloud.environment.id'];
+    }
+
+    public function setCloudApi(CloudApi $api) {
+      $this->api = $api;
+    }
+
+    public function setProgressBar(ProgressBar $progressBar) {
+      $this->progressBar = $progressBar;
     }
 
     /**
