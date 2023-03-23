@@ -11,9 +11,18 @@ Acquia:
   isSiteFactory:
     description: Environment is using Acquia Cloud Site Factory
     expression: Acquia.isACSF
+  isACN:
+    description: Is on Acquia Cloud Next
+    expression: acquia.cloud.environment.platform == 'cloud-next'
+  isACC:
+    description: Is on Acquia Cloud Classic
+    expression: acquia.cloud.environment.platform == 'cloud'
   isDrupal:
     description: Environment is for hosting Drupal applications
     expression: acquia.cloud.environment.type == 'drupal'
+  isNode:
+    description: Environment is for hosting Node applications
+    expression: acquia.cloud.environment.type == 'node'
   isProduction:
     description: Environment is a production environment
     expression: acquia.cloud.environment.flags['production']
