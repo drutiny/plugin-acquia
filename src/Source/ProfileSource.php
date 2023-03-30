@@ -91,8 +91,9 @@ class ProfileSource extends AbstractProfileSource
         if (isset($fields['field_dependencies'])) {
             $dependencies = Yaml::parse($fields['field_dependencies']);
             foreach ($dependencies as $policy_name => $info) {
-                $severity = isset($info['severity']) ? Severity::fromInt($info['severity']) : Severity::getDefault();
-                $dependencies[$policy_name]['severity'] = $severity->value;
+                $severity = $info['severity'] ?? Severity::getDefault()->value;
+                $severity = is_numeric($severity) ? Severity::fromInt($severity)->value : Severity::from($severity)->value;
+                $dependencies[$policy_name]['severity'] = $severity;
             }
             $definition['dependencies'] = $dependencies;
         }
