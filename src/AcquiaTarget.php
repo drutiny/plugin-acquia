@@ -32,7 +32,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
      */
     public function getId():string
     {
-      return $this['acquia.cloud.environment.id'];
+      return $this['acquia.cloud.environment.uuid'] ?? $this['acquia.cloud.environment.id'];
     }
 
     public function setCloudApi(CloudApi $api) {
