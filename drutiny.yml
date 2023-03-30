@@ -29,12 +29,10 @@ services:
     Drutiny\Acquia\Source\PolicySource:
       tags: [policy.source]
 
-    domain_list.acsf:
-      class: Drutiny\Acquia\DomainList\AcquiaSiteFactoryDomainList
+    Drutiny\Acquia\DomainList\AcquiaSiteFactoryDomainList:
       tags: [domain_list]
 
-    domain_list.ac:
-      class: Drutiny\Acquia\DomainList\AcquiaCloudDomainList
+    Drutiny\Acquia\DomainList\AcquiaCloudDomainList:
       tags: [domain_list]
 
     Drutiny\Acquia\Source\ProfileSource:

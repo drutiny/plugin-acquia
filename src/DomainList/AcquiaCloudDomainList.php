@@ -2,7 +2,10 @@
 
 namespace Drutiny\Acquia\DomainList;
 
+use Drutiny\Attribute\Name;
 use Drutiny\DomainList\AbstractDomainList;
+use Drutiny\Target\TargetInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -11,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   description = "Boolean indicator to use only custom domains.",
  * )
  */
+#[Name('acquia')]
 class AcquiaCloudDomainList extends AbstractDomainList {
 
   protected ContainerInterface $container;
@@ -22,22 +26,33 @@ class AcquiaCloudDomainList extends AbstractDomainList {
   }
 
   /**
-   * {@inheritdoc}
+   * @return array list of domains.
    */
-  public function configure()
+  public function getDomains(TargetInterface $target, array $options = []):array
   {
-      $this->addOption('multisite', 'Set to true to load domains as a multisite config.');
+    if (!$options['multisite']) {
+      return [];
+    }
+    if (!$target->hasProperty('acquia.cloud.environment.domains')) {
+      return [];
+    }
+    // Do not allow wildcards as they don't work with Drush.
+    return array_filter($target['acquia.cloud.environment.domains'], function ($domain) {
+      return strpos($domain, '*') === FALSE;
+    });
   }
 
   /**
-   * @return array list of domains.
+   * {@inheritdoc}
    */
-  public function getDomains(array $options = [])
+  public function getInputOptions(): array
   {
-    // Do not allow wildcards as they don't work with Drush.
-    return array_filter($this->container->get('target')['acquia.cloud.environment.domains'], function ($domain) {
-      return strpos($domain, '*') === FALSE;
-    });
+    return [
+      new InputOption(
+        name: 'multisite',
+        description: 'Set to true to load domains as a multisite config.'
+      )
+    ];
   }
 }
 

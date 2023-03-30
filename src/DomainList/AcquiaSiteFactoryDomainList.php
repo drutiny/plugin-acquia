@@ -2,12 +2,15 @@
 
 namespace Drutiny\Acquia\DomainList;
 
+use Drutiny\Attribute\Name;
 use Drutiny\Attribute\Plugin;
 use Drutiny\Attribute\PluginField;
 use Drutiny\Config\Config;
 use Drutiny\DomainList\AbstractDomainList;
 use Drutiny\Http\Client;
 use Drutiny\Plugin\PluginCollection;
+use Drutiny\Target\TargetInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -26,6 +29,7 @@ use Symfony\Contracts\Cache\CacheInterface;
   name: 'key',
   description: 'The API key to connect to the API with.',
 )]
+#[Name('acsf')]
 class AcquiaSiteFactoryDomainList extends AbstractDomainList {
 
   protected Config $credentials;
@@ -49,31 +53,30 @@ class AcquiaSiteFactoryDomainList extends AbstractDomainList {
   /**
    * {@inheritdoc}
    */
-  public function configure()
+  public function getInputOptions(): array
   {
-      $this->addOption('factory', 'The domain of the site factory console.');
-      $this->addOption('primary-only', 'Use to select domains from sites that are primary.');
-      $this->addOption('no-internal', 'Do not return any domains that come from an Acquia owned apex.');
-      $this->addOption('stack', 'Integer. The stack number to pull domains for.');
+    return [
+      new InputOption(name: 'factory', description: 'The domain of the site factory console.', mode: InputOption::VALUE_OPTIONAL),
+      new InputOption(name: 'primary-only', description: 'Use to select domains from sites that are primary.'),
+      new InputOption(name: 'no-internal', description: 'Do not return any domains that come from an Acquia owned apex.'),
+      new InputOption(name: 'stack', description: 'Integer. The stack number to pull domains for.', mode: InputOption::VALUE_OPTIONAL)
+    ];
   }
-
-
 
   /**
    * @return array list of domains.
    */
-  public function getDomains(array $options = [])
+  public function getDomains(TargetInterface $target, array $options = []):array
   {
     if (!isset($options['factory'])) {
         return [];
     }
-    if (!isset($this->credentials->{$options['factory']})) {
-        return [];
-    }
-    $api_creds = $this->credentials->{$options['factory']};
+
+    $plugin = $this->pluginCollection->get($options['factory']);
+
     $client = $this->client->create([
-      'base_uri' => 'https://' . $options['factory'] . '/api/v1/',
-      'auth' => [$api_creds['username'], $api_creds['key']],
+      'base_uri' => 'https://' . $plugin->factory . '/api/v1/',
+      'auth' => [$plugin->username, $plugin->key],
     ]);
 
     $page = 1;
