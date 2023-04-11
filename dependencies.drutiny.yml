@@ -56,3 +56,9 @@ Acquia:
   usingWelcomeTag:
     description: Environment has the Acquia welcome tag deployed.
     expression: acquia.cloud.environment.vcs['path'] == 'tags/WELCOME'
+  isODE:
+    description: Environment is an On Demand Environment.
+    expression: acquia.cloud.environment.name starts with "ode"
+  isCDE:
+    description: Enviornment is a Continuous Delivery Environment.
+    expression: acquia.environment.name starts with "ode"
