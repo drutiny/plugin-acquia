@@ -14,7 +14,7 @@ class StackMetrics extends CloudApiAnalysis {
     public function configure():void
     {
         
-        $this->setDeprecated();
+        $this->setDeprecated('Use ' . CloudApiAnalysis::class);
 
         $this->addParameter(
           'metrics',
@@ -68,7 +68,7 @@ class StackMetrics extends CloudApiAnalysis {
       throw new AuditValidationException("Metrics parameter must be an array. " . ucwords(gettype($metrics)) . ' given.');
     }
 
-    $duration = ($sandbox->getReportingPeriodEnd()->format('U') - $sandbox->getReportingPeriodStart()->format('U'))/60;
+    $duration = ($this->reportingPeriodEnd->format('U') - $this->reportingPeriodStart->format('U'))/60;
     $resolution = 'minute';
     // > 180 minutes (3 hours) means we need to use a higher resolution.
     if ($duration > 180) {
@@ -84,8 +84,8 @@ class StackMetrics extends CloudApiAnalysis {
         'filter' => implode(',', array_map(function ($metric) {
           return 'metric:' . $metric;
         }, $metrics)),
-        'from' => $sandbox->getReportingPeriodStart()->format(\DateTime::ATOM),
-        'to' => $sandbox->getReportingPeriodEnd()->format(\DateTime::ATOM),
+        'from' => $this->reportingPeriodStart->format(\DateTime::ATOM),
+        'to' => $this->reportingPeriodEnd->format(\DateTime::ATOM),
         'resolution' => $resolution,
       ]
     ]);
