@@ -24,7 +24,7 @@ class SourceApi {
   protected GuzzleClient $client;
   protected array $config;
 
-  public function __construct(Client $client, protected LoggerInterface $logger, DrutinyPlugin $plugin)
+  public function __construct(Client $client, protected LoggerInterface $logger, public readonly DrutinyPlugin $plugin)
   {
       $this->client = $client->create([
         'base_uri' => $plugin->base_url,

@@ -41,7 +41,7 @@ class PolicySource extends AbstractPolicySource {
   {
     $list = [];
     $params = $this->getRequestParams();
-    $params['query']['fields[node--policy]'] = 'field_name,field_class,title';
+    $params['query']['fields[node--policy]'] = 'field_name,field_class,title,drupal_internal__nid';
     $params['query']['fields[taxonomy_term--drutiny_audit_classes]'] = 'name';
     $params['query']['include'] = 'field_class';
 
@@ -52,6 +52,7 @@ class PolicySource extends AbstractPolicySource {
         'class' => $item['field_class'][0]['attributes']['name'],
         'title' => $item['title'],
         'language' => $languageManager->getCurrentLanguage(),
+        'uri' => $this->client->plugin->base_url . 'node/' . $item['drupal_internal__nid'],
       ];
     }
     return $list;
