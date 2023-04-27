@@ -69,6 +69,9 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         $this->api->mapToTarget($application, $this, 'acquia.cloud.application');
         $this->api->mapToTarget($environment, $this, 'acquia.cloud.environment');
 
+        list($machine_name, ) = explode('.', $environment['default_domain']);
+        $this['acquia.cloud.machine_name'] = $machine_name;
+
         $this->setUri($uri ?: $environment['active_domain']);
 
         list($user, $host) = explode('@', $environment['sshUrl'], 2);

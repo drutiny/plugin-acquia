@@ -42,6 +42,9 @@ class EventsSubscriber implements EventSubscriberInterface {
         $environment = $this->api->findEnvironment($application['uuid'], $target['drush.ac-env']);
         $this->api->mapToTarget($environment, $target, 'acquia.cloud.environment');
 
+        list($machine_name, ) = explode('.', $environment['default_domain']);
+        $target['acquia.cloud.machine_name'] = $machine_name;
+
         $target->setUri($environment['active_domain']);
     }
 }
