@@ -8,6 +8,7 @@ use Drutiny\Policy;
 use Drutiny\LanguageManager;
 use Drutiny\Policy\Severity;
 use Drutiny\PolicySource\AbstractPolicySource;
+use Drutiny\Settings;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Yaml\Yaml;
@@ -21,6 +22,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 class PolicySource extends AbstractPolicySource {
   use SourceTrait;
 
+  protected string $baseUrl;
+
   const API_ENDPOINT = 'jsonapi/node/policy';
 
   public function __construct(
@@ -28,9 +31,11 @@ class PolicySource extends AbstractPolicySource {
     protected LanguageManager $languageManager,
     AsSource $source,
     CacheInterface $cache,
-    protected LoggerInterface $logger
+    protected LoggerInterface $logger,
+    Settings $settings,
     )
   {
+    $this->baseUrl = $settings->get('acquia.api.base_uri');
     parent::__construct(source: $source, cache: $cache);
   }
 
@@ -52,7 +57,7 @@ class PolicySource extends AbstractPolicySource {
         'class' => $item['field_class'][0]['attributes']['name'],
         'title' => $item['title'],
         'language' => $languageManager->getCurrentLanguage(),
-        'uri' => $this->client->plugin->base_url . 'node/' . $item['drupal_internal__nid'],
+        'uri' => $this->baseUrl . 'node/' . $item['drupal_internal__nid'],
       ];
     }
     return $list;

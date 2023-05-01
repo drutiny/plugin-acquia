@@ -3,31 +3,20 @@
 namespace Drutiny\Acquia\Api;
 
 use Drutiny\Http\Client;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drutiny\Acquia\Plugin\CskbEndpoint;
-use Drutiny\Attribute\Plugin;
-use Drutiny\Attribute\PluginField;
-use Drutiny\Plugin as DrutinyPlugin;
-use Drutiny\Plugin\FieldType;
+use Drutiny\Settings;
 use Psr\Log\LoggerInterface;
 use GuzzleHttp\Client as GuzzleClient;
 
-#[Plugin(name: 'cskb:endpoint')]
-#[PluginField(
-  name: 'base_url',
-  description: "Where to find CSKB (https://cskb.acquia.com)",
-  type: FieldType::CONFIG,
-  default: 'https://cskb.acquia.com/'
-)]
 class SourceApi {
 
   protected GuzzleClient $client;
   protected array $config;
+  protected string $baseUrl;
 
-  public function __construct(Client $client, protected LoggerInterface $logger, public readonly DrutinyPlugin $plugin)
+  public function __construct(Client $client, protected LoggerInterface $logger, Settings $settings)
   {
       $this->client = $client->create([
-        'base_uri' => $plugin->base_url,
+        'base_uri' => $this->baseUrl = $settings->get('acquia.api.base_uri'),
         'headers' => [
           'User-Agent' => 'drutiny-cli/3.x',
           'Accept' => 'application/vnd.api+json',
