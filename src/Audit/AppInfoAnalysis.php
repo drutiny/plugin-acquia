@@ -23,8 +23,8 @@ class AppInfoAnalysis extends CloudApiAnalysis {
       'path' => '/identity-providers'
     ];
 
-    $this->setParameter('calls', $calls);
-    $this->setParameter('is_legacy', true);
+    $this->set('calls', $calls);
+    $this->set('is_legacy', true);
     parent::gather($sandbox);
 
     $members = [];
@@ -42,6 +42,8 @@ class AppInfoAnalysis extends CloudApiAnalysis {
         $members[$member->uuid] = $member;
       }
     }
+
+    $this->set('members', $members);
   }
 
 }
