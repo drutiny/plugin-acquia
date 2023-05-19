@@ -11,15 +11,15 @@ jobs:
       id: setup-php
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 7.4
+        php-version: 8.1
         extensions: curl, json, pcntl
         ini-values: phar.readonly=0
     - uses: php-actions/composer@v6
       with:
-        php_version: 7.4
+        php_version: 8.1
     - uses: php-actions/phpunit@v3
       with:
-        php_version: 7.4
+        php_version: 8.1
     - name: Build phar
       run: ./vendor/bin/drutiny-packager $GITHUB_REF_NAME
     - name: Release
