@@ -42,14 +42,14 @@ class CloudApiAnalysis extends AbstractAnalysis {
         $this->set('drush', $this->target['drush']->export());
         $this->set('app', $this->target['acquia.cloud.application']->export());
 
-        foreach ($this->get('calls') as $name => $call) {
+        foreach ($this->getParameter('calls') as $name => $call) {
             if (!is_array($call) || !isset($call['path'])) {
                 $this->logger->error("$name should be an array containing a path and optionally a verb (e.g. GET) or an options array. Skipping.");
                 continue;
             }
             $response = $this->call(...$call);
             
-            if ($this->get('is_legacy')) {
+            if ($this->getParameter('is_legacy')) {
                 $response = ['_embedded' => ['items' => (array) $response]];
             }
             // Use the name of a call to set a token in the audit.
