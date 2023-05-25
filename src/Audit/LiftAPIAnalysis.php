@@ -2,43 +2,19 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
 use Drutiny\Audit\AbstractAnalysis;
+use Drutiny\Audit\Exception\AuditException;
 
 /**
  * Audit gathered data.
  *
  */
 class LiftAPIAnalysis extends AbstractAnalysis {
-
-
-    public function configure():void
-    {
-        $this->addParameter(
-          'expression',
-          static::PARAMETER_OPTIONAL,
-          'The expression language to evaludate. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-          true
-        );
-        $this->addParameter(
-          'api',
-          static::PARAMETER_OPTIONAL,
-          'The name of the account API endpoint: http://docs.lift.acquia.com/profilemanager/#',
-          'customer_sites'
-        );
-        $this->addParameter(
-          'not_applicable',
-          static::PARAMETER_OPTIONAL,
-          'The expression language to evaludate if the analysis is not applicable. See https://symfony.com/doc/current/components/expression_language/syntax.html',
-          false
-        );
-    }
-
   /**
    * @inheritdoc
    */
-  public function gather(Sandbox $sandbox) {
-      $drush = $this->getTarget()->getService('drush');
+  public function gather() {
+      $drush = $this->target->getService('drush');
       $command = $drush->configGet('acquia_lift.settings', [
         'format' => 'json',
         'include-overridden' => true,
@@ -64,8 +40,7 @@ class LiftAPIAnalysis extends AbstractAnalysis {
       $this->set('response', $json = json_decode($body, TRUE));
 
       if ($response->getStatusCode() != 200) {
-        throw new ResponseException($response, strtr('error: message', $json['value']));
+        throw new AuditException(strtr('error: message', $json['value']));
       }
   }
-
 }
