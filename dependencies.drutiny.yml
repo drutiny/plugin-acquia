@@ -62,3 +62,6 @@ Acquia:
   isCDE:
     description: Enviornment is a Continuous Delivery Environment.
     expression: acquia.environment.name starts with "ode"
+  isCloudEnvironment:
+    description: Is an Acquia Cloud Environment
+    expression: acquia.cloud.environment.name is defined
