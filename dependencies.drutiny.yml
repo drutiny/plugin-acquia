@@ -2,66 +2,92 @@ Acquia:
   isACE: 
     description: Environment is using Acquia Cloud Enterprise
     expression: attribute(drush, 'ac-realm') == 'prod'
+    return: bool
   isDevCloud:
     description: Environment is using Acquia Developer Cloud
     expression: attribute(drush, 'ac-realm') == 'devcloud'
+    return: bool
   isACSF:
     description: Environment is using Acquia Cloud Site Factory
     expression: attribute(drush, 'ac-realm') == 'enterprise-g1'
+    return: bool
   isSiteFactory:
     description: Environment is using Acquia Cloud Site Factory
     expression: Acquia.isACSF
+    return: bool
   isACN:
     description: Is on Acquia Cloud Next
     expression: acquia.cloud.environment.platform == 'cloud-next'
+    return: bool
   isACC:
     description: Is on Acquia Cloud Classic
     expression: acquia.cloud.environment.platform == 'cloud'
+    return: bool
+  isClassicArch:
+    description: Is on Acquia Cloud Classic architecture
+    expression: acquia.cloud.environment.platform in ['cloud', 'enterprise-g1', 'devcloud', 'gardens', 'trex-prod', 'network']
+    return: bool
   isDrupal:
     description: Environment is for hosting Drupal applications
     expression: acquia.cloud.environment.type == 'drupal'
+    return: bool
   isNode:
     description: Environment is for hosting Node applications
     expression: acquia.cloud.environment.type == 'node'
+    return: bool
   isProduction:
     description: Environment is a production environment
     expression: acquia.cloud.environment.flags['production']
+    return: bool
   hasPlatformCDN:
     description: Environment has Acquia Platform CDN
     expression: acquia.cloud.environment.flags['cdn']
+    return: bool
   hasLiveDev:
     description: Environment has Live Dev enabled
     expression: acquia.cloud.environment.flags['livedev']
+    return: bool
   isMultiRegion:
     description: Environment is apart of a multi-region environment
     expression: acquia.cloud.environment.flags['multi_region']
+    return: bool
   isMultiCert:
     description: Environment has multiple SSL certificates enabled
     expression: acquia.cloud.environment.flags['multicert']
+    return: bool
   hasRemoteAdmin:
     description: Environment has Remote Administration enabled
     expression: acquia.cloud.environment.flags['remote_admin']
+    return: bool
   hasCloudActions:
     description: Environment has Cloud Actions enabled
     expression: acquia.cloud.environment.flags['cloud_actions']
+    return: bool
   hasEmail:
     description: Environment has platform email enabled
     expression: acquia.cloud.environment.flags['email']
+    return: bool
   isTaggedDeployment:
     description: Environment has a VCS tag deployed to it.
     expression: acquia.cloud.environment.vcs['path'] starts with 'tags/'
+    return: bool
   isBranchDeployment:
     description: Environment has a VCS branch deployed to it.
     expression: not Acquia.isTaggedDeployment
+    return: bool
   usingWelcomeTag:
     description: Environment has the Acquia welcome tag deployed.
     expression: acquia.cloud.environment.vcs['path'] == 'tags/WELCOME'
+    return: bool
   isODE:
     description: Environment is an On Demand Environment.
     expression: acquia.cloud.environment.name starts with "ode"
+    return: bool
   isCDE:
     description: Enviornment is a Continuous Delivery Environment.
     expression: acquia.environment.name starts with "ode"
+    return: bool
   isCloudEnvironment:
     description: Is an Acquia Cloud Environment
     expression: acquia.cloud.environment.name is defined
+    return: bool
