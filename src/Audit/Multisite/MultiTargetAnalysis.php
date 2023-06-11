@@ -8,7 +8,6 @@ use Drutiny\Attribute\Type;
 use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\AuditFactory;
 use Drutiny\Policy\Dependency;
-use Drutiny\Settings;
 use Generator;
 
 #[Parameter(name: 'class.name', description: 'The class to run over each site as a target', type: Type::STRING, mode: Parameter::REQUIRED)]
@@ -17,7 +16,7 @@ use Generator;
 #[Dependency('Acquia.isCloudEnvironment')]
 class MultiTargetAnalysis extends AbstractAnalysis {
     #[DataProvider]
-    protected function auditEachSiteAsTarget(AuditFactory $auditFactory, Settings $settings):void {
+    protected function auditEachSiteAsTarget(AuditFactory $auditFactory):void {
         $results = $errors = [];
 
         $policy = $this->policy->with(
