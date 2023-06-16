@@ -9,6 +9,7 @@ use Drutiny\Audit\AbstractAnalysis;
 use Drutiny\AuditFactory;
 use Drutiny\Policy\Dependency;
 use Generator;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 #[Parameter(name: 'class.name', description: 'The class to run over each site as a target', type: Type::STRING, mode: Parameter::REQUIRED)]
 #[Parameter(name: 'class.parameters', description: 'The parameters to pass to the audit class', type: Type::HASH, default: [])]
@@ -40,12 +41,22 @@ class MultiTargetAnalysis extends AbstractAnalysis {
         $dbs = [];
         $map = [];
 
-        $max = $this->getParameter('target.limit', count($this->target['acquia.cloud.environment.domains']));
-        $domains = array_slice($this->target['acquia.cloud.environment.domains'], 0, $max);
+        $limit = $this->getParameter('target.limit', count($this->target['acquia.cloud.environment.domains']));
+        $domains = $this->target['acquia.cloud.environment.domains'];
 
         foreach ($domains as $domain) {
-            $target = clone $this->target;
-            $target->setUri($domain);
+            // Wildcards won't bootstrap Drupal so ignore them.
+            if (strpos($domain, '*') !== false) {
+                continue;
+            }
+            try {
+                $target = clone $this->target;
+                $target->setUri($domain);
+            }
+            // Failed to load target. Ignore.
+            catch (ProcessFailedException $e) {
+                continue;
+            }
 
             // Run audits once per site as defined DB and not
             // by domain.
@@ -56,6 +67,10 @@ class MultiTargetAnalysis extends AbstractAnalysis {
             $dbs[$target['drush.db-name']] = $domain;
             $map[$domain] = $dbs[$target['drush.db-name']];
             yield $target;
+
+            if (count($dbs) >= $limit) {
+                break;
+            }
         }
         $this->set('map', $map);
     }
