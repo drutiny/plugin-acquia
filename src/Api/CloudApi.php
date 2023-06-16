@@ -81,21 +81,28 @@ class CloudApi extends Connector
      * 
      * @param string $uuid The application UUID.
      * @param string env The environment name.
+     * @throws DataNotFoundException
+     * @return mixed[]
      */
     public function findEnvironment($uuid, $env):array
     {
-        $environments = $this->cache->get('acquia.cloud.'.$uuid.'.environments', function (CacheItemInterface $item) use ($uuid) {
-            $item->expiresAfter(86400);
-            $resource = new Environments($this->plugin->getApiClient());
-            return json_decode(json_encode($resource->getAll($uuid)), true);
-        });
-
-        foreach ($environments as $environment) {
+        foreach ($this->getEnvironments($uuid) as $environment) {
             if ($environment['name'] == $env) {
                 return $environment;
             }
         }
         throw new DataNotFoundException("Cannot find Acquia application environment: $env.");
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getEnvironments(string $uuid): array {
+        return $this->cache->get('acquia.cloud.'.$uuid.'.environments', function (CacheItemInterface $item) use ($uuid) {
+            $item->expiresAfter(86400);
+            $resource = new Environments($this->plugin->getApiClient());
+            return json_decode(json_encode($resource->getAll($uuid)), true);
+        });
     }
 
     /**
