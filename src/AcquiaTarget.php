@@ -74,17 +74,19 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
 
         $this->setUri($uri ?: $environment['active_domain']);
 
-        list($user, $host) = explode('@', $environment['sshUrl'], 2);
-        // At the remote, this is what the Drush alias should be. This becomes
-        // an environment variable (e.g. $DRUSH_ALIAS).
-        $this['drush.alias'] = "@$user";
-        // Tell DrushService where the drupal site is.
-        $this['drush.root'] = "/var/www/html/$user/docroot";
-
-        $this->addRemoteTransport($user, $host);
-        $this->rebuildEnvVars();
-        $this->buildAttributes();
-
+        if ($environment['type'] == 'drupal') {
+          list($user, $host) = explode('@', $environment['sshUrl'], 2);
+          // At the remote, this is what the Drush alias should be. This becomes
+          // an environment variable (e.g. $DRUSH_ALIAS).
+          $this['drush.alias'] = "@$user";
+          // Tell DrushService where the drupal site is.
+          $this['drush.root'] = "/var/www/html/$user/docroot";
+  
+          $this->addRemoteTransport($user, $host);
+          $this->rebuildEnvVars();
+  
+          $this->buildAttributes();
+        }
         return $this;
     }
 
