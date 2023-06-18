@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia;
 
-use Drutiny\Target\InvalidTargetException;
+use Drutiny\Target\Exception\InvalidTargetException;
 use Drutiny\Target\TargetSourceInterface;
 use Drutiny\Target\TargetInterface;
 use Drutiny\Acquia\Api\CloudApi;
@@ -12,9 +12,14 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use Drutiny\Attribute\AsTarget;
 use Drutiny\Attribute\UseService;
 use Drutiny\Target\DrushTarget;
+use Drutiny\Target\Exception\TargetNotFoundException;
+use Drutiny\Target\Exception\TargetServiceUnavailable;
+use Drutiny\Target\Service\Drush;
+use Drutiny\Target\Service\ServiceInterface;
 use Drutiny\Target\Transport\SshTransport;
 use Symfony\Component\Console\Helper\ProgressBar;
 use GuzzleHttp\Exception\ClientException;
+use Symfony\Component\Process\Process;
 
 /**
  * Acquia Target
@@ -41,6 +46,18 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
 
     public function setProgressBar(ProgressBar $progressBar) {
       $this->progressBar = $progressBar;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function configureService(ServiceInterface $service): void
+    {
+      // If there is no Drupal site, then there is no point in running a drush service.
+      if ($service instanceof Drush && $this['acquia.cloud.environment.vcs[path]'] == 'tags/WELCOME') {
+        throw new TargetServiceUnavailable("Acquia target environment has the WELCOME tag deployed. There is no Drupal here.");
+      }
+      parent::configureService($service);
     }
 
     /**
@@ -84,9 +101,20 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
   
           $this->addRemoteTransport($user, $host);
           $this->rebuildEnvVars();
+
+          if ($this['acquia.cloud.environment.vcs[path]'] == 'tags/WELCOME') {
+            $this->setUri($uri ?: $environment['default_domain']);
+            $this->logger->critical("Acquia target environment has the WELCOME tag deployed. There is no Drupal here.");
+            return $this;
+          }
   
           $this->buildAttributes();
+
+          if (empty($this['drush.bootstrap'])) {
+            throw new TargetNotFoundException("Could not find Drupal settings.php file for URI: " . $this->getUri());
+          }
         }
+
         return $this;
     }
 
