@@ -109,10 +109,6 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
           }
   
           $this->buildAttributes();
-
-          if (empty($this['drush.bootstrap'])) {
-            throw new TargetNotFoundException("Could not find Drupal settings.php file for URI: " . $this->getUri());
-          }
         }
 
         return $this;
