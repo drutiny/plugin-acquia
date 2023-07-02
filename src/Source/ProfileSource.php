@@ -9,6 +9,7 @@ use Drutiny\Policy\Severity;
 use Drutiny\Profile;
 use Drutiny\ProfileFactory;
 use Drutiny\ProfileSource\AbstractProfileSource;
+use Drutiny\Settings;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -23,15 +24,18 @@ class ProfileSource extends AbstractProfileSource
 {
     use SourceTrait;
     public const API_ENDPOINT = 'jsonapi/node/profile';
+    protected string $baseUrl;
 
     public function __construct(
       protected SourceApi $client,
       protected LanguageManager $languageManager,
       AsSource $source,
       CacheInterface $cache,
-      ProfileFactory $profileFactory
+      ProfileFactory $profileFactory,
+      Settings $settings
       )
     {
+      $this->baseUrl = $settings->get('acquia.api.base_uri');
       parent::__construct(source: $source, cache: $cache, profileFactory: $profileFactory);
     }
   
@@ -43,7 +47,7 @@ class ProfileSource extends AbstractProfileSource
     {
         $list = [];
         $query = $this->getRequestParams();
-        $query['query']['fields[node--profile]'] = 'title,field_name';
+        $query['query']['fields[node--profile]'] = 'title,field_name,drupal_internal__nid';
 
         foreach ($this->client->getList($this->getApiPrefix().self::API_ENDPOINT, $query) as $item) {
           $list[$item['field_name']] = [
@@ -51,6 +55,7 @@ class ProfileSource extends AbstractProfileSource
             'title' => $item['title'],
             'uuid' => $item['uuid'],
             'language' => $languageManager->getCurrentLanguage(),
+            'uri' =>  $this->baseUrl . 'node/' . $item['drupal_internal__nid']
           ];
         }
         return $list;
@@ -69,7 +74,7 @@ class ProfileSource extends AbstractProfileSource
         $policies = Yaml::parse($fields['field_policies']);
 
         foreach ($policies as $policy_name => $info) {
-            $severity = isset($info['severity']) ? Severity::fromInt($info['severity']) : Severity::getDefault();
+            $severity = isset($info['severity']) ? Severity::fromValue($info['severity']) : Severity::getDefault();
             $policies[$policy_name]['severity'] = $severity->value;
         }
 
@@ -79,6 +84,7 @@ class ProfileSource extends AbstractProfileSource
           'uuid' => $definition['uuid'],
           'description' => $fields['field_description'] ?? '',
           'policies' => $policies,
+          'uri' => $definition['uri'],
           'include' => $fields['field_include'],
           'format' => [
             'html' => [
@@ -92,7 +98,7 @@ class ProfileSource extends AbstractProfileSource
             $dependencies = Yaml::parse($fields['field_dependencies']);
             foreach ($dependencies as $policy_name => $info) {
                 $severity = $info['severity'] ?? Severity::getDefault()->value;
-                $severity = is_numeric($severity) ? Severity::fromInt($severity)->value : Severity::from($severity)->value;
+                $severity = is_numeric($severity) ? Severity::fromValue($severity)->value : Severity::from($severity)->value;
                 $dependencies[$policy_name]['severity'] = $severity;
             }
             $definition['dependencies'] = $dependencies;
