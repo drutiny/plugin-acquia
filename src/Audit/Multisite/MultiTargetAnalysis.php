@@ -18,7 +18,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class MultiTargetAnalysis extends AbstractAnalysis {
     #[DataProvider]
     protected function auditEachSiteAsTarget(AuditFactory $auditFactory):void {
-        $results = $errors = [];
+        $results = [];
 
         $policy = $this->policy->with(
             class: $this->getParameter('class.name'),

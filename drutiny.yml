@@ -47,4 +47,4 @@ services:
         calls:
           - [getInstance]
           - [init, ['%amplitude.api_key%']]
-          - [logQueuedEvents]
+          - [setDeviceId, ['%name%']]
