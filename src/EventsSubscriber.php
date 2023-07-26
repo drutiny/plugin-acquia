@@ -2,6 +2,7 @@
 
 namespace Drutiny\Acquia;
 
+use Drutiny\Acquia\Api\Analytics;
 use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Attribute\Plugin;
 use Drutiny\Attribute\PluginField;
@@ -11,7 +12,6 @@ use Drutiny\Plugin\Question;
 use Drutiny\Report\Report;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Zumba\Amplitude\Amplitude;
 
 #[Plugin(name: 'acquia:telemetry')]
 #[PluginField(
@@ -25,7 +25,7 @@ class EventsSubscriber implements EventSubscriberInterface {
     public function __construct(
         protected CloudApi $api, 
         protected DrutinyPlugin $plugin,
-        protected Amplitude $amplitude,
+        protected Analytics $analytics,
     ) {}
 
     public static function getSubscribedEvents() {
@@ -62,23 +62,27 @@ class EventsSubscriber implements EventSubscriberInterface {
         if (!$this->plugin->isInstalled() || !$this->plugin->consent) {
             return;
         }
-        $this->amplitude->queueEvent('profle.result', [
-            'name' => $report->profile->name,
+        $this->analytics->queueEvent('report.build', [
+            'timestamp' => REQUEST_TIME,
             'report' => $report->uuid,
+            'profile' => $report->profile->name,
             'timing' => $report->timing,
             'start' => $report->reportingPeriodStart->format('c'),
-            'target' => $report->target->getTargetName()
+            'end' => $report->reportingPeriodEnd->format('c'),
+            'target' => $report->target->getTargetName(),
+            'domain' => $report->target['domain'],
         ]);
 
         foreach ($report->results as $result) {
-            $this->amplitude->queueEvent('policy.result', [
-                'name' => $result->policy->name,
+            $this->analytics->queueEvent('policy.audit', [
+                'policy' => $result->policy->name,
                 'status' => $result->getType(),
                 'report' => $report->uuid,
-                'timing' => $result->timing
+                'timing' => $result->timing,
+                'timestamp' => REQUEST_TIME,
             ]);
         }
 
-        $this->amplitude->logQueuedEvents();
+        $this->analytics->logQueuedEvents();
     }
 }
