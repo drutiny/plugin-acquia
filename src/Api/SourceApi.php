@@ -6,6 +6,7 @@ use Drutiny\Http\Client;
 use Drutiny\Settings;
 use Psr\Log\LoggerInterface;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ClientException;
 
 class SourceApi {
 
@@ -46,7 +47,15 @@ class SourceApi {
     $result = [];
     do {
       $params['query']['page[offset]'] = $offset;
-      $response = $this->get($endpoint, $params);
+
+      try {
+        $response = $this->get($endpoint, $params);
+      }
+      catch (ClientException $e) {
+        $this->logger->error("Failed to build list from $endpoint: " . $e->getMessage());
+        break;
+      }
+      
 
       foreach ($response['data'] as $row) {
           foreach ($row['relationships'] ?? [] as $field_name => $field) {

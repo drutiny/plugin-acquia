@@ -54,7 +54,7 @@ class ProfileSource extends AbstractProfileSource
             'name' => $item['field_name'],
             'title' => $item['title'],
             'uuid' => $item['uuid'],
-            'language' => $languageManager->getCurrentLanguage(),
+            'language' => LanguageMap::fromLanguageManager($languageManager)->value,
             'uri' =>  $this->baseUrl . 'node/' . $item['drupal_internal__nid']
           ];
         }
@@ -82,6 +82,7 @@ class ProfileSource extends AbstractProfileSource
           'title' => $fields['title'],
           'name' => $fields['field_name'],
           'uuid' => $definition['uuid'],
+          'language' => $definition['language'],
           'description' => $fields['field_description'] ?? '',
           'policies' => $policies,
           'uri' => $definition['uri'],
