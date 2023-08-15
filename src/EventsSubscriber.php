@@ -6,6 +6,7 @@ use Drutiny\Acquia\Api\Analytics;
 use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Attribute\Plugin;
 use Drutiny\Attribute\PluginField;
+use Drutiny\Console\Application;
 use Drutiny\Plugin as DrutinyPlugin;
 use Drutiny\Plugin\FieldType;
 use Drutiny\Plugin\Question;
@@ -26,6 +27,7 @@ class EventsSubscriber implements EventSubscriberInterface {
         protected CloudApi $api, 
         protected DrutinyPlugin $plugin,
         protected Analytics $analytics,
+        protected Application $application
     ) {}
 
     public static function getSubscribedEvents() {
@@ -61,7 +63,10 @@ class EventsSubscriber implements EventSubscriberInterface {
     public function trackReport(Report $report):void {
         if (!$this->plugin->isInstalled() || !$this->plugin->consent) {
             return;
+        
         }
+        $agent = sprintf('%s %s', $this->application->getName(), $this->application->getVersion());
+
         $this->analytics->queueEvent('report.build', [
             'timestamp' => REQUEST_TIME,
             'report' => $report->uuid,
@@ -71,6 +76,7 @@ class EventsSubscriber implements EventSubscriberInterface {
             'end' => $report->reportingPeriodEnd->format('c'),
             'target' => $report->target->getTargetName(),
             'domain' => $report->target['domain'],
+            'agent' => $agent,
         ]);
 
         foreach ($report->results as $result) {
@@ -80,6 +86,7 @@ class EventsSubscriber implements EventSubscriberInterface {
                 'report' => $report->uuid,
                 'timing' => $result->timing,
                 'timestamp' => REQUEST_TIME,
+                'agent' => $agent,
             ]);
         }
 

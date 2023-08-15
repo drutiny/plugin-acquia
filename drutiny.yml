@@ -1,9 +1,6 @@
 parameters:
     acquia.api.base_uri: https://cskb.acquia.com/
     amplitude.api_key: 85ec40a1b0b929c4bf96de44f824fc46
-    acquia.analytics.key: eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJiMjJlMjQxOGZiMzM0MTQ5YjM2OWQxZTNiODU4NDU5YzphY3F1aWE6MTgyODc4OTAxIn0.DiLfJ7R0_Aq5eI3-_vsf8ig2R0QdrULbcfVa6P_PtRY
-    acquia.analytics.secret: 85ec40a1b0b929c4bf96de44f824fc46
-
 services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

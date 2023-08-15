@@ -23,7 +23,7 @@ class Analytics {
         $stack = new HandlerStack();
         $stack->setHandler(new CurlHandler());
         $stack->push($this->signRequestHandler());
-        return new Client(['handler' => $stack, 'base_uri' => 'https://acquia.domo.com/api/iot/v1/webhook/data/']);
+        return new Client(['handler' => $stack, 'base_uri' => $this->settings->get('acquia.analytics.base_uri')]);
     }
 
     /**
@@ -42,6 +42,9 @@ class Analytics {
      * Queue event to sent to analytics.
      */
     public function queueEvent(string $name, array $properties = []):void {
+        if (!$this->settings->has('acquia.analytics.base_uri')) {
+            return;
+        }
         $this->promises[] = $this->getClient()->postAsync($this->settings->get('acquia.analytics.key'), [
             RequestOptions::JSON => [
                 'event' => $name,
