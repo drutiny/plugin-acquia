@@ -1,15 +1,15 @@
 Acquia:
   isACE: 
     description: Environment is using Acquia Cloud Enterprise
-    expression: attribute(drush, 'ac-realm') == 'prod'
+    expression: acquia.cloud.environment.platform in ['cloud', 'network', 'gardens']
     return: bool
   isDevCloud:
     description: Environment is using Acquia Developer Cloud
-    expression: attribute(drush, 'ac-realm') == 'devcloud'
+    expression: acquia.cloud.environment.platform in ['devcloud']
     return: bool
   isACSF:
     description: Environment is using Acquia Cloud Site Factory
-    expression: attribute(drush, 'ac-realm') == 'enterprise-g1'
+    expression: acquia.cloud.environment.platform in ['enterprise-g1', 'trex-prod']
     return: bool
   isSiteFactory:
     description: Environment is using Acquia Cloud Site Factory
