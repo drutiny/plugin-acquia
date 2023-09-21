@@ -50,7 +50,7 @@ class PolicySource extends AbstractPolicySource {
     $params['query']['fields[taxonomy_term--drutiny_audit_classes]'] = 'name';
     $params['query']['include'] = 'field_class';
 
-    $langcode = LanguageMap::fromLanguageManager($languageManager)->value;
+    $langcode = LanguageMap::fromLanguageManager($languageManager)->toDrutinyLangCode();
 
     foreach ($this->client->getList($this->getApiPrefix().self::API_ENDPOINT, $params) as $item) {
       $list[$item['field_name']] = [
