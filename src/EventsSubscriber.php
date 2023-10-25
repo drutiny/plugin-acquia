@@ -2,6 +2,8 @@
 
 namespace Drutiny\Acquia;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Drutiny\Acquia\Api\Analytics;
 use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Attribute\Plugin;
@@ -23,12 +25,16 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 )]
 class EventsSubscriber implements EventSubscriberInterface {
 
+    private DateTimeImmutable $requestTime;
+
     public function __construct(
         protected CloudApi $api, 
         protected DrutinyPlugin $plugin,
         protected Analytics $analytics,
         protected Application $application
-    ) {}
+    ) {
+        $this->requestTime = new DateTimeImmutable(timezone: new DateTimeZone('UTC'));
+    }
 
     public static function getSubscribedEvents() {
         return [
@@ -68,7 +74,7 @@ class EventsSubscriber implements EventSubscriberInterface {
         $agent = sprintf('%s %s', $this->application->getName(), $this->application->getVersion());
 
         $this->analytics->queueEvent('report.build', [
-            'timestamp' => REQUEST_TIME,
+            'timestamp' => $this->requestTime->format('U'),
             'report' => $report->uuid,
             'profile' => $report->profile->name,
             'timing' => $report->timing,
@@ -85,7 +91,7 @@ class EventsSubscriber implements EventSubscriberInterface {
                 'status' => $result->getType(),
                 'report' => $report->uuid,
                 'timing' => $result->timing,
-                'timestamp' => REQUEST_TIME,
+                'timestamp' => $this->requestTime->format('U'),
                 'agent' => $agent,
             ]);
         }
