@@ -9,7 +9,7 @@ Acquia:
     return: bool
   isACSF:
     description: Environment is using Acquia Cloud Site Factory
-    expression: acquia.cloud.environment.platform in ['enterprise-g1', 'trex-prod']
+    expression: acquia.cloud.application.hosting.type == 'acsf'
     return: bool
   isSiteFactory:
     description: Environment is using Acquia Cloud Site Factory
