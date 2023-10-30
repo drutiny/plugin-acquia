@@ -80,6 +80,7 @@ class PolicySource extends AbstractPolicySource {
     $definition['depends'] = !empty($fields['field_depends']) ? Yaml::parse($fields['field_depends']) : [];
     $definition['parameters'] = !empty($fields['field_parameters']) ? Yaml::parse($fields['field_parameters']) : [];
     $definition['build_parameters'] = !empty($fields['field_build_parameters']) ? Yaml::parse($fields['field_build_parameters']['value']) : [];
+    $definition['audit_build_info'] = !empty($fields['field_audit_build_info']) ? Yaml::parse($fields['field_audit_build_info']['value']) : [];
 
     if (isset($definition['parameters']['_chart'])) {
       unset($definition['parameters']['_chart']);
