@@ -32,7 +32,7 @@ class FilesPerDirectory extends Audit {
 
     // Note the trailing slash at the end of $files to ensure find works over
     // symlinks.
-    $command = Process::fromShellCommandline("find $files/ -type f -exec dirname {} \; | uniq -c | awk '\$1 > $limit'");
+    $command = Process::fromShellCommandline("find $files/ -type f | awk -F/ '{ r=\$1; for(i=2;i<=NF-1;i++) r=(r\"/\"\$i); print r;}'  | uniq -c | awk '\$1 > $limit'");
     $directories = $this->target->execute($command, function ($output) {
       $lines = array_filter(explode(PHP_EOL, $output));
       $directories = [];
