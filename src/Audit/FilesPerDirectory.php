@@ -38,7 +38,7 @@ class FilesPerDirectory extends Audit {
 
     // Note the trailing slash at the end of $files to ensure find works over
     // symlinks.
-    $command = "find $files/ -type f -exec dirname {} \; | uniq -c | awk '\$1 > $limit'";
+    $command = "find $files/ -type f | awk -F/ '{ r=\$1; for(i=2;i<=NF-1;i++) r=(r\"/\"\$i); print r;}'  | uniq -c | awk '\$1 > $limit'";
 
     // Execute and clean the output into usable data.
     $output = $sandbox->exec($command);
