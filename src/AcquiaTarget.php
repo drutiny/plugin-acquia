@@ -17,6 +17,7 @@ use Drutiny\Target\Exception\TargetServiceUnavailable;
 use Drutiny\Target\Service\Drush;
 use Drutiny\Target\Service\ServiceInterface;
 use Drutiny\Target\Transport\SshTransport;
+use Drutiny\Target\Transport\TransportInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\Process\Process;
@@ -99,7 +100,8 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
           // Tell DrushService where the drupal site is.
           $this['drush.root'] = "/var/www/html/$user/docroot";
   
-          $this->addRemoteTransport($user, $host);
+          // We need to load the Transport early to load drush attributes correctly.
+          $this->transport = $this->loadTransport();
           $this->rebuildEnvVars();
 
           if ($this['acquia.cloud.environment.vcs[path]'] == 'tags/WELCOME') {
@@ -155,14 +157,24 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     /**
      * Setup SSH based remote exection service.
      */
-    protected function addRemoteTransport($user, $host):void
+    protected function addRemoteTransport($user, $host):TransportInterface
     {
         // Don't need to setup transport if its already handled be an extending class.
         if ($this->transport instanceof SshTransport) {
-          return;
+          return $this->transport;
         }
-        $this->transport = new SshTransport($this->localCommand);
-        $this->transport->setConfig('User', $user);
-        $this->transport->setConfig('Host', $host);
+        $transport = new SshTransport($this->localCommand);
+        $transport->setConfig('User', $user);
+        $transport->setConfig('Host', $host);
+        return $transport;
+    }
+
+    protected function loadTransport(): TransportInterface
+    {
+      if ($this['acquia.cloud.environment']['type'] == 'drupal') {
+        list($user, $host) = explode('@', $this['acquia.cloud.environment']['sshUrl'], 2);
+        return $this->addRemoteTransport($user, $host);
+      }
+      return parent::loadTransport();
     }
 }
