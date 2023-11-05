@@ -2,64 +2,30 @@
 
 namespace Drutiny\Acquia\Audit;
 
+use Drutiny\Acquia\Api\CloudApi;
+use Drutiny\Attribute\DataProvider;
 use Drutiny\Audit\AuditValidationException;
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\Deprecated;
+use Drutiny\Attribute\Parameter;
 
 /**
  * 
  */
+#[Deprecated('Use ' . CloudApiAnalysis::class)]
+#[Parameter('metrics', enums: [
+  'apache-requests', 'bal-cpu', 'bal-memory', 'cron-memory', 'db-cpu', 'db-disk-size', 'db-disk-usage', 'db-memory', 'file-disk-size', 'file-cpu', 'file-disk-usage', 'file-memory', 'http-2xx', 'http-3xx', 'http-4xx', 'http-5xx', 'mysql-slow-query-count', 'nginx-requests', 'out-of-memory', 'php-proc-max-reached-site', 'php-proc-max-reached-total', 'php-proc-site', 'php-proc-total', 'varnish-cache-hit-rate', 'varnish-requests', 'web-cpu', 'web-memory'
+], description: 'A metric to pull.')]
+#[Parameter('chart-type','The type of graph, either bar or line.', enums: ['bar', 'line'] )]
+#[Parameter('chart-height', 'The height of the graph in pixels.')]
+#[Parameter('chart-width', 'The width of the graph in pixels.')]
+#[Parameter('y-axis-label', 'Custom label for the y-axis.', default: 'Percentage')]
+#[Parameter('stacked', 'Determines whether or not the graph data should be stacked.',)]
+#[Parameter('maintain-aspect-ratio', '')]
 class StackMetrics extends CloudApiAnalysis {
 
 
-    public function configure():void
-    {
-        
-        $this->setDeprecated('Use ' . CloudApiAnalysis::class);
-
-        $this->addParameter(
-          'metrics',
-          static::PARAMETER_OPTIONAL,
-          'one of apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory '
-        );
-        $this->addParameter(
-          'chart-type',
-          static::PARAMETER_OPTIONAL,
-          'The type of graph, either bar or line.',
-          'bar'
-        );
-        $this->addParameter(
-          'chart-height',
-          static::PARAMETER_OPTIONAL,
-          'The height of the graph in pixels.'
-        );
-        $this->addParameter(
-          'chart-width',
-          static::PARAMETER_OPTIONAL,
-          'The width of the graph in pixels.'
-        );
-        $this->addParameter(
-          'y-axis-label',
-          static::PARAMETER_OPTIONAL,
-          'Custom label for the y-axis.',
-          'Percentage'
-        );
-        $this->addParameter(
-          'stacked',
-          static::PARAMETER_OPTIONAL,
-          'Determines whether or not the graph data should be stacked.',
-        );
-        $this->addParameter(
-          'maintain-aspect-ratio',
-          static::PARAMETER_OPTIONAL,
-          '',
-        );
-        parent::configure();
-    }
-
-  /**
-   * @inheritdoc
-   */
-  public function gather(Sandbox $sandbox) {
+  #[DataProvider]
+  public function gather(CloudApi $api) {
     $env = $this->target['acquia.cloud.environment.id'];
 
     $metrics = $this->getParameter('metrics');
@@ -79,7 +45,7 @@ class StackMetrics extends CloudApiAnalysis {
       $resolution = 'day';
     }
 
-    $response = $this->call(verb: 'get', path: "/environments/{acquia.cloud.environment.uuid}/metrics/stackmetrics/data", options: [
+    $response = $this->call($api, verb: 'get', path: "/environments/{acquia.cloud.environment.uuid}/metrics/stackmetrics/data", options: [
       'query' => [
         'filter' => implode(',', array_map(function ($metric) {
           return 'metric:' . $metric;

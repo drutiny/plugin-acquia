@@ -2,18 +2,20 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Deprecated;
 
 /**
  * Retrieve all custom environment variables for a particular Acquia Cloud environment.
  */
+#[Deprecated]
 class EnvironmentVariableAnalysis extends EnvironmentAnalysis {
 
   /**
    * @inheritdoc
    */
-  public function gather(Sandbox $sandbox) {
-    parent::gather($sandbox);
+  #[DataProvider(1)]
+  public function gatherEnvVars() {
 
     // Grab the environment and sitegroup name
     $app = $this->target['acquia.cloud.application']->export();

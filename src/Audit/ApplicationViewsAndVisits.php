@@ -2,30 +2,28 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Acquia\Api\CloudApi;
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Parameter;
+use Drutiny\Attribute\Deprecated;
+use Drutiny\Attribute\Type;
 
 /**
  * Supply data around application views and visits.
  */
+#[Parameter(
+  name: 'from',
+  description: 'A relative interval from the reporting-period-end to calculate the ApplicationUsageData from.',
+  default: '-1 month',
+  type: Type::STRING,
+)]
+#[Deprecated]
 class ApplicationViewsAndVisits extends CloudApiAnalysis {
-
-  public function configure():void
-  {
-    $this->setDeprecated();
-    $this->addParameter(
-      'from',
-      static::PARAMETER_OPTIONAL,
-      'A relative interval from the reporting-period-end to calculate the ApplicationUsageData from.',
-      '-1 month'
-    );
-    parent::configure();
-  }
 
   /**
    * @inheritdoc
    */
-  public function gather(Sandbox $sandbox) {
+  #[DataProvider(-1)]
+  public function gatherViewsAndVisits() {
     // Use the from parameter if present, otherwise base the from date based
     // on the reporting period start time.
     $from = $this->get('from') ? date('c', strtotime($this->get('from'))) : $this->reportingPeriodStart->format('c');
@@ -45,6 +43,5 @@ class ApplicationViewsAndVisits extends CloudApiAnalysis {
     ];
     $this->setParameter('calls', $calls);
     $this->setParameter('is_legacy', true);
-    parent::gather($sandbox);
   }
 }

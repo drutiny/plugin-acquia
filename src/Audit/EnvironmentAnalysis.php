@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.
@@ -15,10 +15,8 @@ class EnvironmentAnalysis extends CloudApiAnalysis {
     $this->setDeprecated();
   }
 
-  /**
-   * @inheritdoc
-   */
-  public function gather(Sandbox $sandbox) {
+  #[DataProvider(-1)]
+  public function gatherAllData() {
 
     $calls['cron'] = [
       'path' => '/environments/{acquia.cloud.environment.uuid}/crons'
@@ -66,6 +64,5 @@ class EnvironmentAnalysis extends CloudApiAnalysis {
     $this->set('environment', $this->target['acquia.cloud.environment']);
     $this->setParameter('is_legacy', true);
     $this->setParameter('calls', $calls);
-    parent::gather($sandbox);
   }
 }

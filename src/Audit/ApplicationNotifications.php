@@ -2,23 +2,17 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Deprecated;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.
  */
+#[Deprecated]
 class ApplicationNotifications extends CloudApiAnalysis {
 
-  public function configure():void
-  {
-    parent::configure();
-    $this->setDeprecated();
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function gather(Sandbox $sandbox) {
+  #[DataProvider(-1)]
+  public function gatherNotifications() {
     $filters = [
       'created_at>=' . $this->reportingPeriodStart->format('c'),
       'created_at<=' . $this->reportingPeriodEnd->format('c'),
@@ -32,6 +26,5 @@ class ApplicationNotifications extends CloudApiAnalysis {
     ];
     $this->setParameter('calls', $calls);
     $this->setParameter('is_legacy', true);
-    parent::gather($sandbox);
   }
 }

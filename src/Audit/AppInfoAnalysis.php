@@ -2,17 +2,21 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Acquia\Api\CloudApi;
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Deprecated;
 
 /**
  * Ensure an environment has custom domains set.
  */
+#[Deprecated]
 class AppInfoAnalysis extends CloudApiAnalysis {
 
   /**
    * @inheritdoc
    */
-  public function gather(Sandbox $sandbox) {
+  #[DataProvider(-1)]
+  public function gatherAppInfo() {
     $calls['teams'] = [
       'path' => "/applications/{acquia.cloud.application.uuid}/teams",
     ];
@@ -25,11 +29,15 @@ class AppInfoAnalysis extends CloudApiAnalysis {
 
     $this->setParameter('calls', $calls);
     $this->setParameter('is_legacy', true);
-    parent::gather($sandbox);
+
+  }
+
+  #[DataProvider(1)]
+  public function processAppInfo(CloudApi $api) {
 
     $members = [];
     foreach ($this->get('teams')['_embedded']['items'] as $team) {
-      $team_members = $this->call(path: "/teams/{$team->uuid}/members", options: [
+      $team_members = $this->call($api, path: "/teams/{$team->uuid}/members", options: [
         'query' => ['limit' => 100]
       ]);
 
@@ -45,5 +53,4 @@ class AppInfoAnalysis extends CloudApiAnalysis {
 
     $this->set('members', $members);
   }
-
 }

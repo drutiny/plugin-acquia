@@ -2,19 +2,15 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
 
 /**
  * Adds the database size to the database result set.
  */
 class DatabaseAnalysis extends EnvironmentAnalysis {
 
-  /**
-   * @inheritdoc
-   */
-  public function gather(Sandbox $sandbox) {
-    parent::gather($sandbox);
-
+  #[DataProvider(1)]
+  public function gatherTableData() {
     $data = $this->get('databases');
 
     $sql = "SELECT CONCAT(TABLE_SCHEMA, ':', ROUND(SUM(data_length + index_length) / 1024 / 1024, 1)) as size
@@ -32,7 +28,7 @@ class DatabaseAnalysis extends EnvironmentAnalysis {
       $db_sizes[$db[0]] = $db[1];
     }
 
-    $this->set('databases', array_map(function ($database) use ($sandbox, $db_sizes) {
+    $this->set('databases', array_map(function ($database) use ($db_sizes) {
       // Extract the machine_name from the db_url.
       $strArray = explode('/',$database->url);
       $db_machine_name = end($strArray);
@@ -41,7 +37,6 @@ class DatabaseAnalysis extends EnvironmentAnalysis {
       $database->size = array_key_exists($db_machine_name, $db_sizes) ? $db_sizes[$db_machine_name] : 0;
       return $database;
     }, $data['_embedded']['items']));
-
   }
 
 }

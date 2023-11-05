@@ -2,44 +2,27 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
-use Drutiny\Credential\Manager;
-use Drutiny\Acquia\CloudApiDrushAdaptor;
-use Drutiny\Acquia\CloudApiV2;
-
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Parameter;
+use Drutiny\Attribute\Type;
 
 /**
  * Audit the usage of the filesystem.
  */
+#[Parameter(
+  name: 'unit', 
+  description: 'the unit of measurement to describe the volume usage in. E.g. B,M,G,T.', 
+  mode: Parameter::OPTIONAL,
+  default: 'G',
+  type: Type::STRING,
+  enums: ['B', 'M', 'G', 'T'],
+)]
 class FilesystemAnalysis extends EnvironmentAnalysis
 {
 
-
-    public function configure():void
+    #[DataProvider(1)]
+    public function gatherFileSystemData()
     {
-      
-      $this->addParameter(
-          'unit',
-          static::PARAMETER_OPTIONAL,
-          'the unit of measurement to describe the volume usage in. E.g. B,M,G,T.',
-          'G'
-      );
-      $this->addParameter(
-          'filesystem',
-          static::PARAMETER_OPTIONAL,
-          'the storage usage information for both disk and inodes.',
-          ''
-      );
-      parent::configure();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function gather(Sandbox $sandbox)
-    {
-        parent::gather($sandbox);
-
         $unit = $this->getParameter('unit', "G");
 
         $app = $this->get('app');

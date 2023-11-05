@@ -4,40 +4,18 @@ namespace Drutiny\Acquia\Audit;
 
 use AcquiaCloudApi\Connector\Client;
 use Drutiny\Acquia\Api\CloudApi;
-use Drutiny\Attribute\UseService;
+use Drutiny\Attribute\DataProvider;
+use Drutiny\Attribute\Parameter;
+use Drutiny\Attribute\Type;
 use Drutiny\Audit\AbstractAnalysis;
-use Drutiny\Sandbox\Sandbox;
 use Psr\Cache\CacheItemInterface;
 
-#[UseService(CloudApi::class, 'setCloudApi')]
+#[Parameter('calls','An array of API calls to make to the Cloud API.', mode: Parameter::REQUIRED, type: Type::HASH, default: [])]
+#[Parameter('is_legacy', 'A boolean flag indicating if the policy is legacy.', mode: Parameter::OPTIONAL, default: false, type: Type::BOOLEAN)]
 class CloudApiAnalysis extends AbstractAnalysis {
 
-    protected CloudApi $api;
-
-    public function setCloudApi(CloudApi $api)
-    {
-        $this->api = $api;
-    }
-
-    public function configure():void
-    {
-        parent::configure();
-        
-        $this->addParameter(
-            'is_legacy',
-            static::PARAMETER_OPTIONAL,
-            'A boolean flag indicating if the policy is legacy.',
-            false
-        );
-        $this->addParameter(
-            'calls',
-            static::PARAMETER_IS_ARRAY | static::PARAMETER_OPTIONAL,
-            'An array of API calls to make to the Cloud API.',
-            []
-        );
-    }
-
-    protected function gather(Sandbox $sandbox)
+    #[DataProvider]
+    protected function gather(CloudApi $api)
     {
         $this->set('drush', $this->target['drush']->export());
         $this->set('app', $this->target['acquia.cloud.application']->export());
@@ -47,7 +25,7 @@ class CloudApiAnalysis extends AbstractAnalysis {
                 $this->logger->error("$name should be an array containing a path and optionally a verb (e.g. GET) or an options array. Skipping.");
                 continue;
             }
-            $response = $this->call(...$call);
+            $response = $this->call($api, ...$call);
             
             if ($this->getParameter('is_legacy')) {
                 $response = ['_embedded' => ['items' => (array) $response]];
@@ -60,14 +38,14 @@ class CloudApiAnalysis extends AbstractAnalysis {
     /**
      * Make a call to Acquia Cloud API.
      */
-    protected function call(string $path, string $verb = 'get', array $options = []) {
+    protected function call(CloudApi $api, string $path, string $verb = 'get', array $options = []) {
         // Allow variable replacement inside of path calls.
         $path = $this->interpolate($path);
         $call = new CloudApiAnalysisCall(verb: $verb, path: $path, options: $options);
 
-        return $this->cache->get($call->getCacheKey(), function (CacheItemInterface $cache) use ($call) {
+        return $this->cache->get($call->getCacheKey(), function (CacheItemInterface $cache) use ($call, $api) {
             $cache->expiresAfter(120);
-            $client = $this->api->getApiClient();
+            $client = $api->getApiClient();
             $call->addQuery($client);
             return $client->request($call->verb, $call->path, $call->options);
         });
