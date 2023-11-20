@@ -9,6 +9,7 @@ use Drutiny\Acquia\Api\CloudApi;
 use Drutiny\Attribute\Plugin;
 use Drutiny\Attribute\PluginField;
 use Drutiny\Console\Application;
+use Drutiny\Console\Helper\User;
 use Drutiny\Plugin as DrutinyPlugin;
 use Drutiny\Plugin\FieldType;
 use Drutiny\Plugin\Question;
@@ -21,7 +22,8 @@ use Symfony\Component\EventDispatcher\GenericEvent;
   name: 'consent',
   description: "Enable anonymous sharing of usage and performance data with Acquia",
   type: FieldType::CONFIG,
-  ask: Question::CONFIRMATION
+  ask: Question::CONFIRMATION,
+  validation: 'is_bool'
 )]
 class EventsSubscriber implements EventSubscriberInterface {
 
@@ -31,7 +33,8 @@ class EventsSubscriber implements EventSubscriberInterface {
         protected CloudApi $api, 
         protected DrutinyPlugin $plugin,
         protected Analytics $analytics,
-        protected Application $application
+        protected Application $application,
+        protected User $user
     ) {
         $this->requestTime = new DateTimeImmutable(timezone: new DateTimeZone('UTC'));
     }
@@ -71,7 +74,7 @@ class EventsSubscriber implements EventSubscriberInterface {
             return;
         
         }
-        $agent = sprintf('%s %s', $this->application->getName(), $this->application->getVersion());
+        $agent = sprintf('%s %s (%s)', $this->application->getName(), $this->application->getVersion(), $this->user->getIdentity());
 
         $this->analytics->queueEvent('report.build', [
             'timestamp' => $this->requestTime->format('U'),
