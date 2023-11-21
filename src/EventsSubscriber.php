@@ -74,6 +74,10 @@ class EventsSubscriber implements EventSubscriberInterface {
             return;
         
         }
+        // Ignore batch audits triggered by report streaming in profile:run.
+        if ($report->profile->name == '_policy_audit_batch') {
+            return;
+        }
         $agent = sprintf('%s %s (%s)', $this->application->getName(), $this->application->getVersion(), $this->user->getIdentity());
 
         $this->analytics->queueEvent('report.build', [
