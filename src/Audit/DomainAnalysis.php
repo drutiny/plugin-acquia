@@ -2,7 +2,7 @@
 
 namespace Drutiny\Acquia\Audit;
 
-use Drutiny\Sandbox\Sandbox;
+use Drutiny\Attribute\DataProvider;
 
 /**
  * Check to ensure Production Mode is enabled on Acquia Cloud.
@@ -12,8 +12,8 @@ class DomainAnalysis extends EnvironmentAnalysis {
   /**
    * @inheritdoc
    */
-  public function gather(Sandbox $sandbox) {
-    parent::gather($sandbox);
+  #[DataProvider(1)]
+  public function gatherDNS() {
 
     $env = $this->getParameter('environment');
     $this->set('domains', array_map(function ($domain) {
