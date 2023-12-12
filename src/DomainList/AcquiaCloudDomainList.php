@@ -9,10 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @Param(
- *   name = "custom-only",
- *   description = "Boolean indicator to use only custom domains.",
- * )
+ * Load domains from Acquia Cloud
  */
 #[Name('acquia')]
 class AcquiaCloudDomainList extends AbstractDomainList {
