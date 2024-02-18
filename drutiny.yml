@@ -14,6 +14,8 @@ services:
 
     Drutiny\Acquia\AcquiaTarget:
       tags: [target]
+    Drutiny\Acquia\AcliTarget:
+      tags: [target]
 
     Drutiny\Acquia\Api\Analytics:
 
@@ -23,6 +25,11 @@ services:
 
     acquia.cloud.api:
       class: Drutiny\Acquia\Api\CloudApi
+
+    Drutiny\Acquia\Api\CloudApiInterface:
+      class: Drutiny\Acquia\Api\CloudApi
+
+    Drutiny\Acquia\Api\AcquiaCli:
 
     acquia.lift.api:
       class: Drutiny\Acquia\Api\LiftProfileManagerClient

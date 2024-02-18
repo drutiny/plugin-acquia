@@ -5,48 +5,38 @@ namespace Drutiny\Acquia;
 use Drutiny\Target\Exception\InvalidTargetException;
 use Drutiny\Target\TargetSourceInterface;
 use Drutiny\Target\TargetInterface;
-use Drutiny\Acquia\Api\CloudApi;
-use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Exception\ApiErrorException;
+use Drutiny\Acquia\Api\AcquiaCli;
 use Drutiny\Attribute\AsTarget;
 use Drutiny\Attribute\UseService;
 use Drutiny\Target\DrushTarget;
-use Drutiny\Target\Exception\TargetNotFoundException;
 use Drutiny\Target\Exception\TargetServiceUnavailable;
 use Drutiny\Target\Service\Drush;
 use Drutiny\Target\Service\ServiceInterface;
 use Drutiny\Target\Transport\SshTransport;
 use Drutiny\Target\Transport\TransportInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
-use GuzzleHttp\Exception\ClientException;
-use Symfony\Component\Process\Process;
 
 /**
  * Acquia Target
  */
-#[AsTarget(name: 'acquia')]
-#[UseService(CloudApi::class, 'setCloudApi')]
-#[UseService(ProgressBar::class, 'setProgressBar')]
-class AcquiaTarget extends DrushTarget implements TargetSourceInterface
+#[UseService(AcquiaCli::class, 'setAcquiaCli')]
+#[AsTarget(name: 'acli')]
+class AcliTarget extends DrushTarget implements TargetSourceInterface
 {
-    protected CloudApi $api;
-    protected ProgressBar $progressBar;
+    protected AcquiaCli $api;
 
     /**
      * {@inheritdoc}
      */
     public function getId():string
     {
-      return $this['acquia.cloud.environment.uuid'] ?? $this['acquia.cloud.environment.id'];
+      return $this['alias'];
     }
 
-    public function setCloudApi(CloudApi $api) {
+    /**
+     * Setter callback for Acquia CLI service.
+     */
+    public function setAcquiaCli(AcquiaCli $api) {
       $this->api = $api;
-    }
-
-    public function setProgressBar(ProgressBar $progressBar) {
-      $this->progressBar = $progressBar;
     }
 
     /**
@@ -56,7 +46,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     {
       // If there is no Drupal site, then there is no point in running a drush service.
       if ($service instanceof Drush && $this['acquia.cloud.environment.vcs[path]'] == 'tags/WELCOME') {
-        throw new TargetServiceUnavailable("Acquia target environment has the WELCOME tag deployed. There is no Drupal here.");
+        throw new TargetServiceUnavailable("Acquia CLI target environment has the WELCOME tag deployed. There is no Drupal here.");
       }
       parent::configureService($service);
     }
@@ -66,24 +56,26 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
      */
     public function parse(string $alias, ?string $uri = null): TargetInterface
     {
-        $uuid = $alias;
-        $is_uuid = preg_match('/^(([a-z0-9]+)-){5}([a-z0-9]+)$/', $uuid);
-
-        // Look for Acquia Cloud API v2 UUID.
-        if (!$is_uuid && !preg_match('/(prod|network|devcloud|enterprise-g1):([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)/', $alias, $matches)) {
-            throw new InvalidTargetException("Unknown target data: $alias.");
+        if (str_starts_with($alias, '@')) {
+          $alias = substr($alias, 1);
         }
+        if (!str_contains($alias, '.')) {
+          throw new InvalidTargetException("Incorrect format. Acquia CLI target must use alias syntax: appname.env");
+        }
+        $this['alias'] = $alias;
+        list($app, $env) = explode('.', $alias);
+        
+        $realm = 'prod';
+        if (str_contains($app, ':')) {
+          list($realm, $app) = explode(':', $app);
+        }
+
+        $this['alias'] = $alias;
 
         $this->logger->info('Loading environment from API...');
-        if ($is_uuid) {
-          $environment = $this->api->getEnvironment($uuid);
-          $application = $this->api->getApplication($environment['application']['uuid']);
-        }
-        else {
-          list(, $realm, $app, $env) = $matches;
-          $application = $this->api->findApplication($realm, $app);
-          $environment = $this->api->findEnvironment($application['uuid'], $env);
-        }
+        $application = $this->api->findApplication($realm, $app);
+        $environment = $this->api->findEnvironment($application['uuid'], $env);
+
         $this->api->mapToTarget($application, $this, 'acquia.cloud.application');
         $this->api->mapToTarget($environment, $this, 'acquia.cloud.environment');
 
@@ -93,7 +85,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
         $this->setUri($uri ?: $environment['active_domain']);
 
         if ($environment['type'] == 'drupal') {
-          list($user, $host) = explode('@', $environment['sshUrl'], 2);
+          list($user, $host) = explode('@', $environment['ssh_url'], 2);
           // At the remote, this is what the Drush alias should be. This becomes
           // an environment variable (e.g. $DRUSH_ALIAS).
           $this['drush.alias'] = "@$user";
@@ -122,35 +114,19 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     public function getAvailableTargets():array
     {
       $targets = [];
-      $resource = new Applications($this->api->getApiClient());
-      $applications = $resource->getAll();
-      $this->progressBar->start(count($applications));
+      $applications = $this->api->runApiCommand('api:applications:list');
       foreach ($applications as $app) {
-        $this->logger->notice("Building environment targets for {$app->name}.");
+        $this->logger->notice("Building environment targets for {$app['name']}.");
 
-        try {
-          $resource = new Environments($this->api->getApiClient());
-          $environments = $resource->getAll($app->uuid);
-
-          foreach ($environments as $env) {
-            $targets[] = [
-              'id' => $app->hosting->id . '.' . $env->name,
-              'uri' => $env->active_domain,
-              'name' => sprintf('%s: %s', $env->label, $app->name),
-            ];
-          }
+        $environments = $this->api->runApiCommand('api:applications:environment-list', [$app['uuid']]);
+        foreach ($environments as $env) {
+          $targets[] = [
+            'id' => $app['hosting']['id'] . '.' . $env['name'],
+            'uri' => $env['active_domain'],
+            'name' => sprintf('%s: %s', $env['label'], $app['name']),
+          ];
         }
-        catch (ClientException $e) {
-          $res = json_decode($e->getResponse()->getBody(), true);
-          $this->logger->error("{$app->name}: {$res->message}");
-        }
-        catch (ApiErrorException $e) {
-          $this->logger->warning($app->name .": ".$e->getMessage());
-        }
-
-        $this->progressBar->advance();
       }
-      $this->progressBar->finish();
       return $targets;
     }
 
@@ -175,7 +151,7 @@ class AcquiaTarget extends DrushTarget implements TargetSourceInterface
     protected function loadTransport(): TransportInterface
     {
       if ($this['acquia.cloud.environment']['type'] == 'drupal') {
-        list($user, $host) = explode('@', $this['acquia.cloud.environment']['sshUrl'], 2);
+        list($user, $host) = explode('@', $this['acquia.cloud.environment']['ssh_url'], 2);
         return $this->addRemoteTransport($user, $host);
       }
       return parent::loadTransport();

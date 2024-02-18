@@ -30,7 +30,7 @@ use Symfony\Contracts\Cache\CacheInterface;
    description: 'Your API secret to connect to the Acquia Cloud API v2 with:',
    type: FieldType::CREDENTIAL
  )]
-class CloudApi extends Connector
+class CloudApi extends Connector implements CloudApiInterface
 {
     public function __construct(
       protected AcquiaCloudPlugin $plugin,
