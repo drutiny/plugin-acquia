@@ -13,7 +13,11 @@ trait SourceTrait {
       return $lang_code == 'en' ? '/' : $lang_code.'/';
   }
 
-  protected function getRequestParams()
+  /**
+   * @return array<string, mixed>
+   *  The request parameters to be used in the request.
+   */
+  protected function getRequestParams(): array
   {
     return ['query' => [
       'filter[status][value]' => 1,
