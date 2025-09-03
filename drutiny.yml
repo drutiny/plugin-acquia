@@ -1,6 +1,8 @@
 parameters:
     acquia.api.base_uri: https://cskb.acquia.com/
     amplitude.api_key: 85ec40a1b0b929c4bf96de44f824fc46
+    acquia.policy.library.fs: policy
+    acquia.profile.library.fs: profile
 services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
